@@ -48,15 +48,16 @@ If FlowSES sign-in fails because the customer's account is not a member, an ADMI
 
 ## 1. 会社台帳 (`companies`)
 
-Goal: the partner companies the customer trades with are in the ledger, with 配信先 and 担当者.
+Goal: the partner companies the customer trades with are in the ledger, with 配信先, 担当者, and 配信受付.
 
 1. Call `list_companies` to see what already exists. Say how many companies there are.
-2. Ask for the partner list in one message. Accept any of: pasted text, a CSV or Excel file, or "連絡先から拾って". Columns that help: 会社名, ドメイン, 配信先メール, 担当者名, 担当者メール. No mail is ingested yet at this point, so do not build the list from mail senders.
+2. Ask for the partner list in one message. Accept any of: pasted text, a CSV or Excel file, or "連絡先から拾って". Columns that help: 会社名, ドメイン, 配信先メール, 担当者名, 担当者メール, 配信受付 (whether the company declines 案件配信 or 要員配信). In the same message, ask which partners do not want 案件配信 or 要員配信 from the customer; most accept both. No mail is ingested yet at this point, so do not build the list from mail senders.
    - "連絡先から拾って": call `search_mail_contacts` with no filter to read the customer's own Outlook or Google contacts. Group them by company name and email domain, drop the customer's own domains (会社設定のログインドメイン) and consumer domains such as gmail.com, and show the candidates as a table (会社名, ドメイン, 担当者). The customer picks which are partners. If there are few or no contacts, say so and ask for a pasted list instead.
 3. Show the parsed list as a short table and ask for one OK. Fix what the customer corrects.
 4. Register every company first, skipping what already exists:
    1. `ensure_company` with the display name and the parent domain (no consumer domains such as gmail.com).
    2. `add_company_contact`: the distribution address with `distributionRecipient: true`, `listedContact: false`; each 担当者 with `listedContact: true`.
+   3. Only for a company that declines 案件配信 or 要員配信: `set_company_distribution_acceptance` with `projectDistributionAccepted: false` or `candidateDistributionAccepted: false`. A new company accepts both, so skip this call for the others. Distribution drafts then leave that company out.
 
    Report the count registered, the count skipped as already present, and any failures with the reason. A failure on one company does not stop the rest.
 5. Before asking about sorting, read how the customer's mail is sorted now: Outlook `list_outlook_mail_folders` (受信トレイ and 送信済みアイテム, with subfolders) and `list_outlook_rules`; Gmail `list_gmail_labels` and `list_gmail_filters`. Sorting is already set when folders (labels) named after the registered companies exist, or rules (filters) match their domains.
@@ -146,26 +147,31 @@ Goal: partner companies that share their 案件・要員 in a Google Spreadsheet
 
 ## 5. マッチングの指示
 
-Goal: the scheduled マッチング作成 narrows and judges pairs the way this customer does. The customer's answers are saved as two instructions for the AI in 会社設定の「マッチングの指示」: 絞り込み方 (how to narrow the counterpart search) and 比較の仕方 (how to judge a found pair). `flow-ses:evaluate-project-matchings` and `flow-ses:evaluate-candidate-matchings` read them with `get_matching_instructions` at the start of every run and follow them over their own rules. `get_onboarding_status` does not track this step: call `get_matching_instructions`, and if either field has text (`updatedAt` is set), show it and ask whether to change it; if no, go to 6. When resuming at 定期実行 and both are empty, ask once whether マッチングの指示 is done.
+Goal: the scheduled マッチング作成 narrows, judges, and writes reasons the way this customer does. The matching skills' own rules are the defaults (共通の決まり). The customer's changes are saved as three instructions for the AI in 会社設定の「マッチングの指示」: 絞り込み方 (how to narrow the counterpart search), 比較の仕方 (how to judge a found pair), and 理由の書き方 (how to write the matching reason). `flow-ses:evaluate-project-matchings` and `flow-ses:evaluate-candidate-matchings` read them with `get_matching_instructions` at the start of every run and follow them over the defaults. `get_onboarding_status` does not track this step: call `get_matching_instructions`, and if any field has text (`updatedAt` is set), show it and ask whether to change it; if no, go to 6. When resuming at 定期実行 and all three are empty, ask once whether マッチングの指示 is done.
 
-1. 絞り込み方. Show how the counterpart search is narrowed today, in plain words, and ask in one message which of these the customer wants different:
+Say first, in one message, that the AI already has default rules, that you will show them one item at a time, and that only answers that differ from the default are saved. Then ask about each item below one at a time, in plain words: show the default and ask 「このままでよいですか。変えますか。使わないですか。」 (for an item the defaults do not have, ask whether to add it). Wait for each answer before the next item. When the customer says 「あとは全部このままで」, stop asking and keep the defaults for the rest.
+
+1. 絞り込み方 (stored conditions, in this order):
    - 年齢・性別・個人事業主・外国籍: 案件に条件があれば、合わない要員は候補にしない（要員側が未記載なら残す）
    - 開始月: 案件の開始月までに入れる要員だけ
    - 稼働率・出社日数: 案件と要員で重なるときだけ
    - 商流: 案件の商流制限より深い所属の要員は候補にしない（不明は残す）
    - エリア: 出社がある案件は、同じエリアと隣のエリアの要員だけ（未記載は残す）
    - スキル: 案件のスキル名（技術・業務・役割）を組み合わせて探し、見つからなければ上位スキルまで広げる
-   - マージン: 案件単価の上限 − 要員単価の下限 が5万円以上（どちらかが単価相談可なら3万円以上）。税別の月額で比べる
-   - 派遣契約必須の案件: マッチングしない
-2. 比較の仕方. Show how a found pair is judged today, after reading both overviews and the skill sheet, and ask in one message which of these the customer wants different:
+   - 単価とマージン (ask together as one item): 既定は、月単価は月単価同士、時給は時給同士で比べ、案件の上限が要員の下限以上なら候補にする（差が0円でも可、換算はしない）。月単価と時給の組み合わせや、単価が書かれていないものは比べずに残す。Ask whether that is OK, then whether to require a margin (差を何円以上残すか). When yes, ask the amount for 月単価, the amount for 時給 (or 時給の案件ではマージンを見ない), and whether 単価相談可 uses a smaller amount.
+   - 派遣契約必須の案件 (not in the defaults): 既定では見ていない。Ask whether to stop matching 派遣契約必須 projects.
+2. 比較の仕方 (after reading both overviews and the skill sheet):
    - 通勤: 出社がある案件で、片道おおむね2時間を超えるなら作らない
    - 経験年数: 必須の年数に届かなければ作らない（未記載は不一致にしない）
    - 主業務と売り方: 言語が同じでも、案件の主な仕事と要員の経験・売り方の方向が違えば作らない
-   - スキルシートが無い要員: 概要だけで明らかに合うときだけ作る
    - ほかに、作りたくない組み合わせ（例: 金融系の案件に外国籍の要員）
-   Same-company pairs, existing pairs, and 募集終了 records are never matched; say these do not change.
-3. Write each answer as short Japanese sentences addressed to the AI, only for what differs from the rules above (例: 絞り込み方に「マージンは6万円以上、単価相談可は4万円以上にする。」、比較の仕方に「通勤は片道1時間半までにする。」). Put rules on stored conditions (the list in 1: 単価・マージン, 派遣契約必須, 年齢 and the rest) in 絞り込み方, and rules that need reading the overviews or the skill sheet (the list in 2) in 比較の仕方; never mix them. Leave a field empty when nothing differs. Do not copy partner or person names. Show both texts for one OK and fix what the customer corrects.
-4. Save with `set_matching_instructions` (`filterInstructions`, `comparisonInstructions`; ADMIN only). If the customer wants no changes at all, save nothing and say the shared rules are used. Show the 会社設定 `url` from `get_onboarding_status` (the `organization` step) as a link and say they can change the instructions there at any time, or by asking for マッチングの指示の変更.
+3. 理由の書き方 (the matching reason is pasted into the partner proposal mail as 「マッチング理由：」):
+   - 書く内容: 合っているスキルと、書かれていれば経験年数。単価相談可のときはその一言。足りないスキルがあればご確認のお願い
+   - 長さ: 1〜3文
+   - ほかに、書き方の希望（例: 最初の1文で一番合う点を書く、稼働開始にも触れる）
+4. Say that these do not change and are not asked: 同じ会社同士・既にあるマッチング・募集終了は作らない、微妙なものは作らない（スキルシートが無いか読めないときは概要だけで明らかに合うときだけ作る）、概要やスキルシートで必須が明らかに合わないものは外す、理由はです・ます調で文ごとに改行し、会社の関係やスコアは書かない.
+5. Write each answer as short Japanese sentences addressed to the AI, only for what differs from the defaults or adds to them (例: 絞り込み方に「月単価は差を5万円以上、単価相談可なら3万円以上にする。時給はマージンを見ない。派遣契約必須の案件はマッチングしない。」、比較の仕方に「通勤は片道1時間半までにする。」、理由の書き方に「3文以内にする。」). Put rules on stored conditions (the list in 1, including 単価・マージン and 派遣契約必須) in 絞り込み方, rules that need reading the overviews or the skill sheet (the list in 2) in 比較の仕方, and rules on the reason (the list in 3) in 理由の書き方; never mix them. Leave a field empty when nothing differs. Do not copy partner or person names. Show the texts for one OK and fix what the customer corrects.
+6. Save with `set_matching_instructions` (`filterInstructions`, `comparisonInstructions`, `reasonInstructions`; ADMIN only). If the customer wants no changes at all, save nothing and say the defaults are used. Show the 会社設定 `url` from `get_onboarding_status` (the `organization` step) as a link and say they can change the instructions there at any time, or by asking for マッチングの指示の変更.
 
 ## 6. 定期実行 (`scheduled_tasks`)
 
