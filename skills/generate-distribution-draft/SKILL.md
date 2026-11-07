@@ -18,7 +18,7 @@ Do **not** write あいさつ, 結び, or the calling user's saved draft signatu
 
 - This record's 概要 (`overview` from `get_project` / `get_candidate`, or `preview_*_distribution_drafts`). The stored 概要 is already 自社 viewpoint. Do **not** read the latest inbound 元ソース body or the collapsed 原文 (`get_mail_source` / `get_url_source`) to write the core. URL 原文 is UrlSource.originalText and is not the draft core. If overview is empty, stop (`プロファイル未整備`). Do not fall back to 元ソース or 原文.
 - Record title as the subject seed.
-- 紹介元会社's 会社スキル (`get_company_skill` with that company's id: the Markdown text saved on the company in the 会社台帳), its 配信 section when present. If it returns `skill: null`, a skill loaded in this session whose description names that company or its domain is its 会社スキル (older setups kept them as account skills). If there is none, treat as 「配信ルールなし」.
+- 紹介元会社's 会社スキル (`get_company_skill` with that company's id: the Markdown text saved on the company in the 会社台帳), its 配信 section when present. If there is none, treat as 「配信ルールなし」.
 - Attachment candidates: id, name, selectable. Only selectable FILE ids may be attached. REFERENCE and files over Outlook's 3MB simple-attach limit are not selectable.
 - This skill (universal rules).
 

@@ -110,6 +110,7 @@ test("onboarding registers partner spreadsheets after mail import, in the compan
 test("company skills are read from FlowSES with get_company_skill / list_company_skills", () => {
   for (const name of ["process-inbox", "generate-distribution-draft", "register-spreadsheet-listings"]) {
     assert.match(read(name), /get_company_skill/u, name);
+    assert.doesNotMatch(read(name), /older setups|account skills/u, name);
   }
   assert.match(read("register-spreadsheet-listings"), /`list_company_skills` with `query: "## スプレッドシート"`/u);
   assert.match(read("structured-conditions"), /`get_company_skill` で読む/u);
