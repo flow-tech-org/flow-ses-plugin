@@ -8,6 +8,7 @@
   },
   "homepage": "https://github.com/flow-tech-org/flow-ses-plugin",
   "repository": "https://github.com/flow-tech-org/flow-ses-plugin",
+  "license": "MIT",
   "mcpServers": "./.mcp.json",
   "skills": "./skills/"
 }
