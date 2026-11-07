@@ -165,16 +165,16 @@ Goal: the scheduled マッチング作成 narrows and judges pairs the way this 
    - 商流: 案件の商流制限より深い所属の要員は候補にしない（不明は残す）
    - エリア: 出社がある案件は、同じエリアと隣のエリアの要員だけ（未記載は残す）
    - スキル: 案件のスキル名（技術・業務・役割）を組み合わせて探し、見つからなければ上位スキルまで広げる
-2. 比較の仕方. Show how a found pair is judged today, and ask in one message which of these the customer wants different:
    - マージン: 案件単価の上限 − 要員単価の下限 が5万円以上（どちらかが単価相談可なら3万円以上）。税別の月額で比べる
+   - 派遣契約必須の案件: マッチングしない
+2. 比較の仕方. Show how a found pair is judged today, after reading both overviews and the skill sheet, and ask in one message which of these the customer wants different:
    - 通勤: 出社がある案件で、片道おおむね2時間を超えるなら作らない
    - 経験年数: 必須の年数に届かなければ作らない（未記載は不一致にしない）
    - 主業務と売り方: 言語が同じでも、案件の主な仕事と要員の経験・売り方の方向が違えば作らない
    - スキルシートが無い要員: 概要だけで明らかに合うときだけ作る
-   - 派遣契約必須の案件: マッチングしない
    - ほかに、作りたくない組み合わせ（例: 金融系の案件に外国籍の要員）
    Same-company pairs, existing pairs, and 募集終了 records are never matched; say these do not change.
-3. Write each answer as short Japanese sentences addressed to the AI, only for what differs from the rules above (例: 「開始月は、案件の開始月の1か月後までに入れる要員も候補にする。」「マージンは6万円以上、単価相談可は4万円以上にする。」). Put search changes in 絞り込み方 and judging changes in 比較の仕方; never mix them. Leave a field empty when nothing differs. Do not copy partner or person names. Show both texts for one OK and fix what the customer corrects.
+3. Write each answer as short Japanese sentences addressed to the AI, only for what differs from the rules above (例: 絞り込み方に「マージンは6万円以上、単価相談可は4万円以上にする。」、比較の仕方に「通勤は片道1時間半までにする。」). Put rules on stored conditions (the list in 1: 単価・マージン, 派遣契約必須, 年齢 and the rest) in 絞り込み方, and rules that need reading the overviews or the skill sheet (the list in 2) in 比較の仕方; never mix them. Leave a field empty when nothing differs. Do not copy partner or person names. Show both texts for one OK and fix what the customer corrects.
 4. Save with `set_matching_instructions` (`filterInstructions`, `comparisonInstructions`; ADMIN only). If the customer wants no changes at all, save nothing and say the shared rules are used. Show the 会社設定 `url` from `get_onboarding_status` (the `organization` step) as a link and say they can change the instructions there at any time, or by asking for マッチングの指示の変更.
 
 ## 6. 定期実行 (`scheduled_tasks`)

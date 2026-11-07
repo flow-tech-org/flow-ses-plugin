@@ -121,7 +121,7 @@ test("onboarding asks how to narrow and compare matchings and saves them as two 
   assert.ok(onboarding.indexOf("## 4. スプレッドシート") < step && step < onboarding.indexOf("## 6. 定期実行"));
   assert.match(onboarding, /1\. 絞り込み方\./u);
   assert.match(onboarding, /2\. 比較の仕方\./u);
-  assert.match(onboarding, /Put search changes in 絞り込み方 and judging changes in 比較の仕方; never mix them/u);
+  assert.ok(onboarding.includes("in 絞り込み方, and rules that need reading the overviews or the skill sheet (the list in 2) in 比較の仕方; never mix them"));
   assert.match(onboarding, /`set_matching_instructions` \(`filterInstructions`, `comparisonInstructions`; ADMIN only\)/u);
 });
 
