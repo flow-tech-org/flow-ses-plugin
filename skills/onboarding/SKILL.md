@@ -66,7 +66,7 @@ Goal: the folders where 案件・要員 mail arrives are ingested into the メ�
 1. `refresh_mail_ingest_folders`, then `list_mail_ingest_folders`.
 2. If 1.4.3 created company folders, propose those inbox and sent folders. Otherwise show the inbox-side folders and ask which ones receive 案件・要員 mail. Whole 受信トレイ is fine when the customer has no per-company folders.
 3. `enable_mail_ingest_folders` with the chosen graph folder ids. Do not pass Drafts folders. This adds to what is already on and does not turn other folders off.
-4. Tell the customer that past mail is not pulled in automatically. To bring in older mail, they run 手動同期 with a date range on the メール台帳 screen.
+4. Past mail is not pulled in automatically. Recommend that the customer runs 手動同期 for the last one or two weeks on the メール台帳 screen now: 3 reads those mails to write 会社スキル, and the ledger starts with recent 案件・要員. Wait until they say it has finished. If they decline, go on.
 
 ## 3. 会社スキル
 
@@ -82,7 +82,7 @@ A 会社スキル is a Claude skill in the customer's account, one per partner c
    - スキルシートの付け方（添付・URL・別メール）に癖がある
    - 募集終了の知らせ方が決まっている
    Shared defaults when unstated are: 税別、再配信可、案件の個人事業主可・外国籍可、要員の外国籍不可 (`flow-ses:structured-conditions`). Only a difference from these needs a 会社スキル. If the customer names none, say they can add one later by asking for 会社スキルの追加, and go to 4.
-2. For each named company, confirm it is in the 会社台帳 (`list_companies`); add it as in 1.4 if not. Then read two or three recent mails from that company: `list_mail_sources` for the window the customer synced, and `get_mail_source` for bodies. If none are ingested yet, ask the customer to paste one or run 手動同期 first. From the mails and the customer's words, write the rules as short sentences and show them for one OK.
+2. For each named company, confirm it is in the 会社台帳 (`list_companies`); add it as in 1.4 if not. Then read two or three recent mails from that company: `list_mail_sources` for the window the customer synced, and `get_mail_source` for bodies. If none are ingested (the customer skipped 手動同期, or the company sent nothing in that window), ask the customer to paste one or two recent mails from that company. If they have none at hand, write the rules from the customer's words alone. The rules can be refined later, when real mail arrives, by asking for 会社スキルの見直し. From the mails and the customer's words, write the rules as short sentences and show them for one OK.
 3. Only write rules about that company's mail: block count and how to split, which skill sheet belongs to which 要員, how to read 税区分・再配信・個人事業主・外国籍, and how it says 募集終了. Do not write rules on the shape of 概要 (the shared skills keep 概要 as an excerpt of the 原文), on identity of resends (the match tools decide), or on sending mail. Never copy mail text that names people.
 4. Write one skill per company in a folder named `company-<ascii slug of the company>` with this `SKILL.md`:
 
