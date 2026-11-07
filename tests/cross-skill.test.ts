@@ -27,3 +27,10 @@ test("every skill folder matches its name", () => {
     assert.match(read(name), new RegExp(`^name: ${name}$`, "mu"));
   }
 });
+
+test("onboarding creates Gmail labels and filters instead of skipping Gmail", () => {
+  const onboarding = read("onboarding");
+  assert.match(onboarding, /create_gmail_label/u);
+  assert.match(onboarding, /create_gmail_filter/u);
+  assert.doesNotMatch(onboarding, /Gmail mailboxes have no folders or rules/u);
+});

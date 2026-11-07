@@ -81,3 +81,16 @@ test("business-card skill evals cover the required registration branches", async
   assert.ok(parsed.evals.every(({ prompt }) => prompt.includes("外部への書き込み")));
   assert.ok(parsed.evals.every(({ expectations }) => expectations.length >= 3));
 });
+
+test("business-card skill sets up a Gmail label and filter for Gmail mailboxes", async () => {
+  const skill = await readFile(skillUrl, "utf8");
+
+  assert.match(skill, /`mailboxProvider`/);
+  assert.match(skill, /### Gmail label and filter/);
+  assert.match(skill, /create_gmail_label/);
+  assert.match(skill, /create_gmail_filter/);
+  assert.match(skill, /Never forward/);
+  assert.match(skill, /do not remove `INBOX` unless the user asked/);
+  assert.match(skill, /enable_mail_ingest_folders` with the label id/);
+  assert.doesNotMatch(skill, /folders and rules stay Outlook only/);
+});

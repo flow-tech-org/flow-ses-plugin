@@ -2,8 +2,8 @@
 name: register-ses-partner-business-card
 description: >-
   Register an SES partner from a business card or supplied contact details:
-  company ledger, distribution recipients, Outlook folders and rules,
-  mail-ledger ingest folders, and Outlook contacts. Use whenever the user asks
+  company ledger, distribution recipients, Outlook folders and rules (Gmail
+  labels and filters), mail-ledger ingest folders, and contacts. Use whenever the user asks
   to register or save a partner business card or contact sheet. Do not use for
   extraction-only requests.
 ---
@@ -14,13 +14,14 @@ description: >-
 
 Read business-card images or supplied contact details for SES partner companies, separate personal and distribution addresses, register the company in the ledger, create Outlook folders and receive/send rules with generic MCP tools, enable those Inbox and Sent Items folders as mail-ledger ingest folders, and create or safely update personal Outlook contacts plus ordinary Outlook contacts for distribution addresses. Company-ledger 配信先 remains the SES Agent recipient of record. Use whenever the user asks to register or save an SES partner business card, SES contact sheet, or supplied partner contact details in Outlook, including cards that contain only an SES distribution address. Do not use for extraction-only requests that do not authorize saving.
 
-Register contacts in the authenticated user's personal Outlook Contacts folder for lookup. When the user's drafts go to Gmail, the same contact tools save to their Google contacts instead (categories become Google contact labels); folders and rules stay Outlook only, so skip those steps and report them as `not registered` when Outlook is not connected. Do not create or update a separate business-card database record. Company-ledger 配信先 remains the SES Agent distribution recipient of record.
+Register contacts in the authenticated user's personal Outlook Contacts folder for lookup. When the user's drafts go to Gmail, the same contact tools save to their Google contacts instead (categories become Google contact labels). When the user's mailbox is Gmail, the company folders and rules become one Gmail label and one Gmail filter; follow "Gmail label and filter" instead of steps 2 to 7 below. Do not create or update a separate business-card database record. Company-ledger 配信先 remains the SES Agent distribution recipient of record.
 
 ## Authorization and tools
 
 - Create contacts only after the user clearly authorizes registration or saving. A direct request such as "FlowSESで保存" is sufficient for new contacts; do not ask for redundant confirmation.
 - Extraction-only requests must return the extracted fields without mutations and wait for a later save request.
-- Use generic MCP tools: `ensure_company`, `add_company_contact`, `set_company_distribution_recipients`, `list_companies`, `list_outlook_mail_folders`, `create_outlook_mail_folder`, `list_outlook_rules`, `create_outlook_rule`, `update_outlook_rule`, `list_mail_ingest_folders`, `refresh_mail_ingest_folders`, `enable_mail_ingest_folders`, `search_mail_contacts`, `create_mail_contact`, and, only for an approved existing-contact change, `update_mail_contact`. If tools are not callable, discover them. If the MCP server or Outlook authorization is unavailable, stop and provide the returned connection URL without asking for credentials.
+- Use generic MCP tools: `ensure_company`, `add_company_contact`, `set_company_distribution_recipients`, `list_companies`, `list_outlook_mail_folders`, `create_outlook_mail_folder`, `list_outlook_rules`, `create_outlook_rule`, `update_outlook_rule`, `list_gmail_labels`, `create_gmail_label`, `list_gmail_filters`, `create_gmail_filter`, `list_mail_ingest_folders`, `refresh_mail_ingest_folders`, `enable_mail_ingest_folders`, `search_mail_contacts`, `create_mail_contact`, and, only for an approved existing-contact change, `update_mail_contact`. If tools are not callable, discover them. If the MCP server or Outlook or Gmail authorization is unavailable, stop and provide the returned connection URL without asking for credentials. When a Gmail tool says to reconnect Gmail, tell the user to press 「Gmailを再接続」 in ユーザー設定 and stop before the label and filter steps.
+- Rules and filters move or label mail. If the tool call is held for approval, show the rule or filter you are about to create and wait for the user's OK.
 
 ## Extract and classify addresses
 
@@ -36,7 +37,7 @@ Register contacts in the authenticated user's personal Outlook Contacts folder f
 Resolve every ambiguous distribution choice and obtain any required existing-contact change approval before writing anything.
 
 1. Derive the unique registrable parent domains from every selected personal and distribution email address and call `ensure_company` with the legal company name and those domains. This writes the company ledger only. It does not touch Outlook.
-2. Call `list_outlook_mail_folders` for well-known `inbox`, `drafts`, and `sentitems`.
+2. Call `list_mail_ingest_folders` and read `mailboxProvider`. `GOOGLE` means the user's own mailbox is Gmail: do "Gmail label and filter" below in place of steps 2 to 7, then continue at step 8. `MICROSOFT` (or an older server without the field) means Outlook: call `list_outlook_mail_folders` for well-known `inbox`, `drafts`, and `sentitems`.
 3. Choose the parent folder for each well-known root. If the user named a group folder, use that direct child. If they did not, use the direct child named `SES協力会社`. If the chosen parent is missing under a root, report that root and stop before creating company folders or writing contacts.
 4. Under each chosen parent, call `create_outlook_mail_folder` with the legal company name. If a same-name folder already exists, use it.
 5. Call `list_outlook_rules`. Then create or update only these two enabled rules. Do not delete unrelated rules.
@@ -48,6 +49,15 @@ Resolve every ambiguous distribution choice and obtain any required existing-con
 8. Call `add_company_contact` for every selected personal and distribution address. Person-specific addresses stay 連絡先. Distribution-only addresses pass `listedContact: false` and `distributionRecipient: true` (配信先 To). Then call `set_company_distribution_recipients` with those distribution contact ids so the company ledger 配信先 To matches the selected distribution addresses. Do not set 配信先 Cc unless the user asked to put an address in Cc. Matching new-mail can pick listed 連絡先; partner drafts use 配信先 To (and optional Cc). Do not look up or save an Outlook contact category. Same email on the same company is already registered; continue, then include that existing contact id in `set_company_distribution_recipients` when it is a distribution address (`list_companies` contacts).
 9. Create or update Outlook personal contacts when a person-specific address remains. Attach a personal-contact category only when the user explicitly supplied one.
 10. Also create ordinary Outlook contacts for selected distribution addresses so people can find them in Outlook. Name each one `配信　<legal company name>` using U+3000. Do not add `SES協力会社　配信先` or any other category just to mark distribution use. Company-ledger 配信先 remains the SES Agent recipient.
+
+### Gmail label and filter
+
+Gmail has labels instead of folders, and one label holds both received and sent mail. Gmail drafts cannot carry labels, so there is no Drafts-side label.
+
+1. Call `create_gmail_label` with `<parent>/<legal company name>`. The parent is the group label the user named, otherwise `SES協力会社`. Missing parents are created; an existing label is returned as `existing`.
+2. Call `create_gmail_filter` once with `criteria.query` matching the company domains in sender or recipients, for example `from:(example.co.jp OR example.jp) OR to:(example.co.jp OR example.jp) OR cc:(example.co.jp OR example.jp)`, and `action.addLabelIds` set to the label id from step 1. Keep mail in 受信トレイ: do not remove `INBOX` unless the user asked to skip the inbox. Never forward. An identical filter is returned as `existing`. Gmail filters have no names and cannot be edited; do not delete unrelated filters.
+3. Call `refresh_mail_ingest_folders`, then `enable_mail_ingest_folders` with the label id. Do not enable 受信トレイ (`INBOX`) or 送信済み (`SENT`) unless the user asked.
+4. Gmail may not apply filters to mail the user sends. Say in the report that sent mail is ingested when it carries the company label, and that the user can turn on 送信済み in 取り込みフォルダ if sent mail does not get the label.
 
 If folder, rule, or mail-ledger ingest-folder setup partially fails, report every completed folder, rule, or ingest-folder result and stop before contact writes. A later retry must call the same generic tools again.
 
@@ -116,7 +126,7 @@ An older personal Outlook contact may contain a selected distribution address. B
 
 ## Result report
 
-Report the company ledger result, ledger contacts, three company folders, receive rule, send rule, mail-ledger Inbox and Sent Items ingest-folder selection, personal Outlook contact, and Outlook distribution contact outcomes separately. For each folder, rule, or ingest folder include its Outlook ID and one status: `existing`, `created`, or `updated`. For ingest folders also include `rootKind` (`INBOX` or `SENT_ITEMS`). For each ledger or Outlook contact include the display name or intended name, company, selected email addresses, Outlook contact ID when available, and one status: `created`, `duplicate`, `updated`, or `not registered`. Mention whether this was a new company setup, unreadable omitted values, user-declined addresses, conflicts, partial setup progress, and any rollback result briefly.
+Report the company ledger result, ledger contacts, three company folders, receive rule, send rule (for Gmail: the company label and the filter), mail-ledger Inbox and Sent Items ingest-folder selection (for Gmail: the company label), personal Outlook contact, and Outlook distribution contact outcomes separately. For each folder, rule, label, filter, or ingest folder include its Outlook or Gmail ID and one status: `existing`, `created`, or `updated`. For ingest folders also include `rootKind` (`INBOX` or `SENT_ITEMS`). For each ledger or Outlook contact include the display name or intended name, company, selected email addresses, Outlook contact ID when available, and one status: `created`, `duplicate`, `updated`, or `not registered`. Mention whether this was a new company setup, unreadable omitted values, user-declined addresses, conflicts, partial setup progress, and any rollback result briefly.
 
 ## Multiple cards
 
