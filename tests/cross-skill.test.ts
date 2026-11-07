@@ -122,7 +122,7 @@ test("onboarding asks how to narrow and compare matchings and saves them as two 
   assert.match(onboarding, /1\. 絞り込み方\./u);
   assert.match(onboarding, /2\. 比較の仕方\./u);
   assert.match(onboarding, /Put search changes in 絞り込み方 and judging changes in 比較の仕方; never mix them/u);
-  assert.match(onboarding, /`update_matching_instructions` \(`filterInstructions`, `comparisonInstructions`; ADMIN only\)/u);
+  assert.match(onboarding, /`set_matching_instructions` \(`filterInstructions`, `comparisonInstructions`; ADMIN only\)/u);
 });
 
 test("both matching skills read the company's matching instructions and keep the fixed guards", () => {

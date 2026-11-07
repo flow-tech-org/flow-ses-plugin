@@ -175,7 +175,7 @@ Goal: the scheduled マッチング作成 narrows and judges pairs the way this 
    - ほかに、作りたくない組み合わせ（例: 金融系の案件に外国籍の要員）
    Same-company pairs, existing pairs, and 募集終了 records are never matched; say these do not change.
 3. Write each answer as short Japanese sentences addressed to the AI, only for what differs from the rules above (例: 「開始月は、案件の開始月の1か月後までに入れる要員も候補にする。」「マージンは6万円以上、単価相談可は4万円以上にする。」). Put search changes in 絞り込み方 and judging changes in 比較の仕方; never mix them. Leave a field empty when nothing differs. Do not copy partner or person names. Show both texts for one OK and fix what the customer corrects.
-4. Save with `update_matching_instructions` (`filterInstructions`, `comparisonInstructions`; ADMIN only). If the customer wants no changes at all, save nothing and say the shared rules are used. Show the 会社設定 `url` from `get_onboarding_status` (the `organization` step) as a link and say they can change the instructions there at any time, or by asking for マッチングの指示の変更.
+4. Save with `set_matching_instructions` (`filterInstructions`, `comparisonInstructions`; ADMIN only). If the customer wants no changes at all, save nothing and say the shared rules are used. Show the 会社設定 `url` from `get_onboarding_status` (the `organization` step) as a link and say they can change the instructions there at any time, or by asking for マッチングの指示の変更.
 
 ## 6. 定期実行 (`scheduled_tasks`)
 
