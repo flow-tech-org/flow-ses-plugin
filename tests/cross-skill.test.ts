@@ -34,3 +34,21 @@ test("onboarding creates Gmail labels and filters instead of skipping Gmail", ()
   assert.match(onboarding, /create_gmail_filter/u);
   assert.doesNotMatch(onboarding, /Gmail mailboxes have no folders or rules/u);
 });
+
+test("onboarding writes 会社スキル only for partners that differ from the shared defaults", () => {
+  const onboarding = read("onboarding");
+  assert.match(onboarding, /## 3\. 会社スキル/u);
+  assert.match(onboarding, /description: <会社名>（<ドメイン>）の会社スキル/u);
+  assert.match(onboarding, /Only a difference from these needs a 会社スキル/u);
+  assert.ok(onboarding.indexOf("## 3. 会社スキル") < onboarding.indexOf("## 4. 定期実行"));
+});
+
+test("onboarding starts 会社スキル and 定期実行 only after every required earlier step is done", () => {
+  assert.match(read("onboarding"), /Start 3 and 4 only when every earlier required step \(`optional: false`\) is `done`/u);
+});
+
+test("onboarding builds the partner list from contacts, not from mail that is not ingested yet", () => {
+  const onboarding = read("onboarding");
+  assert.match(onboarding, /"連絡先から拾って": call `search_mail_contacts`/u);
+  assert.doesNotMatch(onboarding, /メールの送信元から拾って/u);
+});
