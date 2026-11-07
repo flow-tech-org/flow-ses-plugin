@@ -48,15 +48,16 @@ If FlowSES sign-in fails because the customer's account is not a member, an ADMI
 
 ## 1. 会社台帳 (`companies`)
 
-Goal: the partner companies the customer trades with are in the ledger, with 配信先 and 担当者.
+Goal: the partner companies the customer trades with are in the ledger, with 配信先, 担当者, and 配信受付.
 
 1. Call `list_companies` to see what already exists. Say how many companies there are.
-2. Ask for the partner list in one message. Accept any of: pasted text, a CSV or Excel file, or "連絡先から拾って". Columns that help: 会社名, ドメイン, 配信先メール, 担当者名, 担当者メール. No mail is ingested yet at this point, so do not build the list from mail senders.
+2. Ask for the partner list in one message. Accept any of: pasted text, a CSV or Excel file, or "連絡先から拾って". Columns that help: 会社名, ドメイン, 配信先メール, 担当者名, 担当者メール, 配信受付 (whether the company declines 案件配信 or 要員配信). In the same message, ask which partners do not want 案件配信 or 要員配信 from the customer; most accept both. No mail is ingested yet at this point, so do not build the list from mail senders.
    - "連絡先から拾って": call `search_mail_contacts` with no filter to read the customer's own Outlook or Google contacts. Group them by company name and email domain, drop the customer's own domains (会社設定のログインドメイン) and consumer domains such as gmail.com, and show the candidates as a table (会社名, ドメイン, 担当者). The customer picks which are partners. If there are few or no contacts, say so and ask for a pasted list instead.
 3. Show the parsed list as a short table and ask for one OK. Fix what the customer corrects.
 4. Register every company first, skipping what already exists:
    1. `ensure_company` with the display name and the parent domain (no consumer domains such as gmail.com).
    2. `add_company_contact`: the distribution address with `distributionRecipient: true`, `listedContact: false`; each 担当者 with `listedContact: true`.
+   3. Only for a company that declines 案件配信 or 要員配信: `set_company_distribution_acceptance` with `projectDistributionAccepted: false` or `candidateDistributionAccepted: false`. A new company accepts both, so skip this call for the others. Distribution drafts then leave that company out.
 
    Report the count registered, the count skipped as already present, and any failures with the reason. A failure on one company does not stop the rest.
 5. Before asking about sorting, read how the customer's mail is sorted now: Outlook `list_outlook_mail_folders` (受信トレイ and 送信済みアイテム, with subfolders) and `list_outlook_rules`; Gmail `list_gmail_labels` and `list_gmail_filters`. Sorting is already set when folders (labels) named after the registered companies exist, or rules (filters) match their domains.
