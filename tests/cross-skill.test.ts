@@ -35,3 +35,7 @@ test("onboarding writes 会社スキル only for partners that differ from the s
   assert.match(onboarding, /Only a difference from these needs a 会社スキル/u);
   assert.ok(onboarding.indexOf("## 3. 会社スキル") < onboarding.indexOf("## 4. 定期実行"));
 });
+
+test("onboarding starts 会社スキル and 定期実行 only after every required earlier step is done", () => {
+  assert.match(read("onboarding"), /Start 3 and 4 only when every earlier required step \(`optional: false`\) is `done`/u);
+});
