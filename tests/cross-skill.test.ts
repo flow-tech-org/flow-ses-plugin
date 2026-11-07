@@ -127,26 +127,36 @@ test("spreadsheet register skill keeps company facts in the 会社スキル and 
   assert.match(skill, /notPublic/u);
 });
 
-test("onboarding asks how to narrow and compare matchings and saves them as two instructions", () => {
+test("onboarding asks about each matching default one at a time and saves three instructions", () => {
   const onboarding = read("onboarding");
   const step = onboarding.indexOf("## 5. マッチングの指示");
   assert.ok(onboarding.indexOf("## 4. スプレッドシート") < step && step < onboarding.indexOf("## 6. 定期実行"));
-  assert.match(onboarding, /1\. 絞り込み方\./u);
-  assert.match(onboarding, /2\. 比較の仕方\./u);
-  assert.ok(onboarding.includes("in 絞り込み方, and rules that need reading the overviews or the skill sheet (the list in 2) in 比較の仕方; never mix them"));
-  assert.match(onboarding, /`set_matching_instructions` \(`filterInstructions`, `comparisonInstructions`; ADMIN only\)/u);
+  const body = onboarding.slice(step, onboarding.indexOf("## 6. 定期実行"));
+  assert.match(body, /ask about each item below one at a time/u);
+  assert.match(body, /1\. 絞り込み方 /u);
+  assert.match(body, /2\. 比較の仕方 /u);
+  assert.match(body, /3\. 理由の書き方 /u);
+  assert.match(body, /単価とマージン \(ask together as one item\)/u);
+  assert.match(body, /派遣契約必須の案件 \(not in the defaults\)/u);
+  assert.match(body, /these do not change and are not asked/u);
+  assert.match(body, /`set_matching_instructions` \(`filterInstructions`, `comparisonInstructions`, `reasonInstructions`; ADMIN only\)/u);
 });
 
-test("both matching skills read the company's matching instructions and keep the fixed guards", () => {
+test("both matching skills treat their rules as defaults and keep the fixed rules", () => {
   for (const name of ["evaluate-project-matchings", "evaluate-candidate-matchings"]) {
     const skill = read(name);
     assert.match(skill, /Call `get_matching_instructions` once/u, name);
     assert.match(skill, /## 自社の指示 \(company matching instructions\)/u, name);
     assert.match(skill, /`filterInstructions` \(絞り込み方\)/u, name);
     assert.match(skill, /`comparisonInstructions` \(比較の仕方\)/u, name);
+    assert.match(skill, /`reasonInstructions` \(理由の書き方\)/u, name);
     assert.match(skill, /Where an instruction and this skill differ, follow the instruction/u, name);
-    assert.match(skill, /An instruction never overrides these: no same-company pair/u, name);
-    assert.match(skill, /"instructionsApplied"/u, name);
+    assert.match(skill, /\*\*Fixed rules \(an instruction never overrides these\):\*\*/u, name);
+    assert.match(skill, /a borderline pair \(微妙\) is never created/u, name);
+    assert.match(skill, /a clear 必須 mismatch in the overviews or the skill sheet/u, name);
+    assert.match(skill, /the default has no margin/u, name);
+    assert.doesNotMatch(skill, /comparableUnitPrice|160時間|5万, or 3万/u, name);
+    assert.match(skill, /"instructionsApplied": \{ "filter": false, "comparison": false, "reason": false \}/u, name);
   }
 });
 
