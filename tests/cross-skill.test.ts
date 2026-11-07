@@ -74,6 +74,6 @@ test("onboarding shows the folders already ingested and links the メール台�
 test("onboarding asks when to run mail ingest and widens the window after skipped hours", () => {
   const onboarding = read("onboarding");
   assert.match(onboarding, /1\. Ask when to run メール取り込み/u);
-  assert.match(onboarding, /マッチング作成 follows the same days and hours at minute 31/u);
+  assert.match(onboarding, /Then ask when to run マッチング作成/u);
   assert.match(onboarding, /この定期実行の一つ前の実行予定時刻/u);
 });
