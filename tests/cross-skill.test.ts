@@ -28,6 +28,13 @@ test("every skill folder matches its name", () => {
   }
 });
 
+test("onboarding creates Gmail labels and filters instead of skipping Gmail", () => {
+  const onboarding = read("onboarding");
+  assert.match(onboarding, /create_gmail_label/u);
+  assert.match(onboarding, /create_gmail_filter/u);
+  assert.doesNotMatch(onboarding, /Gmail mailboxes have no folders or rules/u);
+});
+
 test("onboarding writes 会社スキル only for partners that differ from the shared defaults", () => {
   const onboarding = read("onboarding");
   assert.match(onboarding, /## 3\. 会社スキル/u);
