@@ -39,3 +39,9 @@ test("onboarding writes 会社スキル only for partners that differ from the s
 test("onboarding starts 会社スキル and 定期実行 only after every required earlier step is done", () => {
   assert.match(read("onboarding"), /Start 3 and 4 only when every earlier required step \(`optional: false`\) is `done`/u);
 });
+
+test("onboarding builds the partner list from contacts, not from mail that is not ingested yet", () => {
+  const onboarding = read("onboarding");
+  assert.match(onboarding, /"連絡先から拾って": call `search_mail_contacts`/u);
+  assert.doesNotMatch(onboarding, /メールの送信元から拾って/u);
+});

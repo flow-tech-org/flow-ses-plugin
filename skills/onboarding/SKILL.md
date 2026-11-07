@@ -49,7 +49,8 @@ If FlowSES sign-in fails because the customer's account is not a member, an ADMI
 Goal: the partner companies the customer trades with are in the ledger, with 配信先 and 担当者.
 
 1. Call `list_companies` to see what already exists. Say how many companies there are.
-2. Ask for the partner list in one message. Accept any of: pasted text, a CSV or Excel file, or "メールの送信元から拾って". Columns that help: 会社名, ドメイン, 配信先メール, 担当者名, 担当者メール.
+2. Ask for the partner list in one message. Accept any of: pasted text, a CSV or Excel file, or "連絡先から拾って". Columns that help: 会社名, ドメイン, 配信先メール, 担当者名, 担当者メール. No mail is ingested yet at this point, so do not build the list from mail senders.
+   - "連絡先から拾って": call `search_mail_contacts` with no filter to read the customer's own Outlook or Google contacts. Group them by company name and email domain, drop the customer's own domains (会社設定のログインドメイン) and consumer domains such as gmail.com, and show the candidates as a table (会社名, ドメイン, 担当者). The customer picks which are partners. If there are few or no contacts, say so and ask for a pasted list instead.
 3. Show the parsed list as a short table and ask for one OK. Fix what the customer corrects.
 4. For each company, in this order, skipping what already exists:
    1. `ensure_company` with the display name and the parent domain (no consumer domains such as gmail.com).
