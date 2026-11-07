@@ -19,7 +19,7 @@ The customer opened this session from the FlowSES 導入ガイド (`/onboarding`
 - Start every run with `get_onboarding_status`. Never trust what an earlier run said. Skip every step whose `state` is `done`, unless the customer asks to redo it.
 - Work in this order: 会社台帳 (`companies`) → 取り込みフォルダ (`ingest_folders`) → 定期実行 (`scheduled_tasks`). After each step, call `get_onboarding_status` again and say in one line what is done and what comes next.
 - Stop and send the customer back to the 導入ガイド when a dashboard step blocks the next one:
-  - the FlowSES connector is not callable, or asks for sign-in: give the connection URL and stop.
+  - the FlowSES connector is not callable, or asks for sign-in: ask the customer to connect FlowSES from the flow-ses plugin's Connectors tab in claude.ai (no URL to type), then stop.
   - `organization` is not `done`: ask the customer to set 会社名 (and the login domain) in 会社設定 first. The flow-ses skills read 会社名 as 自社.
   - `mailbox` is not `done`: 取り込みフォルダ cannot be chosen yet. Do 会社台帳 first, then stop.
 - Never send mail, create drafts, delete records, or change another member's mailbox.
