@@ -38,7 +38,10 @@ test("onboarding creates Gmail labels and filters instead of skipping Gmail", ()
 test("onboarding writes 会社スキル only for partners that differ from the shared defaults", () => {
   const onboarding = read("onboarding");
   assert.match(onboarding, /## 3\. 会社スキル/u);
-  assert.match(onboarding, /description: <会社名>（<ドメイン>）の会社スキル/u);
+  assert.match(onboarding, /# <会社名> 会社スキル/u);
+  assert.match(onboarding, /save each one with `set_company_skill`/u);
+  assert.match(onboarding, /No file is handed over or installed on claude\.ai/u);
+  assert.doesNotMatch(onboarding, /[Zz]ip|アップロード|upload/u);
   assert.match(onboarding, /Only a difference from these needs a 会社スキル/u);
   assert.ok(onboarding.indexOf("## 3. 会社スキル") < onboarding.indexOf("## 5. 定期実行"));
 });
@@ -99,9 +102,17 @@ test("onboarding registers partner spreadsheets after mail import, in the compan
   assert.match(onboarding, /the company and the sheet URL for each/u);
   assert.match(onboarding, /export\?format=xlsx/u);
   assert.match(onboarding, /「リンクを知っている全員」が閲覧可/u);
-  assert.match(onboarding, /Add the `## スプレッドシート` section to that company's 会社スキル/u);
+  assert.match(onboarding, /Read that company's 会社スキル with `get_company_skill` and add the `## スプレッドシート` section/u);
   assert.match(onboarding, /\| スプレッドシート取り込み \|[^\n]*register-spreadsheet-listings/u);
   assert.match(onboarding, /Create this task only when at least one 会社スキル has a `## スプレッドシート` section/u);
+});
+
+test("company skills are read from FlowSES with get_company_skill / list_company_skills", () => {
+  for (const name of ["process-inbox", "generate-distribution-draft", "register-spreadsheet-listings"]) {
+    assert.match(read(name), /get_company_skill/u, name);
+  }
+  assert.match(read("register-spreadsheet-listings"), /`list_company_skills` with `query: "## スプレッドシート"`/u);
+  assert.match(read("structured-conditions"), /`get_company_skill` で読む/u);
 });
 
 test("spreadsheet register skill keeps company facts in the 会社スキル and URL sources append-only", () => {

@@ -80,7 +80,7 @@ Goal: the folders where 案件・要員 mail arrives are ingested into the メ�
 
 Goal: partner companies whose mail cannot be read with the shared rules get their own 会社スキル, so the scheduled メール取り込み registers their 案件・要員 correctly from the first run. `get_onboarding_status` does not track this step. When resuming at スプレッドシート or 定期実行, ask once whether 会社スキル are done.
 
-A 会社スキル is a Claude skill in the customer's account, one per partner company. Its description names the company and its mail domain. `flow-ses:process-inbox` and the other flow-ses skills find it by the sender's domain and follow it. FlowSES itself never reads it. Everything a 会社スキル does not mention follows the shared skills, so most partners need none.
+A 会社スキル is Markdown text saved on one partner company in the 会社台帳 (`set_company_skill`). `flow-ses:process-inbox` and the other flow-ses skills read it with `get_company_skill` for the sender's company and follow it. The customer can read and edit it on that company's detail in the 会社台帳 screen. No file is handed over or installed on claude.ai. Everything a 会社スキル does not mention follows the shared skills, so most partners need none.
 
 1. Ask in one message whether any partner writes mail in its own way. Give these examples in plain words:
    - 1通に複数の案件・要員を載せてくる（区切り方に決まりがある）
@@ -92,14 +92,9 @@ A 会社スキル is a Claude skill in the customer's account, one per partner c
    Shared defaults when unstated are: 税別、再配信可、案件の個人事業主可・外国籍可、要員の外国籍不可 (`flow-ses:structured-conditions`). Only a difference from these needs a 会社スキル. If the customer names none, say they can add one later by asking for 会社スキルの追加, and go to 4. Partners that share listings in a spreadsheet are asked about in 4.
 2. For each named company, read two or three of its recent mails in the メール台帳 (`list_mail_sources`, then `get_mail_source` for bodies). The company, its domain, and its folders are already set by 1 and 2. If none are ingested (the customer skipped 手動同期, or the company sent nothing in that window), ask the customer to paste one or two recent mails from that company. If they have none at hand, write the rules from the customer's words alone. The rules can be refined later, when real mail arrives, by asking for 会社スキルの見直し. From the mails and the customer's words, write the rules as short sentences and show them for one OK.
 3. Only write rules about that company's mail: block count and how to split, which skill sheet belongs to which 要員, how to read 税区分・再配信・個人事業主・外国籍, and how it says 募集終了. Do not write rules on the shape of 概要 (the shared skills keep 概要 as an excerpt of the 原文), on identity of resends (the match tools decide), or on sending mail. Never copy mail text that names people.
-4. Write one skill per company in a folder named `company-<ascii slug of the company>` with this `SKILL.md`:
+4. Write one text per company with this shape. Read the company's current 会社スキル first with `get_company_skill`; when it has one, change only what the customer asked and keep the rest.
 
    ```markdown
-   ---
-   name: company-<slug>
-   description: <会社名>（<ドメイン>）の会社スキル。<要点を1文>。送信元やレコードの会社が<会社名>のときに、メール取り込み・登録・配信下書きの会社ごとのルールとして読む。他の会社には使わない。
-   ---
-
    # <会社名> 会社スキル
 
    会社は <会社名>（<ドメイン>。ほかのドメインがあれば並べる）。
@@ -115,15 +110,10 @@ A 会社スキル is a Claude skill in the customer's account, one per partner c
    ## 募集終了
 
    - <知らせ方。無ければこの節を省く>
-
-   ## 使い方
-
-   - `flow-ses:process-inbox` などの登録スキルが、送信元がこの会社のときに読む。ここに無いことは共通スキル（`flow-ses:process-inbox`・`flow-ses:structured-conditions`）に従う。
-   - 同一案件・同一要員は `match_project_overviews` / `match_candidate_overviews` が決める。
    ```
 
-5. Zip each folder and give the customer the files. If this session cannot hand over a file, show each `SKILL.md` in full and say to save it as `SKILL.md` in a folder with the skill name and zip that folder. Then have them upload each zip on claude.ai from the スキル page under カスタマイズ, and turn it on. Skills turned on in the account are loaded by scheduled tasks too.
-6. After the customer says they are uploaded, list the company skills created, in one line each.
+5. After the OK in 2, save each one with `set_company_skill` (`companyId`, the whole text). It replaces the company's 会社スキル.
+6. List the companies whose 会社スキル was saved, in one line each, and say they can read or change it on the company's detail in the 会社台帳 (show the `company_ledger` step's `url` from `get_onboarding_status` as a link).
 
 ## 4. スプレッドシート
 
@@ -134,7 +124,7 @@ Goal: partner companies that share their 案件・要員 in a Google Spreadsheet
    1. Find the company with `list_companies`. If it is not in the 会社台帳, register it as in 1.4 first.
    2. Download `https://docs.google.com/spreadsheets/d/<id>/export?format=xlsx` and read it with `openpyxl` (`flow-ses:read-office-attachments`). The scheduled task reads the sheet without signing in, so it must be shared as 「リンクを知っている全員」が閲覧可. If the download returns a sign-in page or 401 / 403, say so in plain words, ask the customer to have the sharing changed (by the partner, when it is the partner's sheet), and try again when they say it is done. If the network refuses the host, say that this environment cannot reach Google and that docs.google.com must be allowed in the environment's network settings; skip the sheet until then.
    3. Read every tab and work out how to read it: which tabs hold 案件, which hold 要員, and which hold neither (担当者一覧, notes); whether one listing is one row or one column; the header row or label column; which cells make up a listing's 原文 and in what order; which cell gives the title; which cell is the 募集状況 and which of the values seen mean open and which mean stopped (or that there is none); and, for 要員, which cell links to the skill sheet. Show it as a short table per tab, with one or two sample titles, and get one OK. Fix what the customer corrects. Do not write rules on the shape of 概要, on identity, or on sending mail, and never copy cell text that names people.
-3. Add the `## スプレッドシート` section to that company's 会社スキル. If the company has none yet, write one with the template in 3.4 and leave out the sections that do not apply. Also add `スプレッドシート（<タグ>）の取り込み手順を持つ。` to its description, so the scheduled task finds it.
+3. Read that company's 会社スキル with `get_company_skill` and add the `## スプレッドシート` section to it, or replace that section when it is already there. If the company has none yet, start one with the template in 3.4 and leave out the sections that do not apply. The scheduled task finds every 会社スキル with this section.
 
    ```markdown
    ## スプレッドシート
@@ -150,7 +140,7 @@ Goal: partner companies that share their 案件・要員 in a Google Spreadsheet
    - <向きや結合セルなど、読むときの注意。無ければ省く>
    ```
 
-4. Zip and hand over each new or changed 会社スキル as in 3.5. A changed 会社スキル replaces the one already in the account under the same name.
+4. Show the whole new text, and on the customer's OK save it with `set_company_skill` as in 3.5.
 5. Offer to run the first import now for these sheets with `flow-ses:register-spreadsheet-listings`, following the sections just written. Run it only on the customer's OK, and report the counts (created, updated, stopped, needs review) in a few lines. If they decline, the first scheduled run does it.
 
 ## 5. 定期実行 (`scheduled_tasks`)
