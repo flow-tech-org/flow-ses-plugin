@@ -5,7 +5,8 @@ description: >-
   guide the dashboard steps with a link to each screen, then register the company
   ledger, choose mail ingest folders, ask about partners whose mail needs its own
   reading rules and write a 会社スキル for each, register each partner's
-  Google Spreadsheet URL for import, and create the scheduled tasks,
+  Google Spreadsheet URL for import, ask how matchings should be narrowed and
+  compared and save them as マッチングの指示, and create the scheduled tasks,
   skipping steps already done so an
   interrupted onboarding resumes where it stopped. Use for FlowSES導入, 導入を進める,
   導入の続き, or 導入チェック. When FlowSES is not connected yet, it first walks the
@@ -22,7 +23,7 @@ The customer opened this session from the FlowSES 導入ガイド (`/onboarding`
 - This skill is part of the flow-ses plugin. When it names another flow-ses skill (`flow-ses:<name>`), use that skill. If the plugin is not loaded in this session, read it from https://raw.githubusercontent.com/flow-tech-org/flow-ses-plugin/main/skills/<name>/SKILL.md instead.
 - Use only the FlowSES connector that comes with the flow-ses plugin: the MCP server named `flow-ses` (Claude Code lists it as `plugin:flow-ses:flow-ses`; on claude.ai it is the FlowSES connector on the plugin's 「コネクタ」 tab). Other connectors may offer tools with the same names, such as one added by hand or a test or staging copy. Never call those, even when the plugin's connector is missing: they may point to another FlowSES environment. If the plugin's connector is not callable, do 0.
 - Start every run with `get_onboarding_status`. If the FlowSES connector is not callable, or it asks for sign-in, do 0 first. Never trust what an earlier run said. Skip every step whose `state` is `done`, unless the customer asks to redo it.
-- Follow the steps in the order `get_onboarding_status` returns them (`mcp` → 会社設定 → ユーザー設定 → メンバー管理 → 会社台帳 → 取り込みフォルダ → 定期実行). Do 3 (会社スキル) and then 4 (スプレッドシート) right after 取り込みフォルダ, before 定期実行. Start 3, 4, and 5 only when every earlier required step (`optional: false`) is `done`; optional steps the customer declined do not block. If one is not done, say which step is left and where to do it, and do not start 3, 4, or 5. So 3, 4, and 5 can rely on 会社設定, the mailbox, the 会社台帳, and the ingest folders already being set. After each step, call `get_onboarding_status` again and say in one line what is done and what comes next.
+- Follow the steps in the order `get_onboarding_status` returns them (`mcp` → 会社設定 → ユーザー設定 → メンバー管理 → 会社台帳 → 取り込みフォルダ → 定期実行). Do 3 (会社スキル), 4 (スプレッドシート), and 5 (マッチングの指示) in that order right after 取り込みフォルダ, before 定期実行. Start 3, 4, 5, and 6 only when every earlier required step (`optional: false`) is `done`; optional steps the customer declined do not block. If one is not done, say which step is left and where to do it, and do not start 3, 4, 5, or 6. So 3, 4, 5, and 6 can rely on 会社設定, the mailbox, the 会社台帳, and the ingest folders already being set. After each step, call `get_onboarding_status` again and say in one line what is done and what comes next.
 - Dashboard steps (`agent: false`, not `done`) are done by the customer on a FlowSES screen. Do not stop the session for them:
   - Tell the customer in one or two plain lines what to set, using the step's `detail`, and always show the step's `url` as a link so they can open the screen directly. Steps that share a `url` (会社設定: `organization` and `notification`; ユーザー設定: `mailbox` and `signature`) go in one message, so the customer opens each screen once.
   - For an optional step (`optional: true`), ask whether they want it; skip it when they say no.
@@ -78,7 +79,7 @@ Goal: the folders where 案件・要員 mail arrives are ingested into the メ�
 
 ## 3. 会社スキル
 
-Goal: partner companies whose mail cannot be read with the shared rules get their own 会社スキル, so the scheduled メール取り込み registers their 案件・要員 correctly from the first run. `get_onboarding_status` does not track this step. When resuming at スプレッドシート or 定期実行, ask once whether 会社スキル are done.
+Goal: partner companies whose mail cannot be read with the shared rules get their own 会社スキル, so the scheduled メール取り込み registers their 案件・要員 correctly from the first run. `get_onboarding_status` does not track this step. When resuming at スプレッドシート, マッチングの指示, or 定期実行, ask once whether 会社スキル are done.
 
 A 会社スキル is a Claude skill in the customer's account, one per partner company. Its description names the company and its mail domain. `flow-ses:process-inbox` and the other flow-ses skills find it by the sender's domain and follow it. FlowSES itself never reads it. Everything a 会社スキル does not mention follows the shared skills, so most partners need none.
 
@@ -127,7 +128,7 @@ A 会社スキル is a Claude skill in the customer's account, one per partner c
 
 ## 4. スプレッドシート
 
-Goal: partner companies that share their 案件・要員 in a Google Spreadsheet have that sheet registered for import, so the scheduled スプレッドシート取り込み brings its listings into the ledger. The sheet URL and how to read it go into that company's 会社スキル (a `## スプレッドシート` section), and `flow-ses:register-spreadsheet-listings` reads every 会社スキル that has one. `get_onboarding_status` does not track this step. When resuming at 定期実行, ask once whether スプレッドシート is done.
+Goal: partner companies that share their 案件・要員 in a Google Spreadsheet have that sheet registered for import, so the scheduled スプレッドシート取り込み brings its listings into the ledger. The sheet URL and how to read it go into that company's 会社スキル (a `## スプレッドシート` section), and `flow-ses:register-spreadsheet-listings` reads every 会社スキル that has one. `get_onboarding_status` does not track this step. When resuming at マッチングの指示 or 定期実行, ask once whether スプレッドシート is done.
 
 1. Ask in one message whether any partner shares 案件・要員 in a spreadsheet, and if so, the company and the sheet URL for each. Several at once are fine. Only Google スプレッドシート links (`https://docs.google.com/spreadsheets/d/...`) can be imported; for an Excel file, a SharePoint or OneDrive link, or another kind of page, say it cannot be imported yet and skip it. If the customer names none, say they can add one later by asking for スプレッドシートの追加, and go to 5.
 2. For each sheet:
@@ -153,7 +154,30 @@ Goal: partner companies that share their 案件・要員 in a Google Spreadsheet
 4. Zip and hand over each new or changed 会社スキル as in 3.5. A changed 会社スキル replaces the one already in the account under the same name.
 5. Offer to run the first import now for these sheets with `flow-ses:register-spreadsheet-listings`, following the sections just written. Run it only on the customer's OK, and report the counts (created, updated, stopped, needs review) in a few lines. If they decline, the first scheduled run does it.
 
-## 5. 定期実行 (`scheduled_tasks`)
+## 5. マッチングの指示
+
+Goal: the scheduled マッチング作成 narrows and judges pairs the way this customer does. The customer's answers are saved as two instructions for the AI in 会社設定の「マッチングの指示」: 絞り込み方 (how to narrow the counterpart search) and 比較の仕方 (how to judge a found pair). `flow-ses:evaluate-project-matchings` and `flow-ses:evaluate-candidate-matchings` read them with `get_matching_instructions` at the start of every run and follow them over their own rules. `get_onboarding_status` does not track this step: call `get_matching_instructions`, and if either field has text (`updatedAt` is set), show it and ask whether to change it; if no, go to 6. When resuming at 定期実行 and both are empty, ask once whether マッチングの指示 is done.
+
+1. 絞り込み方. Show how the counterpart search is narrowed today, in plain words, and ask in one message which of these the customer wants different:
+   - 年齢・性別・個人事業主・外国籍: 案件に条件があれば、合わない要員は候補にしない（要員側が未記載なら残す）
+   - 開始月: 案件の開始月までに入れる要員だけ
+   - 稼働率・出社日数: 案件と要員で重なるときだけ
+   - 商流: 案件の商流制限より深い所属の要員は候補にしない（不明は残す）
+   - エリア: 出社がある案件は、同じエリアと隣のエリアの要員だけ（未記載は残す）
+   - スキル: 案件のスキル名（技術・業務・役割）を組み合わせて探し、見つからなければ上位スキルまで広げる
+2. 比較の仕方. Show how a found pair is judged today, and ask in one message which of these the customer wants different:
+   - マージン: 案件単価の上限 − 要員単価の下限 が5万円以上（どちらかが単価相談可なら3万円以上）。税別の月額で比べる
+   - 通勤: 出社がある案件で、片道おおむね2時間を超えるなら作らない
+   - 経験年数: 必須の年数に届かなければ作らない（未記載は不一致にしない）
+   - 主業務と売り方: 言語が同じでも、案件の主な仕事と要員の経験・売り方の方向が違えば作らない
+   - スキルシートが無い要員: 概要だけで明らかに合うときだけ作る
+   - 派遣契約必須の案件: マッチングしない
+   - ほかに、作りたくない組み合わせ（例: 金融系の案件に外国籍の要員）
+   Same-company pairs, existing pairs, and 募集終了 records are never matched; say these do not change.
+3. Write each answer as short Japanese sentences addressed to the AI, only for what differs from the rules above (例: 「開始月は、案件の開始月の1か月後までに入れる要員も候補にする。」「マージンは6万円以上、単価相談可は4万円以上にする。」). Put search changes in 絞り込み方 and judging changes in 比較の仕方; never mix them. Leave a field empty when nothing differs. Do not copy partner or person names. Show both texts for one OK and fix what the customer corrects.
+4. Save with `update_matching_instructions` (`filterInstructions`, `comparisonInstructions`; ADMIN only). If the customer wants no changes at all, save nothing and say the shared rules are used. Show the 会社設定 `url` from `get_onboarding_status` (the `organization` step) as a link and say they can change the instructions there at any time, or by asking for マッチングの指示の変更.
+
+## 6. 定期実行 (`scheduled_tasks`)
 
 Goal: the agent runs the daily work on a schedule. Create these scheduled tasks in the customer's Claude account. Each one uses the flow-ses plugin's FlowSES connector (never another connector with the same tools), the same environment this session runs in, and no repository.
 

@@ -40,11 +40,11 @@ test("onboarding writes 会社スキル only for partners that differ from the s
   assert.match(onboarding, /## 3\. 会社スキル/u);
   assert.match(onboarding, /description: <会社名>（<ドメイン>）の会社スキル/u);
   assert.match(onboarding, /Only a difference from these needs a 会社スキル/u);
-  assert.ok(onboarding.indexOf("## 3. 会社スキル") < onboarding.indexOf("## 5. 定期実行"));
+  assert.ok(onboarding.indexOf("## 3. 会社スキル") < onboarding.indexOf("## 6. 定期実行"));
 });
 
 test("onboarding starts 会社スキル and 定期実行 only after every required earlier step is done", () => {
-  assert.match(read("onboarding"), /Start 3, 4, and 5 only when every earlier required step \(`optional: false`\) is `done`/u);
+  assert.match(read("onboarding"), /Start 3, 4, 5, and 6 only when every earlier required step \(`optional: false`\) is `done`/u);
 });
 
 test("onboarding builds the partner list from contacts, not from mail that is not ingested yet", () => {
@@ -95,7 +95,7 @@ test("onboarding registers partner spreadsheets after mail import, in the compan
   const onboarding = read("onboarding");
   const sheet = onboarding.indexOf("## 4. スプレッドシート");
   assert.ok(onboarding.indexOf("## 2. 取り込みフォルダ") < sheet);
-  assert.ok(onboarding.indexOf("## 3. 会社スキル") < sheet && sheet < onboarding.indexOf("## 5. 定期実行"));
+  assert.ok(onboarding.indexOf("## 3. 会社スキル") < sheet && sheet < onboarding.indexOf("## 6. 定期実行"));
   assert.match(onboarding, /the company and the sheet URL for each/u);
   assert.match(onboarding, /export\?format=xlsx/u);
   assert.match(onboarding, /「リンクを知っている全員」が閲覧可/u);
@@ -113,4 +113,27 @@ test("spreadsheet register skill keeps company facts in the 会社スキル and 
   assert.match(skill, /never pass `ownCompany: true`/u);
   assert.match(skill, /flow-ses:close-stale-source-listings/u);
   assert.match(skill, /notPublic/u);
+});
+
+test("onboarding asks how to narrow and compare matchings and saves them as two instructions", () => {
+  const onboarding = read("onboarding");
+  const step = onboarding.indexOf("## 5. マッチングの指示");
+  assert.ok(onboarding.indexOf("## 4. スプレッドシート") < step && step < onboarding.indexOf("## 6. 定期実行"));
+  assert.match(onboarding, /1\. 絞り込み方\./u);
+  assert.match(onboarding, /2\. 比較の仕方\./u);
+  assert.match(onboarding, /Put search changes in 絞り込み方 and judging changes in 比較の仕方; never mix them/u);
+  assert.match(onboarding, /`update_matching_instructions` \(`filterInstructions`, `comparisonInstructions`; ADMIN only\)/u);
+});
+
+test("both matching skills read the company's matching instructions and keep the fixed guards", () => {
+  for (const name of ["evaluate-project-matchings", "evaluate-candidate-matchings"]) {
+    const skill = read(name);
+    assert.match(skill, /Call `get_matching_instructions` once/u, name);
+    assert.match(skill, /## 自社の指示 \(company matching instructions\)/u, name);
+    assert.match(skill, /`filterInstructions` \(絞り込み方\)/u, name);
+    assert.match(skill, /`comparisonInstructions` \(比較の仕方\)/u, name);
+    assert.match(skill, /Where an instruction and this skill differ, follow the instruction/u, name);
+    assert.match(skill, /An instruction never overrides these: no same-company pair/u, name);
+    assert.match(skill, /"instructionsApplied"/u, name);
+  }
 });
