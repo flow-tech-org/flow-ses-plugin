@@ -6,9 +6,9 @@ Claude のプラグインです。FlowSES コネクタの接続先と、作業�
 
 ## 入れ方
 
-- **claude.ai（Pro / Max / Team / Enterprise の各メンバー）:** [カスタマイズ → プラグイン](https://claude.ai/customize/plugins) で「Add」→「Add marketplace」→「Add from a repository」にこのリポジトリ（`flow-tech-org/flow-ses-plugin`）を入れ、flow-ses をインストールします。「Sync automatically」をオンにすると更新が自動で届きます。
+- **claude.ai（Pro / Max / Team / Enterprise の各メンバー）:** [カスタマイズ → プラグイン](https://claude.ai/customize/plugins) で「Add」→「Add marketplace」→「Add from a repository」にこのリポジトリ（`flow-tech-org/flow-ses-plugin`）を入れ、flow-ses をインストールし、プラグインの「Connectors」タブで FlowSES を接続します（プラグインを入れただけではコネクタは追加されません）。接続するとコネクタ一覧にも入り、定期実行からも使えます。「Sync automatically」をオンにすると更新が自動で届きます。
 - **Claude Code:** `/plugin marketplace add flow-tech-org/flow-ses-plugin` のあと `/plugin install flow-ses@flow-ses`。
-- **定期実行と Claude Code on the web:** プラグインが読み込まれない場合があるので、FlowSES の導入ガイドに出る MCP の URL を claude.ai のコネクタにも追加します。スキルは `https://raw.githubusercontent.com/flow-tech-org/flow-ses-plugin/main/skills/<名前>/SKILL.md` を読めば同じ手順で動きます。
+- **定期実行と Claude Code on the web:** プラグインのスキルが読み込まれない場合があります。そのときは `https://raw.githubusercontent.com/flow-tech-org/flow-ses-plugin/main/skills/<名前>/SKILL.md` を読めば同じ手順で動きます。
 
 組織のマーケットプレイス（組織設定 → Plugins & skills）は非公開か internal のリポジトリしか登録できません。組織でまとめて配るときは、このリポジトリを自社の非公開リポジトリに複製して登録します。複製には、こちらの更新は自動では届きません。
 
