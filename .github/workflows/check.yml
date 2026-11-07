@@ -1,0 +1,21 @@
+name: check
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: No company, partner, or site names
+        run: |
+          if grep -rnE 'FlowTech|古垣|ses-agent|get_agent_instructions|Taisei|Humans|Aight|YOKU|SBN|NBW|CCT|CloudMeets|OHGI|チョータツ|SESAI' skills README.md .claude-plugin; then
+            echo "Remove the names above."; exit 1
+          fi
+      - name: Versions match
+        run: |
+          a=$(jq -r .version .claude-plugin/plugin.json); b=$(jq -r '.plugins[0].version' .claude-plugin/marketplace.json)
+          test "$a" = "$b" || { echo "plugin.json $a != marketplace.json $b"; exit 1; }
+      - name: Validate plugin
+        run: npx -y @anthropic-ai/claude-code plugin validate --strict .

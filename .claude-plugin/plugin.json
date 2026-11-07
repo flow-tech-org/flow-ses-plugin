@@ -1,0 +1,13 @@
+{
+  "name": "flow-ses",
+  "displayName": "Flow SES",
+  "version": "0.1.0",
+  "description": "FlowSES の案件・要員・マッチングの台帳に Claude をつなぎ、メール取り込み・マッチング作成・配信下書き・導入を進めます。",
+  "author": {
+    "name": "Flow SES"
+  },
+  "homepage": "https://github.com/flow-tech-org/flow-ses-plugin",
+  "repository": "https://github.com/flow-tech-org/flow-ses-plugin",
+  "mcpServers": "./.mcp.json",
+  "skills": "./skills/"
+}
