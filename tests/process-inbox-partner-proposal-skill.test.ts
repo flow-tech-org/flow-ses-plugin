@@ -48,11 +48,12 @@ test("inbox skill follows the sender company's 会社スキル when splitting on
   assert.doesNotMatch(skill, /get_company_registration_habit/u);
   assert.doesNotMatch(skill, /get_company_distribution_habit/u);
   assert.doesNotMatch(skill, /registrationHabitText/u);
-  assert.match(skill, /the customer's own skill for that company, whose description lists that company's mail domain/u);
+  assert.match(skill, /read its \*\*会社スキル\*\* \*\*before\*\* creating, with `get_company_skill`/u);
+  assert.match(skill, /the Markdown text the customer saved on that company in the 会社台帳/u);
   assert.match(skill, /ordinals: \[1, 2, …, N\]/u);
   assert.doesNotMatch(skill, /add_project_attachment_reference/u);
   assert.match(skill, /スキルシート未確認/u);
-  assert.match(skill, /never in this shared skill and never on the company ledger/u);
+  assert.match(skill, /never in this shared skill\. The server stores it but does \*\*not\*\* apply it/u);
   assert.match(skill, /how to interpret structured conditions/u);
   assert.match(skill, /会社スキルに税区分の解釈があるときはそれに従う/u);
   assert.match(skill, /ある会社のサイト掲載は 案件情報 \/ 希望条件 \/ 契約情報を省略せず載せる/u);

@@ -197,7 +197,7 @@ Do **not** store it in `commercialFlowMaxDepth`. Do not write position into `com
 - 要員 `isForeignNationality`。未記載は `false`（非該当）。
 - 要員 `gender`（`MALE` / `FEMALE` / `null`）は下の「要員の性別」の順で決める。掲載文・メール本文・セルを先に読み、そこに無いときだけその要員のスキルシートを読む。どちらにも無ければ `null`（未設定）で登録する。新規の性別を `MALE` にしない。Do not default new 要員 gender to `MALE`; save `null` when neither the source nor the skill sheet states it.
 - 要員 `isSoloProprietor` は掲載文・メール本文・セルと会社スキルから読む。その要員の所属・雇用形態として `フリーランス`・`所属フリーランス`（`弊社所属フリーランス`・`1社先所属フリーランス` など）・`個人事業主` とあれば `true`（該当）。`正社員`・`契約社員`・`N社先正社員` は `false`（非該当）。メール冒頭の `弊社所属フリーランス人材` のように、同じメールの全員に向けた一文もその全員の所属として読む。PR・職歴に出てくるだけのフリーランス経験は判定に使わない。A 要員 whose own 所属 or 雇用形態 says フリーランス, 所属フリーランス, or 個人事業主 is `true`; 正社員 or 契約社員 is `false`; past freelance work in the PR or history does not decide it. 決まらなければその旨を報告し、そのレコードは登録しない。個人事業主の未記載をスキルシート必須にはしない。`false`（非該当）は既存行の移行値であり、新規の既定ではない。Do not default new 要員 `isSoloProprietor` to `false`.
-- 会社スキル（送信元会社ごとに導入先が用意したスキル）がこれらの既定を書いていれば、未記載のときはそれに従う。ソースの明示は既定にも会社スキルにも勝つ。性別はこの既定で埋めない。掲載文・メール本文・セルに男性か女性が無いときは、会社スキルの性別既定より先にスキルシートを読む。
+- 会社スキル（導入先が会社台帳の会社ごとに保存した決まり。`get_company_skill` で読む）がこれらの既定を書いていれば、未記載のときはそれに従う。ソースの明示は既定にも会社スキルにも勝つ。性別はこの既定で埋めない。掲載文・メール本文・セルに男性か女性が無いときは、会社スキルの性別既定より先にスキルシートを読む。
 
 案件のみ: `requiredGender`（`MALE` / `FEMALE`。歓迎はメモであり必須ではない。未記載は `null` のまま）。`ageMin` / `ageMax` は書いた端だけ 15〜99。下限が無いときは `null`（下限なし、負の無限大）、上限が無いときは `null`（上限なし、正の無限大）。15 と 99 で埋めない。端を 15 や 99 に丸めない。Unstated project age stays null. A stated age outside 15–99 is rejected. An age filter still returns projects whose age bounds are null. Do not pass 15 or 99 to keep those rows. Do not clamp an out-of-range end to 15 or 99.
 
