@@ -16,14 +16,14 @@ test("onboarding sets up the new-matching notification as an agent task", () => 
 
 test("scheduled-task prompts work without the plugin loaded", () => {
   const onboarding = read("onboarding");
-  for (const name of ["process-inbox", "evaluate-recent-matchings", "close-stale-source-listings"]) {
+  for (const name of ["process-inbox", "evaluate-recent-matchings", "close-stale-source-listings", "register-spreadsheet-listings"]) {
     assert.ok(onboarding.includes(`https://raw.githubusercontent.com/flow-tech-org/flow-ses-plugin/main/skills/${name}/SKILL.md`), name);
   }
   assert.doesNotMatch(onboarding, /get_agent_instructions/u);
 });
 
 test("every skill folder matches its name", () => {
-  for (const name of ["onboarding", "process-inbox", "structured-conditions", "evaluate-recent-matchings", "evaluate-project-matchings", "evaluate-candidate-matchings", "close-stale-source-listings", "generate-distribution-draft", "register-ses-partner-business-card", "read-office-attachments"]) {
+  for (const name of ["onboarding", "process-inbox", "structured-conditions", "evaluate-recent-matchings", "evaluate-project-matchings", "evaluate-candidate-matchings", "close-stale-source-listings", "generate-distribution-draft", "register-ses-partner-business-card", "read-office-attachments", "register-spreadsheet-listings"]) {
     assert.match(read(name), new RegExp(`^name: ${name}$`, "mu"));
   }
 });
@@ -40,11 +40,11 @@ test("onboarding writes 会社スキル only for partners that differ from the s
   assert.match(onboarding, /## 3\. 会社スキル/u);
   assert.match(onboarding, /description: <会社名>（<ドメイン>）の会社スキル/u);
   assert.match(onboarding, /Only a difference from these needs a 会社スキル/u);
-  assert.ok(onboarding.indexOf("## 3. 会社スキル") < onboarding.indexOf("## 4. 定期実行"));
+  assert.ok(onboarding.indexOf("## 3. 会社スキル") < onboarding.indexOf("## 5. 定期実行"));
 });
 
 test("onboarding starts 会社スキル and 定期実行 only after every required earlier step is done", () => {
-  assert.match(read("onboarding"), /Start 3 and 4 only when every earlier required step \(`optional: false`\) is `done`/u);
+  assert.match(read("onboarding"), /Start 3, 4, and 5 only when every earlier required step \(`optional: false`\) is `done`/u);
 });
 
 test("onboarding builds the partner list from contacts, not from mail that is not ingested yet", () => {
@@ -76,4 +76,28 @@ test("onboarding asks when to run mail ingest and widens the window after skippe
   assert.match(onboarding, /1\. Ask when to run メール取り込み/u);
   assert.match(onboarding, /Then ask when to run マッチング作成/u);
   assert.match(onboarding, /この定期実行の一つ前の実行予定時刻/u);
+});
+
+test("onboarding registers partner spreadsheets after mail import, in the company's 会社スキル", () => {
+  const onboarding = read("onboarding");
+  const sheet = onboarding.indexOf("## 4. スプレッドシート");
+  assert.ok(onboarding.indexOf("## 2. 取り込みフォルダ") < sheet);
+  assert.ok(onboarding.indexOf("## 3. 会社スキル") < sheet && sheet < onboarding.indexOf("## 5. 定期実行"));
+  assert.match(onboarding, /the company and the sheet URL for each/u);
+  assert.match(onboarding, /export\?format=xlsx/u);
+  assert.match(onboarding, /「リンクを知っている全員」が閲覧可/u);
+  assert.match(onboarding, /Add the `## スプレッドシート` section to that company's 会社スキル/u);
+  assert.match(onboarding, /\| スプレッドシート取り込み \|[^\n]*register-spreadsheet-listings/u);
+  assert.match(onboarding, /Create this task only when at least one 会社スキル has a `## スプレッドシート` section/u);
+});
+
+test("spreadsheet register skill keeps company facts in the 会社スキル and URL sources append-only", () => {
+  const skill = read("register-spreadsheet-listings");
+  assert.match(skill, /Every company-specific fact \(sheet URL, tabs, layout, which value means 募集中, tag\) is in that company's 会社スキル/u);
+  assert.match(skill, /URL sources are append-only/u);
+  assert.match(skill, /Create only on `NONE`/u);
+  assert.match(skill, /Do not pass `linkedUrlContains`/u);
+  assert.match(skill, /never pass `ownCompany: true`/u);
+  assert.match(skill, /flow-ses:close-stale-source-listings/u);
+  assert.match(skill, /notPublic/u);
 });
