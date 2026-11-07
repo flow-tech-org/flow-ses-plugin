@@ -16,6 +16,7 @@ The customer opened this session from the FlowSES 導入ガイド (`/onboarding`
 ## Rules
 
 - This skill is part of the flow-ses plugin. When it names another flow-ses skill (`flow-ses:<name>`), use that skill. If the plugin is not loaded in this session, read it from https://raw.githubusercontent.com/flow-tech-org/flow-ses-plugin/main/skills/<name>/SKILL.md instead.
+- Use only the FlowSES connector that comes with the flow-ses plugin: the MCP server named `flow-ses` (Claude Code lists it as `plugin:flow-ses:flow-ses`; on claude.ai it is the FlowSES connector on the plugin's Connectors tab). Other connectors may offer tools with the same names, such as one added by hand or a test or staging copy. Never call those, even when the plugin's connector is missing: they may point to another FlowSES environment. If the plugin's connector is not callable, do 0.
 - Start every run with `get_onboarding_status`. If the FlowSES connector is not callable, or it asks for sign-in, do 0 first. Never trust what an earlier run said. Skip every step whose `state` is `done`, unless the customer asks to redo it.
 - Follow the steps in the order `get_onboarding_status` returns them (`mcp` → 会社設定 → ユーザー設定 → メンバー管理 → 会社台帳 → 取り込みフォルダ → 定期実行). After each step, call `get_onboarding_status` again and say in one line what is done and what comes next.
 - Dashboard steps (`agent: false`, not `done`) are done by the customer on a FlowSES screen. Do not stop the session for them:
@@ -66,7 +67,7 @@ Goal: the folders where 案件・要員 mail arrives are ingested into the メ�
 
 ## 3. 定期実行 (`scheduled_tasks`)
 
-Goal: the agent runs the daily work on a schedule. Create these scheduled tasks in the customer's Claude account. Each one uses the FlowSES connector, the same environment this session runs in, and no repository.
+Goal: the agent runs the daily work on a schedule. Create these scheduled tasks in the customer's Claude account. Each one uses the flow-ses plugin's FlowSES connector (never another connector with the same tools), the same environment this session runs in, and no repository.
 
 | 名前 | いつ | プロンプト |
 |---|---|---|
