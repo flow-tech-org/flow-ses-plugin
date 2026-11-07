@@ -52,20 +52,26 @@ Goal: the partner companies the customer trades with are in the ledger, with 配
 2. Ask for the partner list in one message. Accept any of: pasted text, a CSV or Excel file, or "連絡先から拾って". Columns that help: 会社名, ドメイン, 配信先メール, 担当者名, 担当者メール. No mail is ingested yet at this point, so do not build the list from mail senders.
    - "連絡先から拾って": call `search_mail_contacts` with no filter to read the customer's own Outlook or Google contacts. Group them by company name and email domain, drop the customer's own domains (会社設定のログインドメイン) and consumer domains such as gmail.com, and show the candidates as a table (会社名, ドメイン, 担当者). The customer picks which are partners. If there are few or no contacts, say so and ask for a pasted list instead.
 3. Show the parsed list as a short table and ask for one OK. Fix what the customer corrects.
-4. For each company, in this order, skipping what already exists:
+4. Register every company first, skipping what already exists:
    1. `ensure_company` with the display name and the parent domain (no consumer domains such as gmail.com).
    2. `add_company_contact`: the distribution address with `distributionRecipient: true`, `listedContact: false`; each 担当者 with `listedContact: true`.
-   3. If the customer uses Outlook folders per company (ask once for the whole list): `create_outlook_mail_folder` for 受信トレイ/<親フォルダ>/<会社名> and 送信済みアイテム/<親フォルダ>/<会社名> (default 親フォルダ: SES協力会社). Then, after the one OK above, `create_outlook_rule` for 「<会社名> 受信」 (sender contains the domain → move to the inbox folder, stop processing) and 「<会社名> 送信」 (recipient contains the domain and sent by the customer → move to the sent folder).
-5. Report the count registered, the count skipped as already present, and any failures with the reason. A failure on one company does not stop the rest.
 
-   For Gmail (`list_mail_ingest_folders` returns `mailboxProvider: GOOGLE`), do this instead (same one question and one OK): `create_gmail_label` for <親フォルダ>/<会社名> (one label holds received and sent mail; there is no drafts label), then `create_gmail_filter` with `criteria.query` `from:(<ドメイン>) OR to:(<ドメイン>) OR cc:(<ドメイン>)` and `action.addLabelIds` set to that label id. Keep mail in 受信トレイ unless the customer asks to skip it. If a Gmail tool says to reconnect, ask the customer to press 「Gmailを再接続」 in ユーザー設定 first.
+   Report the count registered, the count skipped as already present, and any failures with the reason. A failure on one company does not stop the rest.
+5. Before asking about sorting, read how the customer's mail is sorted now: Outlook `list_outlook_mail_folders` (受信トレイ and 送信済みアイテム, with subfolders) and `list_outlook_rules`; Gmail `list_gmail_labels` and `list_gmail_filters`. Sorting is already set when folders (labels) named after the registered companies exist, or rules (filters) match their domains.
+   - Already set: show what exists in short (the folder shape, e.g. 受信トレイ/<親フォルダ>/<会社名>, and which registered companies have a folder and a rule and which do not). Ask whether to fix it. If no, keep it as it is and go to 2; those folders become the 取り込みフォルダ there. If yes, make the plan in the same shape as the existing setup: the same parent folder and naming, folders and rules only for companies that lack them, and a rule fixed only where it points to the wrong folder. Never delete or rename existing folders or rules.
+   - Not set: ask whether to sort mail by company, and say what it does in plain words: mail from and to each partner goes to its own folder (Gmail: gets its own label), and those folders become the 取り込みフォルダ in 2. If yes, the plan is Outlook 受信トレイ/<会社名> and 送信済みアイテム/<会社名>, Gmail label <会社名>. If no, go to 2; whole 受信トレイ can be ingested instead.
+6. Show the plan as one list (folders, and rules or filters, per company) and get one OK, because rules move mail. Fix what the customer corrects. Then, per company in the plan, skipping what already exists:
+   - Outlook: `create_outlook_mail_folder` for the inbox and sent folders in the plan. Then `create_outlook_rule` for 「<会社名> 受信」 (sender contains the domain → move to the inbox folder, stop processing) and 「<会社名> 送信」 (recipient contains the domain and sent by the customer → move to the sent folder). Use `update_outlook_rule` only for a rule the plan fixes.
+   - Gmail (`list_mail_ingest_folders` returns `mailboxProvider: GOOGLE`): `create_gmail_label` for the label in the plan (one label holds received and sent mail; there is no drafts label), then `create_gmail_filter` with `criteria.query` `from:(<ドメイン>) OR to:(<ドメイン>) OR cc:(<ドメイン>)` and `action.addLabelIds` set to that label id. Keep mail in 受信トレイ unless the customer asks to skip it. If a Gmail tool says to reconnect, ask the customer to press 「Gmailを再接続」 in ユーザー設定 first.
+
+   Report what was created and any failures. A failure on one company does not stop the rest.
 
 ## 2. 取り込みフォルダ (`ingest_folders`)
 
 Goal: the folders where 案件・要員 mail arrives are ingested into the メール台帳.
 
 1. `refresh_mail_ingest_folders`, then `list_mail_ingest_folders`.
-2. If 1.4.3 created company folders, propose those inbox and sent folders. For Gmail, propose the company labels; Gmail may not label mail the customer sends, so also ask whether to turn on 送信済み. Otherwise show the inbox-side folders and ask which ones receive 案件・要員 mail. Whole 受信トレイ is fine when the customer has no per-company folders.
+2. If the customer has company folders (kept or created in 1.5 and 1.6), propose those inbox and sent folders. For Gmail, propose the company labels; Gmail may not label mail the customer sends, so also ask whether to turn on 送信済み. Otherwise show the inbox-side folders and ask which ones receive 案件・要員 mail. Whole 受信トレイ is fine when the customer has no per-company folders.
 3. `enable_mail_ingest_folders` with the chosen graph folder ids. Do not pass Drafts folders. This adds to what is already on and does not turn other folders off.
 4. Past mail is not pulled in automatically. Recommend that the customer runs 手動同期 for the last one or two weeks on the メール台帳 screen now: 3 reads those mails to write 会社スキル, and the ledger starts with recent 案件・要員. Wait until they say it has finished. If they decline, go on.
 

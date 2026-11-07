@@ -52,3 +52,15 @@ test("onboarding builds the partner list from contacts, not from mail that is no
   assert.match(onboarding, /"連絡先から拾って": call `search_mail_contacts`/u);
   assert.doesNotMatch(onboarding, /メールの送信元から拾って/u);
 });
+
+test("onboarding registers the companies before asking about per-company sorting", () => {
+  const onboarding = read("onboarding");
+  const register = onboarding.indexOf("4. Register every company first");
+  const ask = onboarding.indexOf("5. Before asking about sorting, read how the customer's mail is sorted now");
+  assert.ok(register > 0 && ask > register);
+  assert.match(onboarding, /If yes, make the plan in the same shape as the existing setup/u);
+  assert.match(onboarding, /the plan is Outlook 受信トレイ\/<会社名> and 送信済みアイテム\/<会社名>, Gmail label <会社名>/u);
+  assert.match(onboarding, /Never delete or rename existing folders or rules/u);
+  assert.ok(onboarding.indexOf("create_outlook_rule", register) > ask);
+  assert.ok(onboarding.indexOf("create_gmail_filter", register) > ask);
+});
