@@ -3,7 +3,9 @@ name: onboarding
 description: >-
   Walk a new FlowSES customer through onboarding: read get_onboarding_status,
   guide the dashboard steps with a link to each screen, then register the company
-  ledger, choose mail ingest folders, and create the scheduled tasks, skipping steps already done so an
+  ledger, choose mail ingest folders, ask about partners whose mail needs its own
+  reading rules and write a 会社スキル for each, and create the scheduled tasks,
+  skipping steps already done so an
   interrupted onboarding resumes where it stopped. Use for FlowSES導入, 導入を進める,
   導入の続き, or 導入チェック. When FlowSES is not connected yet, it first walks the
   customer through installing the plugin and connecting.
@@ -19,7 +21,7 @@ The customer opened this session from the FlowSES 導入ガイド (`/onboarding`
 - This skill is part of the flow-ses plugin. When it names another flow-ses skill (`flow-ses:<name>`), use that skill. If the plugin is not loaded in this session, read it from https://raw.githubusercontent.com/flow-tech-org/flow-ses-plugin/main/skills/<name>/SKILL.md instead.
 - Use only the FlowSES connector that comes with the flow-ses plugin: the MCP server named `flow-ses` (Claude Code lists it as `plugin:flow-ses:flow-ses`; on claude.ai it is the FlowSES connector on the plugin's 「コネクタ」 tab). Other connectors may offer tools with the same names, such as one added by hand or a test or staging copy. Never call those, even when the plugin's connector is missing: they may point to another FlowSES environment. If the plugin's connector is not callable, do 0.
 - Start every run with `get_onboarding_status`. If the FlowSES connector is not callable, or it asks for sign-in, do 0 first. Never trust what an earlier run said. Skip every step whose `state` is `done`, unless the customer asks to redo it.
-- Follow the steps in the order `get_onboarding_status` returns them (`mcp` → 会社設定 → ユーザー設定 → メンバー管理 → 会社台帳 → 取り込みフォルダ → 定期実行). After each step, call `get_onboarding_status` again and say in one line what is done and what comes next.
+- Follow the steps in the order `get_onboarding_status` returns them (`mcp` → 会社設定 → ユーザー設定 → メンバー管理 → 会社台帳 → 取り込みフォルダ → 定期実行). Do 3 (会社スキル) right after 取り込みフォルダ, before 定期実行. After each step, call `get_onboarding_status` again and say in one line what is done and what comes next.
 - Dashboard steps (`agent: false`, not `done`) are done by the customer on a FlowSES screen. Do not stop the session for them:
   - Tell the customer in one or two plain lines what to set, using the step's `detail`, and always show the step's `url` as a link so they can open the screen directly. Steps that share a `url` (会社設定: `organization` and `notification`; ユーザー設定: `mailbox` and `signature`) go in one message, so the customer opens each screen once.
   - For an optional step (`optional: true`), ask whether they want it; skip it when they say no.
@@ -66,7 +68,56 @@ Goal: the folders where 案件・要員 mail arrives are ingested into the メ�
 3. `enable_mail_ingest_folders` with the chosen graph folder ids. Do not pass Drafts folders. This adds to what is already on and does not turn other folders off.
 4. Tell the customer that past mail is not pulled in automatically. To bring in older mail, they run 手動同期 with a date range on the メール台帳 screen.
 
-## 3. 定期実行 (`scheduled_tasks`)
+## 3. 会社スキル
+
+Goal: partner companies whose mail cannot be read with the shared rules get their own 会社スキル, so the scheduled メール取り込み registers their 案件・要員 correctly from the first run. `get_onboarding_status` does not track this step. When resuming at 定期実行, ask once whether 会社スキル are done.
+
+A 会社スキル is a Claude skill in the customer's account, one per partner company. Its description names the company and its mail domain. `flow-ses:process-inbox` and the other flow-ses skills find it by the sender's domain and follow it. FlowSES itself never reads it. Everything a 会社スキル does not mention follows the shared skills, so most partners need none.
+
+1. Ask in one message whether any partner writes mail in its own way. Give these examples in plain words:
+   - 1通に複数の案件・要員を載せてくる（区切り方に決まりがある）
+   - 単価をいつも税込で書く、または税区分を書かない
+   - 再配信を常に不可として扱う、または書いていないときは不可
+   - 個人事業主・外国籍を書かないときの扱いが決まっている
+   - スキルシートの付け方（添付・URL・別メール）に癖がある
+   - 募集終了の知らせ方が決まっている
+   Shared defaults when unstated are: 税別、再配信可、案件の個人事業主可・外国籍可、要員の外国籍不可 (`flow-ses:structured-conditions`). Only a difference from these needs a 会社スキル. If the customer names none, say they can add one later by asking for 会社スキルの追加, and go to 4.
+2. For each named company, confirm it is in the 会社台帳 (`list_companies`); add it as in 1.4 if not. Then read two or three recent mails from that company: `list_mail_sources` for the window the customer synced, and `get_mail_source` for bodies. If none are ingested yet, ask the customer to paste one or run 手動同期 first. From the mails and the customer's words, write the rules as short sentences and show them for one OK.
+3. Only write rules about that company's mail: block count and how to split, which skill sheet belongs to which 要員, how to read 税区分・再配信・個人事業主・外国籍, and how it says 募集終了. Do not write rules on the shape of 概要 (the shared skills keep 概要 as an excerpt of the 原文), on identity of resends (the match tools decide), or on sending mail. Never copy mail text that names people.
+4. Write one skill per company in a folder named `company-<ascii slug of the company>` with this `SKILL.md`:
+
+   ```markdown
+   ---
+   name: company-<slug>
+   description: <会社名>（<ドメイン>）の会社スキル。<要点を1文>。送信元やレコードの会社が<会社名>のときに、メール取り込み・登録・配信下書きの会社ごとのルールとして読む。他の会社には使わない。
+   ---
+
+   # <会社名> 会社スキル
+
+   会社は <会社名>（<ドメイン>。ほかのドメインがあれば並べる）。
+
+   ## メール
+
+   - <件数と区切り方、スキルシートの対応づけ>
+
+   ## 条件
+
+   - <税区分・再配信・個人事業主・外国籍の読み方。メールの明記が最優先>
+
+   ## 募集終了
+
+   - <知らせ方。無ければこの節を省く>
+
+   ## 使い方
+
+   - `flow-ses:process-inbox` などの登録スキルが、送信元がこの会社のときに読む。ここに無いことは共通スキル（`flow-ses:process-inbox`・`flow-ses:structured-conditions`）に従う。
+   - 同一案件・同一要員は `match_project_overviews` / `match_candidate_overviews` が決める。
+   ```
+
+5. Zip each folder and give the customer the files. If this session cannot hand over a file, show each `SKILL.md` in full and say to save it as `SKILL.md` in a folder with the skill name and zip that folder. Then have them upload each zip on claude.ai from the スキル page under カスタマイズ, and turn it on. Skills turned on in the account are loaded by scheduled tasks too.
+6. After the customer says they are uploaded, list the company skills created, in one line each.
+
+## 4. 定期実行 (`scheduled_tasks`)
 
 Goal: the agent runs the daily work on a schedule. Create these scheduled tasks in the customer's Claude account. Each one uses the flow-ses plugin's FlowSES connector (never another connector with the same tools), the same environment this session runs in, and no repository.
 

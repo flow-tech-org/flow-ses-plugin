@@ -27,3 +27,11 @@ test("every skill folder matches its name", () => {
     assert.match(read(name), new RegExp(`^name: ${name}$`, "mu"));
   }
 });
+
+test("onboarding writes 会社スキル only for partners that differ from the shared defaults", () => {
+  const onboarding = read("onboarding");
+  assert.match(onboarding, /## 3\. 会社スキル/u);
+  assert.match(onboarding, /description: <会社名>（<ドメイン>）の会社スキル/u);
+  assert.match(onboarding, /Only a difference from these needs a 会社スキル/u);
+  assert.ok(onboarding.indexOf("## 3. 会社スキル") < onboarding.indexOf("## 4. 定期実行"));
+});
