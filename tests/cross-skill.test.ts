@@ -58,6 +58,6 @@ test("onboarding registers the companies before asking about per-company sorting
   const register = onboarding.indexOf("4. Register every company first");
   const ask = onboarding.indexOf("5. Then ask once, for the whole list, whether to sort mail by company");
   assert.ok(register > 0 && ask > register);
-  assert.ok(onboarding.indexOf("create_outlook_rule") > ask);
-  assert.ok(onboarding.indexOf("create_gmail_filter") > ask);
+  assert.ok(onboarding.indexOf("create_outlook_rule", register) > ask);
+  assert.ok(onboarding.indexOf("create_gmail_filter", register) > ask);
 });
