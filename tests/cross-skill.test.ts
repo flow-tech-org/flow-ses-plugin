@@ -70,3 +70,10 @@ test("onboarding shows the folders already ingested and links the メール台�
   assert.match(onboarding, /Show the folders that are already on \(`enabled: true`\) first/u);
   assert.match(onboarding, /show the `ingest_folders` step's `url` from `get_onboarding_status` as a link/u);
 });
+
+test("onboarding asks when to run mail ingest and widens the window after skipped hours", () => {
+  const onboarding = read("onboarding");
+  assert.match(onboarding, /1\. Ask when to run メール取り込み/u);
+  assert.match(onboarding, /マッチング作成 follows the same days and hours at minute 31/u);
+  assert.match(onboarding, /この定期実行の一つ前の実行予定時刻/u);
+});
