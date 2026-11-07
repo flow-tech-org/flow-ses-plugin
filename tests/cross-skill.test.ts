@@ -71,11 +71,24 @@ test("onboarding shows the folders already ingested and links the メール台�
   assert.match(onboarding, /show the `ingest_folders` step's `url` from `get_onboarding_status` as a link/u);
 });
 
-test("onboarding asks when to run mail ingest and widens the window after skipped hours", () => {
+test("onboarding asks when to run mail ingest and matching, and the prompts start from the previous run", () => {
   const onboarding = read("onboarding");
   assert.match(onboarding, /1\. Ask when to run メール取り込み/u);
   assert.match(onboarding, /Then ask when to run マッチング作成/u);
-  assert.match(onboarding, /この定期実行の一つ前の実行予定時刻/u);
+  assert.equal(onboarding.match(/定期実行として、前回の開始時刻から処理する。/gu)?.length, 2);
+  assert.doesNotMatch(onboarding, /1時間10分|一つ前の実行予定時刻/u);
+});
+
+test("scheduled mail ingest and matching read and record the last start", () => {
+  for (const [name, task] of [["process-inbox", "process-inbox"], ["evaluate-recent-matchings", "evaluate-recent-matchings"]]) {
+    const skill = read(name);
+    const get = skill.indexOf(`\`get_scheduled_task_last_start\` with \`task: "${task}"\``);
+    const record = skill.indexOf(`\`record_scheduled_task_start\` with \`task: "${task}"\``);
+    assert.ok(get >= 0 && record > get, name);
+    assert.match(skill, /1 hour 10 minutes before/u, name);
+    assert.match(skill, /Do not record when the run stopped early/u, name);
+  }
+  assert.match(read("process-inbox"), /`createdAfter` \/ `createdBefore` to every `list_mail_sources` call/u);
 });
 
 test("onboarding registers partner spreadsheets after mail import, in the company's 会社スキル", () => {
