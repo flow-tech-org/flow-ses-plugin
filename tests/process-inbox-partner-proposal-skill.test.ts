@@ -296,10 +296,6 @@ test("inbox skill includes 週1–4 when full remote and on-site are both allowe
 });
 
 test("inbox skill rewrites 商流 lines in the overview to the structured depth", () => {
-  const generate = readFileSync(
-    new URL("../skills/generate-distribution-draft/SKILL.md", import.meta.url),
-    "utf8",
-  );
   assert.match(skill, /do \*\*not\*\* apply the distribution ±5万 shift/u);
   assert.match(skill, /keep the mail body as written/u);
   assert.match(skill, /Do not rewrite 商流, 所属, or 商流制限 in the 原文/u);
@@ -315,8 +311,6 @@ test("inbox skill rewrites 商流 lines in the overview to the structured depth"
   assert.doesNotMatch(skill, /Delete 商流, 所属, 商流制限, 単価, and 勤務形態 from the record title/u);
   assert.doesNotMatch(skill, /still omit lines that duplicate structured fields/u);
   assert.doesNotMatch(skill, /do \*\*not\*\* keep 商流制限 sentences in the overview/u);
-  assert.match(generate, /Do not deepen 商流 or 所属 again/u);
-  assert.match(generate, /協力会社向け — 商流制限は structured から −1段/u);
 });
 
 test("inbox skill registers partner candidate affiliation from 自社 viewpoint", () => {

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import test from "node:test";
 
 const read = (name: string) => readFileSync(new URL(`../skills/${name}/SKILL.md`, import.meta.url), "utf8");
@@ -23,7 +23,7 @@ test("scheduled-task prompts work without the plugin loaded", () => {
 });
 
 test("every skill folder matches its name", () => {
-  for (const name of ["onboarding", "process-inbox", "structured-conditions", "evaluate-recent-matchings", "evaluate-project-matchings", "evaluate-candidate-matchings", "close-stale-source-listings", "generate-distribution-draft", "register-ses-partner-business-card", "read-office-attachments", "register-spreadsheet-listings"]) {
+  for (const name of ["onboarding", "process-inbox", "structured-conditions", "evaluate-recent-matchings", "evaluate-project-matchings", "evaluate-candidate-matchings", "close-stale-source-listings", "register-ses-partner-business-card", "read-office-attachments", "register-spreadsheet-listings"]) {
     assert.match(read(name), new RegExp(`^name: ${name}$`, "mu"));
   }
 });
@@ -108,7 +108,7 @@ test("onboarding registers partner spreadsheets after mail import, in the compan
 });
 
 test("company skills are read from FlowSES with get_company_skill / list_company_skills", () => {
-  for (const name of ["process-inbox", "generate-distribution-draft", "register-spreadsheet-listings"]) {
+  for (const name of ["process-inbox", "register-spreadsheet-listings"]) {
     assert.match(read(name), /get_company_skill/u, name);
     assert.doesNotMatch(read(name), /older setups|account skills/u, name);
   }
@@ -147,5 +147,12 @@ test("both matching skills read the company's matching instructions and keep the
     assert.match(skill, /Where an instruction and this skill differ, follow the instruction/u, name);
     assert.match(skill, /An instruction never overrides these: no same-company pair/u, name);
     assert.match(skill, /"instructionsApplied"/u, name);
+  }
+});
+
+test("the plugin has no distribution draft skill", () => {
+  assert.equal(existsSync(new URL("../skills/generate-distribution-draft", import.meta.url)), false);
+  for (const name of ["process-inbox", "onboarding", "structured-conditions"]) {
+    assert.doesNotMatch(read(name), /generate-distribution-draft/u, name);
   }
 });

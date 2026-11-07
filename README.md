@@ -1,6 +1,6 @@
 # Flow SES
 
-FlowSES の案件・要員・マッチングの台帳に Claude をつなぎ、メール取り込み・マッチング作成・配信下書き・導入を進めます。
+FlowSES の案件・要員・マッチングの台帳に Claude をつなぎ、メール取り込み・マッチング作成・導入を進めます。
 
 Claude のプラグインです。FlowSES コネクタの接続先と、作業ごとのスキルが入っています。FlowSES のアカウントでサインインしないと使えません。
 
@@ -22,7 +22,6 @@ Claude のプラグインです。FlowSES コネクタの接続先と、作業�
 | `/flow-ses:evaluate-candidate-matchings` |
 | `/flow-ses:evaluate-project-matchings` |
 | `/flow-ses:evaluate-recent-matchings` |
-| `/flow-ses:generate-distribution-draft` |
 | `/flow-ses:onboarding` |
 | `/flow-ses:process-inbox` |
 | `/flow-ses:read-office-attachments` |
