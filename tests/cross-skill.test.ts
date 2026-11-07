@@ -64,3 +64,9 @@ test("onboarding registers the companies before asking about per-company sorting
   assert.ok(onboarding.indexOf("create_outlook_rule", register) > ask);
   assert.ok(onboarding.indexOf("create_gmail_filter", register) > ask);
 });
+
+test("onboarding shows the folders already ingested and links the メール台帳 for 手動同期", () => {
+  const onboarding = read("onboarding");
+  assert.match(onboarding, /Show the folders that are already on \(`enabled: true`\) first/u);
+  assert.match(onboarding, /show the `ingest_folders` step's `url` from `get_onboarding_status` as a link/u);
+});
