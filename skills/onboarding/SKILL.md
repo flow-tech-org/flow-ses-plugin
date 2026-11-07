@@ -15,8 +15,9 @@ The customer opened this session from the FlowSES 導入ガイド (`/onboarding`
 
 ## Rules
 
+- The customer uses Claude in Japanese. When you name a Claude button, menu, or tab, use the Japanese label; when you are not sure of the exact Japanese label, describe it instead of quoting an English one.
 - This skill is part of the flow-ses plugin. When it names another flow-ses skill (`flow-ses:<name>`), use that skill. If the plugin is not loaded in this session, read it from https://raw.githubusercontent.com/flow-tech-org/flow-ses-plugin/main/skills/<name>/SKILL.md instead.
-- Use only the FlowSES connector that comes with the flow-ses plugin: the MCP server named `flow-ses` (Claude Code lists it as `plugin:flow-ses:flow-ses`; on claude.ai it is the FlowSES connector on the plugin's Connectors tab). Other connectors may offer tools with the same names, such as one added by hand or a test or staging copy. Never call those, even when the plugin's connector is missing: they may point to another FlowSES environment. If the plugin's connector is not callable, do 0.
+- Use only the FlowSES connector that comes with the flow-ses plugin: the MCP server named `flow-ses` (Claude Code lists it as `plugin:flow-ses:flow-ses`; on claude.ai it is the FlowSES connector on the plugin's 「コネクタ」 tab). Other connectors may offer tools with the same names, such as one added by hand or a test or staging copy. Never call those, even when the plugin's connector is missing: they may point to another FlowSES environment. If the plugin's connector is not callable, do 0.
 - Start every run with `get_onboarding_status`. If the FlowSES connector is not callable, or it asks for sign-in, do 0 first. Never trust what an earlier run said. Skip every step whose `state` is `done`, unless the customer asks to redo it.
 - Follow the steps in the order `get_onboarding_status` returns them (`mcp` → 会社設定 → ユーザー設定 → メンバー管理 → 会社台帳 → 取り込みフォルダ → 定期実行). After each step, call `get_onboarding_status` again and say in one line what is done and what comes next.
 - Dashboard steps (`agent: false`, not `done`) are done by the customer on a FlowSES screen. Do not stop the session for them:
@@ -34,9 +35,9 @@ The customer opened this session from the FlowSES 導入ガイド (`/onboarding`
 Goal: the FlowSES connector works in this session. Only the customer can connect it, because it needs their FlowSES sign-in and consent. Guide them step by step and wait for each one.
 
 1. If the flow-ses plugin is not installed (this skill was read from GitHub, not loaded as `/flow-ses:onboarding`):
-   1. Open https://claude.ai/customize/plugins, choose 「Add」→「Add marketplace」→「Add from a repository」, and enter `flow-tech-org/flow-ses-plugin`.
-   2. Install flow-ses from the list. Turning on 「Sync automatically」 keeps it up to date.
-2. In the flow-ses plugin, open the 「Connectors」 tab, connect FlowSES, sign in to FlowSES, and allow access. There is no URL to type.
+   1. Open https://claude.ai/customize/plugins, choose 「追加」→「マーケットプレイスを追加」→「リポジトリから追加」, and enter `flow-tech-org/flow-ses-plugin`.
+   2. Install flow-ses from the list. Turning on 「自動的に同期」 keeps it up to date.
+2. In the flow-ses plugin, open the 「コネクタ」 tab, connect FlowSES, sign in to FlowSES, and allow access. There is no URL to type.
 3. Connectors load when a session starts. Ask the customer to press 「AI で導入を進める」 in the 導入ガイド again to open a new session, and stop here. The new session resumes from the next step.
 
 If FlowSES sign-in fails because the customer's account is not a member, an ADMIN must add them in メンバー管理 first. Say so and stop.

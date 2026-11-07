@@ -6,7 +6,7 @@ Claude のプラグインです。FlowSES コネクタの接続先と、作業�
 
 ## 入れ方
 
-- **claude.ai（Pro / Max / Team / Enterprise の各メンバー）:** [カスタマイズ → プラグイン](https://claude.ai/customize/plugins) で「Add」→「Add marketplace」→「Add from a repository」にこのリポジトリ（`flow-tech-org/flow-ses-plugin`）を入れ、flow-ses をインストールし、プラグインの「Connectors」タブで FlowSES を接続します（プラグインを入れただけではコネクタは追加されません）。接続するとコネクタ一覧にも入り、定期実行からも使えます。「Sync automatically」をオンにすると更新が自動で届きます。
+- **claude.ai（Pro / Max / Team / Enterprise の各メンバー）:** [カスタマイズ → プラグイン](https://claude.ai/customize/plugins) で「追加」→「マーケットプレイスを追加」→「リポジトリから追加」にこのリポジトリ（`flow-tech-org/flow-ses-plugin`）を入れ、flow-ses をインストールし、プラグインの「コネクタ」タブで FlowSES を接続します（プラグインを入れただけではコネクタは追加されません）。接続するとコネクタ一覧にも入り、定期実行からも使えます。「自動的に同期」をオンにすると、更新が自動で届きます。
 - **Claude Code:** `/plugin marketplace add flow-tech-org/flow-ses-plugin` のあと `/plugin install flow-ses@flow-ses`。
 - **定期実行と Claude Code on the web:** プラグインのスキルが読み込まれない場合があります。そのときは `https://raw.githubusercontent.com/flow-tech-org/flow-ses-plugin/main/skills/<名前>/SKILL.md` を読めば同じ手順で動きます。
 
