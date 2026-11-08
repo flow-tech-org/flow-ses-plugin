@@ -98,6 +98,6 @@ test("business-card skill sets up a Gmail label and filter for Gmail mailboxes",
 test("business-card skill stops before any write when the user is not a 管理者", async () => {
   const skill = await readFile(skillUrl, "utf8");
 
-  assert.match(skill, /can be changed only by a FlowSES 管理者 \(ADMIN\)/);
+  assert.match(skill, /can be changed only by a Flow SES 管理者 \(ADMIN\)/);
   assert.match(skill, /When `ensure_company` returns `FORBIDDEN`, write nothing else/);
 });

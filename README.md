@@ -1,18 +1,18 @@
 # Flow SES
 
-FlowSES の案件・要員・マッチングの台帳に Claude をつなぎ、メール取り込み・マッチング作成・導入を進めます。
+Flow SES の案件・要員・マッチングの台帳に Claude をつなぎ、メール取り込み・マッチング作成・導入を進めます。
 
-Claude のプラグインです。FlowSES コネクタの接続先と、作業ごとのスキルが入っています。FlowSES のアカウントでサインインしないと使えません。
+Claude のプラグインです。flow-ses コネクタの接続先と、作業ごとのスキルが入っています。Flow SES のアカウントでサインインしないと使えません。
 
 ## 入れ方
 
-- **claude.ai（Pro / Max / Team / Enterprise の各メンバー）:** [カスタマイズ → プラグイン](https://claude.ai/customize/plugins) で「追加」→「マーケットプレイスを追加」→「リポジトリから追加」にこのリポジトリ（`flow-tech-org/flow-ses-plugin`）を入れ、flow-ses をインストールし、プラグインの「コネクタ」タブで FlowSES を接続します（プラグインを入れただけではコネクタは追加されません）。接続するとコネクタ一覧にも入り、定期実行からも使えます。「自動的に同期」をオンにすると、更新が自動で届きます。
+- **claude.ai（Pro / Max / Team / Enterprise の各メンバー）:** [カスタマイズ → プラグイン](https://claude.ai/customize/plugins) で「追加」→「マーケットプレイスを追加」→「リポジトリから追加」にこのリポジトリ（`flow-tech-org/flow-ses-plugin`）を入れ、flow-ses をインストールし、プラグインの「コネクタ」タブで Flow SES を接続します（プラグインを入れただけではコネクタは追加されません）。接続するとコネクタ一覧にも入り、定期実行からも使えます。「自動的に同期」をオンにすると、更新が自動で届きます。
 - **Claude Code:** `/plugin marketplace add flow-tech-org/flow-ses-plugin` のあと `/plugin install flow-ses@flow-ses`。
 - **定期実行と Claude Code on the web:** プラグインのスキルが読み込まれない場合があります。そのときは `https://raw.githubusercontent.com/flow-tech-org/flow-ses-plugin/main/skills/<名前>/SKILL.md` を読めば同じ手順で動きます。
 
 組織のマーケットプレイス（組織設定 → Plugins & skills）は非公開か internal のリポジトリしか登録できません。組織でまとめて配るときは、このリポジトリを自社の非公開リポジトリに複製して登録します。複製には、こちらの更新は自動では届きません。
 
-最初に使うとき、FlowSES コネクタのサインイン画面が開きます。導入は `/flow-ses:onboarding` から始めます。
+最初に使うとき、flow-ses コネクタのサインイン画面が開きます。導入は `/flow-ses:onboarding` から始めます。
 
 ## スキル
 
