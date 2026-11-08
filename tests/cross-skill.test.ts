@@ -287,3 +287,9 @@ test("onboarding asks every question with AskUserQuestion choices", () => {
   assert.doesNotMatch(onboarding, /Ask in one message/u);
   assert.doesNotMatch(onboarding, /Wait until the customer says it is done/u);
 });
+
+test("onboarding checks the partner list with two questions and no third OK", () => {
+  const onboarding = read("onboarding");
+  assert.match(onboarding, /Check the list with exactly two questions, and do not ask a third OK on the whole table after them/u);
+  assert.doesNotMatch(onboarding, /この内容で登録する/u);
+});
