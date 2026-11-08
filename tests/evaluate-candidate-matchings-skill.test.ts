@@ -234,6 +234,9 @@ test("evaluate-matchings searches with current commercial-flow, on-site, start, 
   assert.match(skill, /首都圏 `11` `12` `13` `14`/u);
   assert.match(skill, /首都圏 → `08` `09` `10` `11` `12` `13` `14` `19` `20`/u);
   assert.match(skill, /隣接エリア: 首都圏–北関東, 首都圏–甲信/u);
+  assert.match(skill, /The default is the same エリア only; do not add 隣接エリア unless 絞り込み方 says so/u);
+  assert.match(skill, /When 絞り込み方 widens it to 隣の地方まで/u);
+  assert.doesNotMatch(skill, /that エリア plus its 隣接エリア/u);
   assert.doesNotMatch(skill, /Skip as `通勤不可` only when both locations are stated/u);
   assert.doesNotMatch(skill, /中部 `15`/u);
   assert.match(skill, /北陸 `15` `16` `17` `18`; 東海 `21` `22` `23` `24`/u);
