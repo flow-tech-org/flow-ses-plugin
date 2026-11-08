@@ -10,7 +10,7 @@
       "name": "flow-ses",
       "displayName": "Flow SES",
       "description": "FlowSES の案件・要員・マッチングの台帳に Claude をつなぎ、メール取り込み・マッチング作成・導入を進めます。",
-      "version": "0.8.2",
+      "version": "0.8.3",
       "author": {
         "name": "Flow SES"
       },
