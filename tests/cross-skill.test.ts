@@ -18,6 +18,18 @@ test("onboarding runs 募集終了の整理 at 3:00 JST on weekdays by default",
   assert.match(read("onboarding"), /\| 募集終了の整理 \| 平日 3:00 JST \(`0 18 \* \* 0-4` UTC\) \|/u);
 });
 
+test("one scheduled 取り込み task ingests mail and spreadsheets", () => {
+  const onboarding = read("onboarding");
+  assert.match(onboarding, /\| 取り込み（メール・スプレッドシート） \|[^\n]*process-inbox[^\n]*register-spreadsheet-listings/u);
+  assert.doesNotMatch(onboarding, /^\| スプレッドシート取り込み \|/mu);
+});
+
+test("mail and sheet ingest run one subagent per company or sheet", () => {
+  assert.match(read("process-inbox"), /### 2b\. One subagent per company/u);
+  assert.match(read("process-inbox"), /do not call `record_scheduled_task_start`/u);
+  assert.match(read("register-spreadsheet-listings"), /one subagent per sheet/u);
+});
+
 test("scheduled-task prompts work without the plugin loaded", () => {
   const onboarding = read("onboarding");
   for (const name of ["process-inbox", "evaluate-recent-matchings", "close-stale-source-listings", "register-spreadsheet-listings"]) {
@@ -104,7 +116,7 @@ test("onboarding sets 取り込みフォルダ together with the sorting, with o
 
 test("onboarding asks when to run mail ingest and matching, and the prompts start from the previous run", () => {
   const onboarding = read("onboarding");
-  assert.match(onboarding, /1\. Ask when to run メール取り込み/u);
+  assert.match(onboarding, /1\. Ask when to run 取り込み/u);
   assert.match(onboarding, /Then ask when to run マッチング作成/u);
   assert.equal(onboarding.match(/定期実行として、前回の開始時刻から処理する。/gu)?.length, 2);
   assert.doesNotMatch(onboarding, /1時間10分|一つ前の実行予定時刻/u);
@@ -132,8 +144,7 @@ test("onboarding registers partner spreadsheets after mail import, in the compan
   assert.match(onboarding, /export\?format=xlsx/u);
   assert.match(onboarding, /「リンクを知っている全員」が閲覧可/u);
   assert.match(onboarding, /Read that company's 会社スキル with `get_company_skill` and add the `## スプレッドシート` section/u);
-  assert.match(onboarding, /\| スプレッドシート取り込み \|[^\n]*register-spreadsheet-listings/u);
-  assert.match(onboarding, /Create this task only when at least one 会社スキル has a `## スプレッドシート` section/u);
+  assert.match(onboarding, /a sheet added later is picked up with no new task/u);
 });
 
 test("company skills are read from FlowSES with get_company_skill / list_company_skills", () => {
