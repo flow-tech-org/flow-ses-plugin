@@ -192,6 +192,8 @@ test("onboarding asks about each matching default one at a time and saves three 
   const body = onboarding.slice(step, onboarding.indexOf("## 5. 定期実行"));
   assert.match(body, /ask about each item below one at a time/u);
   assert.match(body, /1\. 絞り込み方 /u);
+  assert.match(body, /勤務地（都道府県）: 出社がある案件は、要員の都道府県が案件と同じ地方のときだけ候補にする/u);
+  assert.doesNotMatch(body, /同じエリアと隣のエリア/u);
   assert.match(body, /2\. 比較の仕方 /u);
   assert.match(body, /3\. 理由の書き方 /u);
   assert.match(body, /単価とマージン \(ask together as one item\)/u);
