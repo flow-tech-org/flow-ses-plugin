@@ -37,18 +37,18 @@ test("onboarding creates Gmail labels and filters instead of skipping Gmail", ()
 
 test("onboarding writes 会社スキル only for partners that differ from the shared defaults", () => {
   const onboarding = read("onboarding");
-  assert.match(onboarding, /## 3\. 会社スキル/u);
+  assert.match(onboarding, /## 2\. 会社スキル/u);
   assert.match(onboarding, /# <会社名> 会社スキル/u);
   assert.match(onboarding, /save each one with `set_company_skill`/u);
   assert.match(onboarding, /No file is handed over or installed on claude\.ai/u);
   assert.doesNotMatch(onboarding, /[Zz]ip|アップロード|upload/u);
   assert.match(onboarding, /Only a difference from these, or a mail layout the shared rules cannot split, needs a 会社スキル/u);
-  assert.ok(onboarding.indexOf("## 3. 会社スキル") < onboarding.indexOf("## 6. 定期実行"));
+  assert.ok(onboarding.indexOf("## 2. 会社スキル") < onboarding.indexOf("## 5. 定期実行"));
 });
 
 test("onboarding lets the customer choose: propose 会社スキル from the last month of mail, or keep the shared skills", () => {
   const onboarding = read("onboarding");
-  const section = onboarding.slice(onboarding.indexOf("## 3. 会社スキル"), onboarding.indexOf("## 4. スプレッドシート"));
+  const section = onboarding.slice(onboarding.indexOf("## 2. 会社スキル"), onboarding.indexOf("## 3. スプレッドシート"));
   assert.match(section, /\*\*メールから提案する\*\*/u);
   assert.match(section, /\*\*会社スキルは作らない\*\*/u);
   assert.match(section, /Pull the last month of mail with `sync_mail_ledger`/u);
@@ -64,7 +64,7 @@ test("onboarding does not offer a first spreadsheet import", () => {
 });
 
 test("onboarding starts 会社スキル and 定期実行 only after every required earlier step is done", () => {
-  assert.match(read("onboarding"), /Start 3, 4, 5, and 6 only when every earlier required step \(`optional: false`\) is `done`/u);
+  assert.match(read("onboarding"), /Start 2, 3, 4, and 5 only when every earlier required step \(`optional: false`\) is `done`/u);
 });
 
 test("onboarding builds the partner list from contacts, not from mail that is not ingested yet", () => {
@@ -78,18 +78,23 @@ test("onboarding registers the companies before asking about per-company sorting
   const register = onboarding.indexOf("4. Register every company first");
   const ask = onboarding.indexOf("5. Before asking about sorting, read how the customer's mail is sorted now");
   assert.ok(register > 0 && ask > register);
-  assert.match(onboarding, /If yes, make the plan in the same shape as the existing setup/u);
-  assert.match(onboarding, /the plan is Outlook 受信トレイ\/<会社名> and 送信済みアイテム\/<会社名>, Gmail label <会社名>/u);
+  assert.match(onboarding, /the fix plan, made in the same shape as the existing setup/u);
+  assert.match(onboarding, /When nothing needs fixing, say so and still give the 取り込みフォルダ plan/u);
+  assert.match(onboarding, /The 取り込みフォルダ plan is then every company folder in that plan/u);
+  assert.match(onboarding, /If yes, ask how to sort, showing the default first: Outlook 受信トレイ\/<会社名> and 送信済みアイテム\/<会社名>, Gmail label <会社名>/u);
+  assert.match(onboarding, /when they have no preference, use the default/u);
   assert.match(onboarding, /Never delete or rename existing folders or rules/u);
   assert.ok(onboarding.indexOf("create_outlook_rule", register) > ask);
   assert.ok(onboarding.indexOf("create_gmail_filter", register) > ask);
 });
 
-test("onboarding shows the folders already ingested, gets an OK before turning folders on, and leaves 手動同期 to 会社スキル", () => {
+test("onboarding sets 取り込みフォルダ together with the sorting, with one OK, and leaves 手動同期 to 会社スキル", () => {
   const onboarding = read("onboarding");
-  const section = onboarding.slice(onboarding.indexOf("## 2. 取り込みフォルダ"), onboarding.indexOf("## 3. 会社スキル"));
-  assert.match(section, /Show the folders that are already on \(`enabled: true`\) first/u);
-  assert.match(section, /show the list of folders that will be added \(folder path and mailbox\) and get one OK/u);
+  const section = onboarding.slice(onboarding.indexOf("5. Before asking about sorting"), onboarding.indexOf("## 2. 会社スキル"));
+  assert.match(section, /Do not show or ask about the folders that are already ingested/u);
+  assert.doesNotMatch(section, /Show the folders that are already on/u);
+  assert.match(section, /Show the plan as one list and get one OK/u);
+  assert.ok(section.indexOf("enable_mail_ingest_folders") > section.indexOf("create_gmail_filter"));
   assert.doesNotMatch(section, /手動同期/u);
 });
 
@@ -115,9 +120,10 @@ test("scheduled mail ingest and matching read and record the last start", () => 
 
 test("onboarding registers partner spreadsheets after mail import, in the company's 会社スキル", () => {
   const onboarding = read("onboarding");
-  const sheet = onboarding.indexOf("## 4. スプレッドシート");
-  assert.ok(onboarding.indexOf("## 2. 取り込みフォルダ") < sheet);
-  assert.ok(onboarding.indexOf("## 3. 会社スキル") < sheet && sheet < onboarding.indexOf("## 6. 定期実行"));
+  const sheet = onboarding.indexOf("## 3. スプレッドシート");
+  assert.equal(onboarding.indexOf("## 2. 取り込みフォルダ"), -1);
+  assert.match(onboarding, /When `companies` is `done` but `ingest_folders` is not .*start at 5\./u);
+  assert.ok(onboarding.indexOf("## 2. 会社スキル") < sheet && sheet < onboarding.indexOf("## 5. 定期実行"));
   assert.match(onboarding, /the company and the sheet URL for each/u);
   assert.match(onboarding, /export\?format=xlsx/u);
   assert.match(onboarding, /「リンクを知っている全員」が閲覧可/u);
@@ -148,9 +154,9 @@ test("spreadsheet register skill keeps company facts in the 会社スキル and 
 
 test("onboarding asks about each matching default one at a time and saves three instructions", () => {
   const onboarding = read("onboarding");
-  const step = onboarding.indexOf("## 5. マッチングの指示");
-  assert.ok(onboarding.indexOf("## 4. スプレッドシート") < step && step < onboarding.indexOf("## 6. 定期実行"));
-  const body = onboarding.slice(step, onboarding.indexOf("## 6. 定期実行"));
+  const step = onboarding.indexOf("## 4. マッチングの指示");
+  assert.ok(onboarding.indexOf("## 3. スプレッドシート") < step && step < onboarding.indexOf("## 5. 定期実行"));
+  const body = onboarding.slice(step, onboarding.indexOf("## 5. 定期実行"));
   assert.match(body, /ask about each item below one at a time/u);
   assert.match(body, /1\. 絞り込み方 /u);
   assert.match(body, /2\. 比較の仕方 /u);
