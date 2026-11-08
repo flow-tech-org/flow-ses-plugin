@@ -72,7 +72,7 @@ test("onboarding writes 会社スキル only for partners that differ from the s
 test("onboarding lets the customer choose: propose 会社スキル from up to 5 mails per company, or keep the shared skills", () => {
   const onboarding = read("onboarding");
   const section = onboarding.slice(onboarding.indexOf("## 2. 会社スキル"), onboarding.indexOf("## 3. スプレッドシート"));
-  assert.match(section, /\*\*メールから提案する\*\*/u);
+  assert.match(section, /\*\*メールから提案する（おすすめ）\*\*/u);
   assert.match(section, /\*\*会社スキルは作らない\*\*/u);
   assert.match(section, /List the companies in the 会社台帳 with `list_companies`/u);
   assert.match(section, /Do not pull a whole month of mail with `sync_mail_ledger` here/u);
@@ -101,7 +101,7 @@ test("onboarding builds the partner list from contacts, not from mail that is no
 
 test("onboarding asks first whether to take the partner list from contacts or from text and images", () => {
   const onboarding = read("onboarding");
-  assert.match(onboarding, /First ask where to take the partner list from, as two choices, and wait for the answer/u);
+  assert.match(onboarding, /First ask where to take the partner list from, with these two choices, and wait for the answer/u);
   assert.match(onboarding, /「連絡先から取得する」/u);
   assert.match(onboarding, /「テキストや画像から取得する」: pasted text, a CSV or Excel file, or an image/u);
 });
@@ -114,7 +114,7 @@ test("onboarding registers the companies before asking about per-company sorting
   assert.match(onboarding, /the fix plan, made in the same shape as the existing setup/u);
   assert.match(onboarding, /When nothing needs fixing, say so and still give the 取り込みフォルダ plan/u);
   assert.match(onboarding, /The 取り込みフォルダ plan is then every company folder in that plan/u);
-  assert.match(onboarding, /If yes, ask how to sort, showing the default first: Outlook 受信トレイ\/<会社名> and 送信済みアイテム\/<会社名>, Gmail label <会社名>/u);
+  assert.match(onboarding, /If yes, ask how to sort, with the default first: 「受信トレイ\/<会社名>（既定）」 \(Outlook 受信トレイ\/<会社名> and 送信済みアイテム\/<会社名>, Gmail label <会社名>\)/u);
   assert.match(onboarding, /when they have no preference, use the default/u);
   assert.match(onboarding, /Never delete or rename existing folders or rules/u);
   assert.ok(onboarding.indexOf("create_outlook_rule", register) > ask);
@@ -275,4 +275,15 @@ test("onboarding asks about each 募集終了の整理 default one at a time and
   assert.match(body, /replace 「直近3営業日」 in the prompt with 「直近N営業日」/u);
   assert.match(body, /「未設定のマッチングの却下はしない。」/u);
   assert.match(read("close-stale-source-listings"), /「対象外の会社: <会社名>、…」/u);
+});
+
+test("onboarding asks every question with AskUserQuestion choices", () => {
+  const onboarding = read("onboarding");
+  assert.match(onboarding, /^## Questions$/mu);
+  assert.match(onboarding, /Ask every question to the customer with this session's question tool with choices \(AskUserQuestion\)/u);
+  assert.match(onboarding, /do not add your own 「その他」 choice/u);
+  assert.match(onboarding, /「設定した」「やり方がわからない」/u);
+  // 選択肢のない聞き方が残っていない。
+  assert.doesNotMatch(onboarding, /Ask in one message/u);
+  assert.doesNotMatch(onboarding, /Wait until the customer says it is done/u);
 });
