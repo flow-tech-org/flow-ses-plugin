@@ -18,6 +18,16 @@ test("onboarding runs 募集終了の整理 at 3:00 JST on weekdays by default",
   assert.match(read("onboarding"), /\| 募集終了の整理 \| 平日 3:00 JST \(`0 18 \* \* 0-4` UTC\) \|/u);
 });
 
+test("spreadsheet ingest is its own task, less often than mail", () => {
+  assert.match(read("onboarding"), /\| スプレッドシート取り込み \| 平日 9:00・13:00 JST \(`0 0,4 \* \* 1-5` UTC\) \|/u);
+});
+
+test("mail and sheet ingest run one subagent per company or sheet", () => {
+  assert.match(read("process-inbox"), /### 2b\. One subagent per company/u);
+  assert.match(read("process-inbox"), /do not call `record_scheduled_task_start`/u);
+  assert.match(read("register-spreadsheet-listings"), /one subagent per sheet/u);
+});
+
 test("scheduled-task prompts work without the plugin loaded", () => {
   const onboarding = read("onboarding");
   for (const name of ["process-inbox", "evaluate-recent-matchings", "close-stale-source-listings", "register-spreadsheet-listings"]) {
