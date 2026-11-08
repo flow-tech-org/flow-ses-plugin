@@ -7,7 +7,7 @@ description: >-
   会社スキル for each partner whose mail needs its own reading rules (or keep the
   shared skills only), register each partner's
   Google Spreadsheet URL for import, ask how matchings should be narrowed and
-  compared and save them as マッチングの指示, ask how 募集終了の整理 should
+  compared and save them as マッチングの指示, check the 配信メールの文面, ask how 募集終了の整理 should
   close listings, and create the scheduled tasks,
   skipping steps already done so an
   interrupted onboarding resumes where it stopped. Every question goes through

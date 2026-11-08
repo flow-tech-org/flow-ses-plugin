@@ -90,7 +90,7 @@ test("onboarding does not offer a first spreadsheet import", () => {
 });
 
 test("onboarding starts 会社スキル and 定期実行 only after every required earlier step is done", () => {
-  assert.match(read("onboarding"), /Start 2, 3, 4, and 5 only when every earlier required step \(`optional: false`\) is `done`/u);
+  assert.match(read("onboarding"), /Start 2, 3, 4, 5, and 6 only when every earlier required step \(`optional: false`\) is `done`/u);
 });
 
 test("onboarding builds the partner list from contacts, not from mail that is not ingested yet", () => {
