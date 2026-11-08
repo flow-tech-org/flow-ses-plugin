@@ -1,0 +1,40 @@
+# 開発用の preview ブランチを作る。中身は元のブランチと同じで、コネクタの接続先だけ preview に向ける。
+# main に push すると main から作り直す。手動実行では元にするブランチを選べる（作業中のスキルを preview で試すとき）。
+name: preview-branch
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      from:
+        description: 元にするブランチ
+        default: main
+permissions:
+  contents: write
+concurrency: preview-branch
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      # リポジトリの変数 PREVIEW_MCP_URL があればそちらを使う
+      MCP_URL: ${{ vars.PREVIEW_MCP_URL || 'https://ses-agent-git-develop-hfappmakers-projects.vercel.app/api/mcp' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.from || 'main' }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Skill tests
+        run: node --test tests/*.test.ts
+      - name: Point at preview
+        run: scripts/make-preview.sh "$MCP_URL" "$GITHUB_RUN_NUMBER"
+      - name: Validate plugin
+        run: npx -y @anthropic-ai/claude-code plugin validate --strict .
+      - name: Push preview branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898+github-actions[bot]@users.noreply.github.com"
+          git checkout -B preview
+          git commit -qam "preview: ${{ inputs.from || 'main' }} ($(git rev-parse --short HEAD)) を preview 接続にする"
+          git push -f origin preview

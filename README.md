@@ -33,3 +33,9 @@ Claude のプラグインです。flow-ses コネクタの接続先と、作業�
 ## 更新するとき
 
 スキルを直したら `.claude-plugin/plugin.json` と `.claude-plugin/marketplace.json` の `version` を上げます。スキルの中には会社名・取引先名・掲載サイト名を書きません。スキルの決まりごとは tests/ にあり、`node --test tests/*.test.ts`（Node 24）で確かめます。
+
+## 開発用（preview 接続）
+
+`preview` ブランチは main と同じ中身で、コネクタの接続先だけ preview（develop）になっています。main に push すると自動で作り直します。作業中のブランチを試すときは Actions の preview-branch を手動実行して元のブランチを選びます。直接は編集しません。
+
+- **Claude Code:** `/plugin marketplace add flow-tech-org/flow-ses-plugin#preview` のあと `/plugin install flow-ses@flow-ses-dev`。本番用の flow-ses@flow-ses とは同時に入れず、切り替えて使います。
