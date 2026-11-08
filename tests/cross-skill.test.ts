@@ -92,8 +92,15 @@ test("onboarding starts 会社スキル and 定期実行 only after every requir
 
 test("onboarding builds the partner list from contacts, not from mail that is not ingested yet", () => {
   const onboarding = read("onboarding");
-  assert.match(onboarding, /"連絡先から拾って": call `search_mail_contacts`/u);
+  assert.match(onboarding, /連絡先から取得する: call `search_mail_contacts`/u);
   assert.doesNotMatch(onboarding, /メールの送信元から拾って/u);
+});
+
+test("onboarding asks first whether to take the partner list from contacts or from text and images", () => {
+  const onboarding = read("onboarding");
+  assert.match(onboarding, /First ask where to take the partner list from, as two choices, and wait for the answer/u);
+  assert.match(onboarding, /「連絡先から取得する」/u);
+  assert.match(onboarding, /「テキストや画像から取得する」: pasted text, a CSV or Excel file, or an image/u);
 });
 
 test("onboarding registers the companies before asking about per-company sorting", () => {
