@@ -294,9 +294,8 @@ test("onboarding checks the partner list with two questions and no third OK", ()
   assert.doesNotMatch(onboarding, /この内容で登録する/u);
 });
 
-test("onboarding asks whether the default 配信メールの文面 is fine on the 会社設定 screen", () => {
+test("onboarding checks and saves the 配信メールの文面 through the connector", () => {
   const skill = read("onboarding");
   assert.match(skill, /配信メールの文面 \(会社設定, ADMIN only\)/u);
-  assert.match(skill, /「既定のままでよい（おすすめ）」「変えたい」/u);
-  assert.match(skill, /no tool to read or write these texts/u);
+  assert.match(skill, /`get_mail_texts`[\s\S]*「この文面でよい（おすすめ）」「変えたい」[\s\S]*`set_mail_texts`/u);
 });
