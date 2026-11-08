@@ -180,11 +180,11 @@ test("onboarding asks about each matching default one at a time and saves three 
   assert.match(body, /3\. 理由の書き方 /u);
   assert.match(body, /単価とマージン \(ask together as one item\)/u);
   assert.match(body, /派遣契約必須の案件: 派遣契約必須の案件もマッチングする/u);
-  assert.match(body, /these do not change and are not asked/u);
+  assert.doesNotMatch(body, /these do not change and are not asked/u);
   assert.match(body, /`set_matching_instructions` \(`filterInstructions`, `comparisonInstructions`, `reasonInstructions`; ADMIN only\)/u);
 });
 
-test("both matching skills treat their rules as defaults and keep the fixed rules", () => {
+test("both matching skills treat every rule as a default an instruction may change", () => {
   for (const name of ["evaluate-project-matchings", "evaluate-candidate-matchings"]) {
     const skill = read(name);
     assert.match(skill, /Call `get_matching_instructions` once/u, name);
@@ -193,7 +193,8 @@ test("both matching skills treat their rules as defaults and keep the fixed rule
     assert.match(skill, /`comparisonInstructions` \(比較の仕方\)/u, name);
     assert.match(skill, /`reasonInstructions` \(理由の書き方\)/u, name);
     assert.match(skill, /Where an instruction and this skill differ, follow the instruction/u, name);
-    assert.match(skill, /\*\*Fixed rules \(an instruction never overrides these\):\*\*/u, name);
+    assert.doesNotMatch(skill, /Fixed rules/u, name);
+    assert.match(skill, /Every rule of this skill is a default that an instruction may change/u, name);
     assert.doesNotMatch(skill, /a borderline pair \(微妙\) is never created/u, name);
     assert.doesNotMatch(skill, /a pair with a ✕ on any 必須 item is never created/u, name);
     assert.match(skill, /必須が3つ以上なら✕を1つまで認める/u, name);
