@@ -2,10 +2,11 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
+// 案件側・要員側で同じ部分は flow-ses:matching-rules にあるので、合わせて読む。
 const skill = readFileSync(
   new URL("../skills/evaluate-candidate-matchings/SKILL.md", import.meta.url),
   "utf8",
-);
+) + readFileSync(new URL("../skills/matching-rules/SKILL.md", import.meta.url), "utf8");
 
 test("evaluate-candidate-matchings skill is the dedicated candidate-side workflow", () => {
   assert.match(skill, /^name: evaluate-candidate-matchings$/mu);

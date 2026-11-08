@@ -22,6 +22,7 @@ Claude のプラグインです。FlowSES コネクタの接続先と、作業�
 | `/flow-ses:evaluate-candidate-matchings` |
 | `/flow-ses:evaluate-project-matchings` |
 | `/flow-ses:evaluate-recent-matchings` |
+| `/flow-ses:matching-rules`（2つのマッチングスキルが読む共通の決まり。単独では使わない） |
 | `/flow-ses:onboarding` |
 | `/flow-ses:process-inbox` |
 | `/flow-ses:read-office-attachments` |

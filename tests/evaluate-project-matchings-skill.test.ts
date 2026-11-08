@@ -4,10 +4,11 @@ import { join } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
+// 案件側・要員側で同じ部分は flow-ses:matching-rules にあるので、合わせて読む。
 const skill = readFileSync(
   new URL("../skills/evaluate-project-matchings/SKILL.md", import.meta.url),
   "utf8",
-);
+) + readFileSync(new URL("../skills/matching-rules/SKILL.md", import.meta.url), "utf8");
 
 test("evaluate-project-matchings skill is project-anchored", () => {
   assert.match(skill, /^name: evaluate-project-matchings$/mu);
