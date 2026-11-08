@@ -42,8 +42,25 @@ test("onboarding writes 会社スキル only for partners that differ from the s
   assert.match(onboarding, /save each one with `set_company_skill`/u);
   assert.match(onboarding, /No file is handed over or installed on claude\.ai/u);
   assert.doesNotMatch(onboarding, /[Zz]ip|アップロード|upload/u);
-  assert.match(onboarding, /Only a difference from these needs a 会社スキル/u);
+  assert.match(onboarding, /Only a difference from these, or a mail layout the shared rules cannot split, needs a 会社スキル/u);
   assert.ok(onboarding.indexOf("## 3. 会社スキル") < onboarding.indexOf("## 6. 定期実行"));
+});
+
+test("onboarding lets the customer choose: propose 会社スキル from the last month of mail, or keep the shared skills", () => {
+  const onboarding = read("onboarding");
+  const section = onboarding.slice(onboarding.indexOf("## 3. 会社スキル"), onboarding.indexOf("## 4. スプレッドシート"));
+  assert.match(section, /\*\*メールから提案する\*\*/u);
+  assert.match(section, /\*\*会社スキルは作らない\*\*/u);
+  assert.match(section, /Pull the last month of mail with `sync_mail_ledger`/u);
+  assert.match(section, /once per range, oldest first/u);
+  assert.match(section, /Group the mails by sender company/u);
+  assert.match(section, /one subagent per company/u);
+  assert.match(section, /change nothing: no `set_company_skill`/u);
+  assert.doesNotMatch(section, /Ask in one message whether any partner writes mail in its own way/u);
+});
+
+test("onboarding does not offer a first spreadsheet import", () => {
+  assert.doesNotMatch(read("onboarding"), /Offer to run the first import now/u);
 });
 
 test("onboarding starts 会社スキル and 定期実行 only after every required earlier step is done", () => {
@@ -68,10 +85,12 @@ test("onboarding registers the companies before asking about per-company sorting
   assert.ok(onboarding.indexOf("create_gmail_filter", register) > ask);
 });
 
-test("onboarding shows the folders already ingested and links the メール台帳 for 手動同期", () => {
+test("onboarding shows the folders already ingested, gets an OK before turning folders on, and leaves 手動同期 to 会社スキル", () => {
   const onboarding = read("onboarding");
-  assert.match(onboarding, /Show the folders that are already on \(`enabled: true`\) first/u);
-  assert.match(onboarding, /show the `ingest_folders` step's `url` from `get_onboarding_status` as a link/u);
+  const section = onboarding.slice(onboarding.indexOf("## 2. 取り込みフォルダ"), onboarding.indexOf("## 3. 会社スキル"));
+  assert.match(section, /Show the folders that are already on \(`enabled: true`\) first/u);
+  assert.match(section, /show the list of folders that will be added \(folder path and mailbox\) and get one OK/u);
+  assert.doesNotMatch(section, /手動同期/u);
 });
 
 test("onboarding asks when to run mail ingest and matching, and the prompts start from the previous run", () => {
