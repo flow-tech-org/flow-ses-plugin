@@ -262,7 +262,7 @@ test("evaluate-matchings searches with current commercial-flow, on-site, start, 
   assert.match(skill, /A null project max is no ceiling and passes/u);
   assert.match(skill, /A null candidate min is no floor and passes/u);
   assert.match(skill, /Do not mine overview 万円/u);
-  assert.match(skill, /compare one kind with itself, with the values as stored/u);
+  assert.match(skill, /compare one kind with itself, from the stored values/u);
   assert.match(skill, /Never convert 月単価 and 時給 within one kind\. Always compare 税別/u);
   assert.match(skill, /A value whose `unitPriceTaxType` is `INCLUDED` \(税込\) is divided by 1\.1 before any comparison or margin/u);
   assert.match(skill, /pass `unitPriceMinManYen` = the candidate's 税別 min, rounded down to a whole number/u);
