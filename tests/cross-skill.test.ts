@@ -18,10 +18,8 @@ test("onboarding runs 募集終了の整理 at 3:00 JST on weekdays by default",
   assert.match(read("onboarding"), /\| 募集終了の整理 \| 平日 3:00 JST \(`0 18 \* \* 0-4` UTC\) \|/u);
 });
 
-test("one scheduled 取り込み task ingests mail and spreadsheets", () => {
-  const onboarding = read("onboarding");
-  assert.match(onboarding, /\| 取り込み（メール・スプレッドシート） \|[^\n]*process-inbox[^\n]*register-spreadsheet-listings/u);
-  assert.doesNotMatch(onboarding, /^\| スプレッドシート取り込み \|/mu);
+test("spreadsheet ingest is its own task, less often than mail", () => {
+  assert.match(read("onboarding"), /\| スプレッドシート取り込み \| 平日 9:00・13:00 JST \(`0 0,4 \* \* 1-5` UTC\) \|/u);
 });
 
 test("mail and sheet ingest run one subagent per company or sheet", () => {
@@ -116,7 +114,7 @@ test("onboarding sets 取り込みフォルダ together with the sorting, with o
 
 test("onboarding asks when to run mail ingest and matching, and the prompts start from the previous run", () => {
   const onboarding = read("onboarding");
-  assert.match(onboarding, /1\. Ask when to run 取り込み/u);
+  assert.match(onboarding, /1\. Ask when to run メール取り込み/u);
   assert.match(onboarding, /Then ask when to run マッチング作成/u);
   assert.equal(onboarding.match(/定期実行として、前回の開始時刻から処理する。/gu)?.length, 2);
   assert.doesNotMatch(onboarding, /1時間10分|一つ前の実行予定時刻/u);
@@ -144,7 +142,8 @@ test("onboarding registers partner spreadsheets after mail import, in the compan
   assert.match(onboarding, /export\?format=xlsx/u);
   assert.match(onboarding, /「リンクを知っている全員」が閲覧可/u);
   assert.match(onboarding, /Read that company's 会社スキル with `get_company_skill` and add the `## スプレッドシート` section/u);
-  assert.match(onboarding, /a sheet added later is picked up with no new task/u);
+  assert.match(onboarding, /\| スプレッドシート取り込み \|[^\n]*register-spreadsheet-listings/u);
+  assert.match(onboarding, /Create this task only when at least one 会社スキル has a `## スプレッドシート` section/u);
 });
 
 test("company skills are read from FlowSES with get_company_skill / list_company_skills", () => {
