@@ -168,3 +168,14 @@ test("stale source close skill leaves listings and matchings of excluded compani
   assert.match(skill, /"skippedExcludedCompany": 0/u);
   assert.match(skill, /An unresolved name stops the run with an error/u);
 });
+
+test("stale source close skill follows the business days and reject setting from the run prompt", () => {
+  assert.match(skill, /## Run settings/u);
+  assert.match(skill, /「直近N営業日」 with N from 1 to 10/u);
+  assert.match(skill, /「未設定のマッチングの却下はしない。」 turns it off/u);
+  assert.match(skill, /Skip this step when \[Run settings\]\(#run-settings\) turns the reject off/u);
+  assert.match(skill, /These settings never change the rest: zero sources never close/u);
+  assert.match(skill, /"businessDayCount": 3/u);
+  assert.match(skill, /"rejectUnsetMatchings": true/u);
+  assert.match(reference, /Skip this section when the run prompt says 「未設定のマッチングの却下はしない。」/u);
+});
