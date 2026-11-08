@@ -26,6 +26,9 @@ test("mail and sheet ingest run one subagent per company or sheet", () => {
   assert.match(read("process-inbox"), /### 2b\. One subagent per company/u);
   assert.match(read("process-inbox"), /do not call `record_scheduled_task_start`/u);
   assert.match(read("register-spreadsheet-listings"), /one subagent per sheet/u);
+  assert.match(read("process-inbox"), /`companyIds: \[<companyId>\]`/u);
+  assert.match(read("process-inbox"), /`companyIds: \["unset"\]`/u);
+  assert.match(read("onboarding"), /list that company's received mail itself with `list_mail_sources` \(`companyIds: \[<companyId>\]`/u);
 });
 
 test("scheduled-task prompts work without the plugin loaded", () => {
@@ -67,7 +70,7 @@ test("onboarding lets the customer choose: propose 会社スキル from the last
   assert.match(section, /\*\*会社スキルは作らない\*\*/u);
   assert.match(section, /Pull the last month of mail with `sync_mail_ledger`/u);
   assert.match(section, /once per range, oldest first/u);
-  assert.match(section, /Group the mails by sender company/u);
+  assert.match(section, /count the rows per `senderCompany.id`/u);
   assert.match(section, /one subagent per company/u);
   assert.match(section, /change nothing: no `set_company_skill`/u);
   assert.doesNotMatch(section, /Ask in one message whether any partner writes mail in its own way/u);
