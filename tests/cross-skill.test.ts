@@ -34,7 +34,7 @@ test("mail and sheet ingest run one subagent per company or sheet", () => {
   assert.match(read("register-spreadsheet-listings"), /one subagent per sheet/u);
   assert.match(read("process-inbox"), /`companyIds: \[<companyId>\]`/u);
   assert.match(read("process-inbox"), /`companyIds: \["unset"\]`/u);
-  assert.match(read("onboarding"), /look in the mail ledger first: `list_mail_sources` \(`companyIds: \[<companyId>\]`/u);
+  assert.match(read("onboarding"), /list that mail with `list_mail_sources` \(`companyIds: \[<companyId>\]`/u);
 });
 
 test("scheduled-task prompts work without the plugin loaded", () => {
@@ -69,17 +69,17 @@ test("onboarding writes 会社スキル only for partners that differ from the s
   assert.ok(onboarding.indexOf("## 2. 会社スキル") < onboarding.indexOf("## 5. 定期実行"));
 });
 
-test("onboarding lets the customer choose: propose 会社スキル from up to 5 mails per company, or keep the shared skills", () => {
+test("onboarding lets the customer choose: propose 会社スキル from each company's mail of a chosen period, or keep the shared skills", () => {
   const onboarding = read("onboarding");
   const section = onboarding.slice(onboarding.indexOf("## 2. 会社スキル"), onboarding.indexOf("## 3. スプレッドシート"));
   assert.match(section, /\*\*メールから提案する（おすすめ）\*\*/u);
   assert.match(section, /\*\*会社スキルは作らない\*\*/u);
+  assert.match(section, /Ask how far back to read, with these choices: \*\*1週間（おすすめ）\*\* \(7 days\)/u);
   assert.match(section, /List the companies in the 会社台帳 with `list_companies`/u);
-  assert.match(section, /Do not pull a whole month of mail with `sync_mail_ledger` here/u);
-  assert.doesNotMatch(section, /Pull the last month of mail/u);
-  assert.match(section, /look in the mail ledger first: `list_mail_sources` \(`companyIds: \[<companyId>\]`, `direction: INBOUND`, `take: 5`/u);
-  assert.match(section, /`sync_company_recent_mail` \(`companyId`, `limit: 5`/u);
-  assert.match(section, /read at most 5 of them with `get_mail_source`/u);
+  assert.match(section, /Do not pull every company's mail at once with `sync_mail_ledger` here/u);
+  assert.match(section, /`sync_company_recent_mail` \(`companyId`, `days: N`, no `limit`/u);
+  assert.match(section, /`list_mail_sources` \(`companyIds: \[<companyId>\]`, `direction: INBOUND`, `occurredFrom`: N days before now/u);
+  assert.doesNotMatch(section, /limit: 5|take: 5|at most 5/u);
   assert.match(section, /one subagent per company/u);
   assert.match(section, /change nothing else: no `set_company_skill`/u);
   assert.doesNotMatch(section, /Ask in one message whether any partner writes mail in its own way/u);
