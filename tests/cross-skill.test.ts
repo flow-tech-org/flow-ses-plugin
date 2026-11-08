@@ -14,6 +14,10 @@ test("onboarding sets up the new-matching notification as an agent task", () => 
   assert.match(read("onboarding"), /\| 新着通知 \|[^\n]*notify_new_matchings_to_teams と notify_new_matchings_to_slack/u);
 });
 
+test("onboarding runs 募集終了の整理 at 3:00 JST on weekdays by default", () => {
+  assert.match(read("onboarding"), /\| 募集終了の整理 \| 平日 3:00 JST \(`0 18 \* \* 0-4` UTC\) \|/u);
+});
+
 test("scheduled-task prompts work without the plugin loaded", () => {
   const onboarding = read("onboarding");
   for (const name of ["process-inbox", "evaluate-recent-matchings", "close-stale-source-listings", "register-spreadsheet-listings"]) {
