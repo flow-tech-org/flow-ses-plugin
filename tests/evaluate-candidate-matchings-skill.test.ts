@@ -280,7 +280,7 @@ test("evaluate-matchings searches with current commercial-flow, on-site, start, 
   assert.match(skill, /A margin applies only when 絞り込み方 sets one/u);
   assert.match(skill, /\*\*Margin \(only when 絞り込み方 sets one\):\*\* the default has no margin/u);
   assert.match(skill, /skip as `マージン不足` when both bounds are set and the 税別 project max − 税別 candidate min is under the margin/u);
-  assert.match(skill, /\*\*派遣契約必須 \(on by default\):\*\* by default, pass `projectCondition\.dispatchContractRequired: \["unset"\]`/u);
+  assert.match(skill, /\*\*派遣契約必須 \(only when 絞り込み方 says so\):\*\* by default, 派遣契約必須 projects are matched like any other/u);
   assert.match(skill, /単価 is decided once, by the structured filter you passed/u);
   assert.doesNotMatch(skill, /comparableUnitPrice|The required margin is 50,000円/u);
   assert.match(skill, /If the candidate min is null, omit the price filter/u);

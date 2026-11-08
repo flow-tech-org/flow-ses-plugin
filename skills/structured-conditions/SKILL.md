@@ -225,7 +225,7 @@ Numeric ages stay numbers: `35歳以下`, `35歳まで`, and `～35歳` set ageM
 
 要員のみ: `ageYears`（メールの「35歳」はスナップショット）。未記載は `null`。記載があるときは 15〜99。範囲外は拒否する。Candidate age may stay null. A stated age outside 15–99 is rejected. ソースが一人の歳を `35歳` のように書いているときだけ `ageYears` にする。`30代` や `30代前半～40代後半` の幅は一人の歳にしない。`ageYears` は null のまま。`35歳以下` も一人の歳ではない。Candidate ageYears is only one person's stated age such as `35歳`. Do not turn `30代` or `30代前半～40代後半` into one ageYears.
 
-案件のみ `dispatchContractRequired`。ソースが派遣契約を必須としているとき `true`。未記載は `null`。不可（`false`）は作らない。マッチングでは、既定で `true` の案件を外す（導入先の「絞り込み方」が対象にすると決めたときは外さない）。概要に戻って必須を拾わない。
+案件のみ `dispatchContractRequired`。ソースが派遣契約を必須としているとき `true`。未記載は `null`。不可（`false`）は作らない。マッチングでは、既定は `true` の案件も対象にする（導入先の「絞り込み方」が外すと決めたときだけ外す）。概要に戻って必須を拾わない。
 
 ## 要員の性別
 
