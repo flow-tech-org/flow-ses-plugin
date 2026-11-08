@@ -265,10 +265,13 @@ test("evaluate-matchings searches with current commercial-flow, on-site, start, 
   assert.match(skill, /compare one kind with itself, from the stored values/u);
   assert.match(skill, /Never convert 月単価 and 時給 within one kind\. Always compare 税別/u);
   assert.match(skill, /A value whose `unitPriceTaxType` is `INCLUDED` \(税込\) is divided by 1\.1 before any comparison or margin/u);
-  assert.match(skill, /pass `projectCondition\.unitPriceConditions` with four items/u);
+  assert.match(skill, /pass `projectCondition\.unitPriceConditions` with one item for each 単価 kind and tax type/u);
+  assert.match(skill, /at most 32 items/u);
+  assert.match(skill, /monthlyUnitPriceBasis: "PER_PERSON_MONTH"/u);
+  assert.match(skill, /utilizationMaxFrom: <band low>, utilizationMaxTo: <band high>/u);
+  assert.match(skill, /only the bands that reach the anchor's own `utilizationRateMinBasisPoints` or above are used/u);
   assert.match(skill, /min = \(C \+ m\) × 1\.1/u);
-  assert.match(skill, /the 月単価 items are `\{ unitPriceKind: "MONTHLY", unitPriceTaxType: "EXCLUDED" \}` and `\{ \.\.\. "INCLUDED" \}` with no bound/u);
-  assert.match(skill, /If `list_projects` rejects `unitPriceConditions` \(an older FlowSES\)/u);
+    assert.match(skill, /If it rejects `unitPriceConditions` \(an older FlowSES\)/u);
   assert.match(skill, /時給 × 160時間 is the 月単価 at 稼働率1\.00/u);
   assert.match(skill, /`PER_PERSON_MONTH` \(1人月あたり\) uses 時給 × 160 as it is/u);
   assert.match(skill, /under the 月単価 margin; when the instruction gives no 月単価 amount, that pair has no margin/u);
