@@ -14,6 +14,12 @@ test("onboarding sets up the new-matching notification as an agent task", () => 
   assert.match(read("onboarding"), /\| 新着通知 \|[^\n]*notify_new_matchings_to_teams と notify_new_matchings_to_slack/u);
 });
 
+test("onboarding guides a non-admin through their own steps only", () => {
+  const onboarding = read("onboarding");
+  assert.match(onboarding, /When `viewerRole` is not `ADMIN`[^\n]*guide only the steps with `canDo: true`/u);
+  assert.match(onboarding, /Do not try the 管理者 steps\./u);
+});
+
 test("onboarding runs 募集終了の整理 at 3:00 JST on weekdays by default", () => {
   assert.match(read("onboarding"), /\| 募集終了の整理 \| 平日 3:00 JST \(`0 18 \* \* 0-4` UTC\) \|/u);
 });
