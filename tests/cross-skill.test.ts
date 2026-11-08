@@ -194,8 +194,9 @@ test("both matching skills treat their rules as defaults and keep the fixed rule
     assert.match(skill, /`reasonInstructions` \(理由の書き方\)/u, name);
     assert.match(skill, /Where an instruction and this skill differ, follow the instruction/u, name);
     assert.match(skill, /\*\*Fixed rules \(an instruction never overrides these\):\*\*/u, name);
-    assert.match(skill, /a borderline pair \(微妙\) is never created/u, name);
-    assert.match(skill, /a clear 必須 mismatch in the overviews or the skill sheet/u, name);
+    assert.doesNotMatch(skill, /a borderline pair \(微妙\) is never created/u, name);
+    assert.doesNotMatch(skill, /a pair with a ✕ on any 必須 item is never created/u, name);
+    assert.match(skill, /必須が3つ以上なら✕を1つまで認める/u, name);
     assert.match(skill, /the default has no margin/u, name);
     assert.doesNotMatch(skill, /comparableUnitPrice|5万, or 3万/u, name);
     assert.match(skill, /時給 × 160 ÷ 10,000 is its 1人月あたり 万円 \(160時間\)/u, name);

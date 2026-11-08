@@ -143,7 +143,11 @@ test("evaluate-matchings judges one record at a time from overview and the skill
   assert.match(skill, /概要不一致/u);
   assert.match(skill, /スキルシート不一致/u);
   assert.match(skill, /概要だけでは判断できない/u);
-  assert.match(skill, /A borderline comparison \(微妙\) is not created/u);
+  assert.match(skill, /\*\*必須・歓迎の判定 \(required\):\*\*/u);
+  assert.match(skill, /With two or more, every 必須 item must be ◯ except at most one △, and none may be ✕/u);
+  assert.match(skill, /歓迎 items are marked for the reason but never decide the pair/u);
+  assert.match(skill, /`必須の△が多い`/u);
+  assert.match(skill, /【必須】/u);
   assert.doesNotMatch(skill, /whether the overview comparison was \*\*OK or borderline\*\*/u);
   assert.doesNotMatch(skill, /Do \*\*not\*\* treat a 歓迎\/尚可 gap inside the same `skills` text as a drop in this stage/u);
   assert.match(skill, /There is no `requiredSkills` or `preferredSkills` column/u);
@@ -153,12 +157,11 @@ test("evaluate-matchings judges one record at a time from overview and the skill
   assert.doesNotMatch(skill, /Do \*\*not\*\* create a matching without reading that sheet/u);
   assert.doesNotMatch(skill, /Do \*\*not\*\* generate coarse matchings from skills\/overview alone/u);
   assert.match(skill, /no skill-sheet URL in the candidate overview, and no candidate record FILE/u);
-  assert.match(skill, /A clear overview OK may be created from the two overviews/u);
-  assert.match(skill, /Do \*\*not\*\* skip that pair as `スキルシートなし`/u);
+  assert.match(skill, /a pair that passes on the two overviews is created/u);
+  assert.match(skill, /Do \*\*not\*\* skip the pair as `スキルシートなし` or `スキルシート未確認`/u);
   assert.match(skill, /Do \*\*not\*\* skip as `スキルシートなし`/u);
   assert.doesNotMatch(skill, /skip as `スキルシートなし` and do not create/u);
   assert.doesNotMatch(skill, /Missing sheet → `スキルシートなし`/u);
-  assert.match(skill, /A borderline pair with no sheet is not OK/u);
   assert.match(skill, /スキルシートなし/u);
   assert.match(skill, /スキルシート未確認/u);
   assert.match(skill, /do not create/u);
@@ -169,13 +172,13 @@ test("evaluate-matchings judges one record at a time from overview and the skill
   assert.match(skill, /Empty skills is not `スキル未記載`/u);
   assert.match(skill, /Do not drop `必須スタック不一致` from a skills field/u);
   assert.match(skill, /経験年数/u);
-  assert.match(skill, /経験年数不足/u);
+  assert.match(skill, /a stated 必須 minimum the candidate text falls short of makes that item △/u);
   assert.match(skill, /Unstated 経験年数 is not a mismatch/u);
   assert.match(skill, /`5年` meets `5年以上`/u);
-  assert.match(skill, /`4年` does not meet `5年以上`/u);
-  assert.match(skill, /歓迎 \/ 尚可 years are not a drop/u);
+  assert.match(skill, /`4年` or `5年程度` against `5年以上`/u);
+  assert.match(skill, /A 歓迎 item marked △ or ✕ never blocks a pair/u);
   assert.match(skill, /Do not invent a year count/u);
-  assert.match(skill, /Javaの実務経験は5年以上との条件に対し、6年のご経験がございます。/u);
+  assert.match(skill, /◯ Java実務経験5年以上：Javaのご経験が6年ございます。/u);
   assert.match(skill, /If that search is still too wide to read sheets, add more stated conditions/u);
   assert.doesNotMatch(skill, /Volume gate/u);
   assert.doesNotMatch(skill, /more than \*\*40 PROJECT\*\*/u);
@@ -231,7 +234,7 @@ test("evaluate-matchings searches with current commercial-flow, on-site, start, 
   assert.match(skill, /首都圏 `11` `12` `13` `14`/u);
   assert.match(skill, /首都圏 → `08` `09` `10` `11` `12` `13` `14` `19` `20`/u);
   assert.match(skill, /隣接エリア: 首都圏–北関東, 首都圏–甲信/u);
-  assert.match(skill, /Skip as `通勤不可` only when both locations are stated/u);
+  assert.doesNotMatch(skill, /Skip as `通勤不可` only when both locations are stated/u);
   assert.doesNotMatch(skill, /中部 `15`/u);
   assert.match(skill, /北陸 `15` `16` `17` `18`; 東海 `21` `22` `23` `24`/u);
   assert.match(skill, /関西 `25` `26` `27` `28` `29` `30`/u);
@@ -345,7 +348,7 @@ test("matching evaluation reads the stored sheet text before downloading", () =>
 test("matching needs the project's 主業務 and the candidate's 売り方 to fit, not only the 必須 lines", () => {
   assert.match(skill, /\*\*主業務と売り方 \(required\):\*\* Passing every 必須 line is not enough for a clear fit/u);
   assert.match(skill, /A shared language or framework alone does not count/u);
-  assert.match(skill, /When only the language matches, the pair is borderline \(微妙\) and is not created/u);
+  assert.match(skill, /When only the language matches, the pair is not created \(`主業務不一致`\)/u);
   assert.match(skill, /is not created for a project whose 主業務 is a different direction/u);
   assert.match(skill, /`主業務不一致`/u);
   assert.match(skill, /Do not use 単価 for this check/u);
