@@ -181,7 +181,7 @@ test("both matching skills treat their rules as defaults and keep the fixed rule
     assert.match(skill, /a clear 必須 mismatch in the overviews or the skill sheet/u, name);
     assert.match(skill, /the default has no margin/u, name);
     assert.doesNotMatch(skill, /comparableUnitPrice|5万, or 3万/u, name);
-    assert.match(skill, /時給 × 160時間 is the 月単価 at 稼働率1\.00/u, name);
+    assert.match(skill, /時給 is 円 × 160 ÷ 10,000 × u \(160時間\)/u, name);
     assert.match(skill, /"instructionsApplied": \{ "filter": false, "comparison": false, "reason": false \}/u, name);
   }
 });

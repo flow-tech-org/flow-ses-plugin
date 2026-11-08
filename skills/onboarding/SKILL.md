@@ -160,7 +160,7 @@ Say first, in one message, that the AI already has default rules, that you will 
    - 商流: 案件の商流制限より深い所属の要員は候補にしない（不明は残す）
    - エリア: 出社がある案件は、同じエリアと隣のエリアの要員だけ（未記載は残す）
    - スキル: 案件のスキル名（技術・業務・役割）を組み合わせて探し、見つからなければ上位スキルまで広げる
-   - 単価とマージン (ask together as one item): 既定は、月単価は月単価同士、時給は時給同士で比べ、税込は1.1で割って税別にそろえ、案件の上限が要員の下限以上なら候補にする（差が0円でも可、同じ種類同士は換算しない）。月単価と時給の組み合わせは、時給 × 160時間を稼働率1.00の月単価として比べる（税別にそろえてから。月単価が「この稼働割合の月額」のときは、換算した額に月単価側の稼働率（幅は上の値）を掛けて比べる。「1人月あたり」はそのまま比べる）。単価が書かれていないものは比べずに残す。Ask whether that is OK, then whether to require a margin (差を何円以上残すか). When yes, ask the amount for 月単価, the amount for 時給 (or 時給の案件ではマージンを見ない), and whether 単価相談可 uses a smaller amount.
+   - 単価とマージン (ask together as one item): 既定は、税込は1.1で割って税別にそろえ、案件と要員の稼働率が重なる範囲で、それぞれが実際に受け取る月額にして比べ、案件の上限が要員の下限以上なら候補にする（差が0円でも可）。月額は、「1人月あたり」は額×稼働率、「この稼働割合の月額」は書かれた額のまま（範囲のどの稼働率でもその額）、時給は×160時間×稼働率。時給同士は時給のまま比べる。稼働率が両方とも未記載なら1.00で比べる。単価が書かれていないものは比べずに残す。Ask whether that is OK, then whether to require a margin (差を何円以上残すか). When yes, ask the amount for 月単価, the amount for 時給 (or 時給の案件ではマージンを見ない), and whether 単価相談可 uses a smaller amount. Say that the 月単価 amount is taken at the 稼働率 (例: 5万円なら、稼働0.5では2.5万円).
    - 派遣契約必須の案件: 派遣契約必須の案件もマッチングする（外したいときは絞り込み方に書く）
 2. 比較の仕方 (after reading both overviews and the skill sheet):
    - 通勤: 出社がある案件で、片道おおむね2時間を超えるなら作らない
