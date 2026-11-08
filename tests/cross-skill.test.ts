@@ -54,6 +54,8 @@ test("onboarding lets the customer choose: propose 会社スキル from the last
   assert.match(section, /Pull the last month of mail with `sync_mail_ledger`/u);
   assert.match(section, /once per range, oldest first/u);
   assert.match(section, /Group the mails by sender company/u);
+  assert.match(section, /one subagent per company/u);
+  assert.match(section, /change nothing: no `set_company_skill`/u);
   assert.doesNotMatch(section, /Ask in one message whether any partner writes mail in its own way/u);
 });
 
