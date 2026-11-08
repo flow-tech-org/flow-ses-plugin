@@ -66,7 +66,7 @@ test("onboarding writes 会社スキル only for partners that differ from the s
   assert.match(onboarding, /No file is handed over or installed on claude\.ai/u);
   assert.doesNotMatch(onboarding, /[Zz]ip|アップロード|upload/u);
   assert.match(onboarding, /Only a difference from these, or a mail layout the shared rules cannot split, needs a 会社スキル/u);
-  assert.ok(onboarding.indexOf("## 2. 会社スキル") < onboarding.indexOf("## 5. 定期実行"));
+  assert.ok(onboarding.indexOf("## 2. 会社スキル") < onboarding.indexOf("## 6. 定期実行"));
 });
 
 test("onboarding lets the customer choose: propose 会社スキル from each company's mail of a chosen period, or keep the shared skills", () => {
@@ -156,7 +156,7 @@ test("onboarding registers partner spreadsheets after mail import, in the compan
   const sheet = onboarding.indexOf("## 3. スプレッドシート");
   assert.equal(onboarding.indexOf("## 2. 取り込みフォルダ"), -1);
   assert.match(onboarding, /When `companies` is `done` but `ingest_folders` is not .*start at 5\./u);
-  assert.ok(onboarding.indexOf("## 2. 会社スキル") < sheet && sheet < onboarding.indexOf("## 5. 定期実行"));
+  assert.ok(onboarding.indexOf("## 2. 会社スキル") < sheet && sheet < onboarding.indexOf("## 6. 定期実行"));
   assert.match(onboarding, /the company and the sheet URL for each/u);
   assert.match(onboarding, /export\?format=xlsx/u);
   assert.match(onboarding, /「リンクを知っている全員」が閲覧可/u);
@@ -188,8 +188,8 @@ test("spreadsheet register skill keeps company facts in the 会社スキル and 
 test("onboarding asks about each matching default one at a time and saves three instructions", () => {
   const onboarding = read("onboarding");
   const step = onboarding.indexOf("## 4. マッチングの指示");
-  assert.ok(onboarding.indexOf("## 3. スプレッドシート") < step && step < onboarding.indexOf("## 5. 定期実行"));
-  const body = onboarding.slice(step, onboarding.indexOf("## 5. 定期実行"));
+  assert.ok(onboarding.indexOf("## 3. スプレッドシート") < step && step < onboarding.indexOf("## 6. 定期実行"));
+  const body = onboarding.slice(step, onboarding.indexOf("## 6. 定期実行"));
   assert.match(body, /ask about each item below one at a time/u);
   assert.match(body, /1\. 絞り込み方 /u);
   assert.match(body, /勤務地（都道府県）: 出社がある案件は、要員の都道府県が案件と同じ地方のときだけ候補にする/u);
@@ -265,7 +265,7 @@ test("onboarding reads the 会社スキル, スプレッドシート, and マッ
 
 test("onboarding asks about each 募集終了の整理 default one at a time and writes the answers into the prompt", () => {
   const onboarding = read("onboarding");
-  const body = onboarding.slice(onboarding.indexOf("## 5. 定期実行"), onboarding.indexOf("## Finish"));
+  const body = onboarding.slice(onboarding.indexOf("## 6. 定期実行"), onboarding.indexOf("## Finish"));
   assert.match(body, /Then ask how 募集終了の整理 should work, as in 4/u);
   assert.match(body, /AskUserQuestion/u);
   assert.match(body, /1\. いつ動かすか: 既定は平日 3:00 JST/u);
@@ -296,6 +296,7 @@ test("onboarding checks the partner list with two questions and no third OK", ()
 
 test("onboarding checks and saves the 配信メールの文面 through the connector", () => {
   const skill = read("onboarding");
-  assert.match(skill, /配信メールの文面 \(会社設定, ADMIN only\)/u);
-  assert.match(skill, /`get_mail_texts`[\s\S]*「この文面でよい（おすすめ）」「変えたい」[\s\S]*`set_mail_texts`/u);
+  const step = skill.indexOf("## 5. 配信メールの文面 (`mail_texts`)");
+  assert.ok(skill.indexOf("## 4. マッチングの指示") < step && step < skill.indexOf("## 6. 定期実行"));
+  assert.match(skill, /`get_mail_texts`[\s\S]*「既定のままでよい（おすすめ）」「変えたい」[\s\S]*`set_mail_texts`/u);
 });
