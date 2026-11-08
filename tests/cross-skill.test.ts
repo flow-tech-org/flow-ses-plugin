@@ -192,6 +192,8 @@ test("onboarding asks about each matching default one at a time and saves three 
   const body = onboarding.slice(step, onboarding.indexOf("## 5. 定期実行"));
   assert.match(body, /ask about each item below one at a time/u);
   assert.match(body, /1\. 絞り込み方 /u);
+  assert.match(body, /勤務地（都道府県）: 出社がある案件は、要員の都道府県が案件と同じ地方のときだけ候補にする/u);
+  assert.doesNotMatch(body, /同じエリアと隣のエリア/u);
   assert.match(body, /2\. 比較の仕方 /u);
   assert.match(body, /3\. 理由の書き方 /u);
   assert.match(body, /単価とマージン \(ask together as one item\)/u);
@@ -259,4 +261,18 @@ test("onboarding reads the 会社スキル, スプレッドシート, and マッ
     assert.match(onboarding, new RegExp(`\`${key}\``, "u"), key);
   }
   assert.doesNotMatch(onboarding, /`get_onboarding_status` does not track this step/u);
+});
+
+test("onboarding asks about each 募集終了の整理 default one at a time and writes the answers into the prompt", () => {
+  const onboarding = read("onboarding");
+  const body = onboarding.slice(onboarding.indexOf("## 5. 定期実行"), onboarding.indexOf("## Finish"));
+  assert.match(body, /Then ask how 募集終了の整理 should work, as in 4/u);
+  assert.match(body, /AskUserQuestion/u);
+  assert.match(body, /1\. いつ動かすか: 既定は平日 3:00 JST/u);
+  assert.match(body, /2\. 何営業日で閉じるか: 既定は、新しい元ソースが直近3営業日/u);
+  assert.match(body, /3\. 閉じない会社: 既定はなし/u);
+  assert.match(body, /4\. 未設定のマッチングの却下: 既定は/u);
+  assert.match(body, /replace 「直近3営業日」 in the prompt with 「直近N営業日」/u);
+  assert.match(body, /「未設定のマッチングの却下はしない。」/u);
+  assert.match(read("close-stale-source-listings"), /「対象外の会社: <会社名>、…」/u);
 });

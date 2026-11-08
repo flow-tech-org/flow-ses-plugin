@@ -6,7 +6,7 @@ This skill does not ingest and does not open a site. リンク切れ stays in ea
 
 Same rule as `flow-ses:evaluate-candidate-matchings` (candidate-side) or `flow-ses:evaluate-project-matchings` (project-side). JST Monday–Friday. Do not count Saturday, Sunday, or Japanese national holidays (国民の祝日 and 振替休日).
 
-Count backward from the run date until 3 business days are collected. Include the run date when it is a business day. The window runs from the start of the earliest of those days through the end of the run date, JST. Weekends and holidays between those ends are inside the window.
+Count backward from the run date until 3 business days are collected (or N when the run prompt sets 「直近N営業日」; see Run settings in SKILL.md). Include the run date when it is a business day. The window runs from the start of the earliest of those days through the end of the run date, JST. Weekends and holidays between those ends are inside the window.
 
 | Run date | Business days | Window (JST, inclusive) |
 | --- | --- | --- |
@@ -59,7 +59,7 @@ Do not pass `overview` or `originalText`. Do not `unlink_source_from_record`. Do
 
 ## Reject unset matchings
 
-After the closes above. Matching status null, and the linked project or the linked candidate is `recruitmentStatus` `CLOSED` (募集終了). Includes sides closed in this run and sides already `CLOSED`. Do not limit the search to ids closed in this run.
+Skip this section when the run prompt says 「未設定のマッチングの却下はしない。」. Otherwise, after the closes above. Matching status null, and the linked project or the linked candidate is `recruitmentStatus` `CLOSED` (募集終了). Includes sides closed in this run and sides already `CLOSED`. Do not limit the search to ids closed in this run.
 
 `list_matchings` has no top-level `recruitmentStatuses`. `matchingStatus` does not accept `unset`. Pass `matchingStatuses: ["unset"]` (status null). Related rows AND together, so call twice and paginate each with `cursor` = `nextCursor`:
 
@@ -97,6 +97,8 @@ Do not call `get_matching`, `get_project`, or `get_candidate` for this step. Do 
   "window": "2026-08-06/2026-08-10",
   "runDate": "2026-08-10",
   "businessDays": ["2026-08-06", "2026-08-07", "2026-08-10"],
+  "businessDayCount": 3,
+  "rejectUnsetMatchings": true,
   "checked": 0,
   "closed": 0,
   "skippedRecentSource": 0,
