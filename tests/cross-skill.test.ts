@@ -236,3 +236,17 @@ test("onboarding asks which partners decline distribution and saves it on the co
   assert.match(onboarding, /`set_company_distribution_acceptance` with `projectDistributionAccepted: false` or `candidateDistributionAccepted: false`/u);
   assert.ok(onboarding.indexOf("set_company_distribution_acceptance") < onboarding.indexOf("5. Before asking about sorting"));
 });
+
+test("onboarding asks about each 募集終了の整理 default one at a time and writes the answers into the prompt", () => {
+  const onboarding = read("onboarding");
+  const body = onboarding.slice(onboarding.indexOf("## 5. 定期実行"), onboarding.indexOf("## Finish"));
+  assert.match(body, /Then ask how 募集終了の整理 should work, as in 4/u);
+  assert.match(body, /AskUserQuestion/u);
+  assert.match(body, /1\. いつ動かすか: 既定は平日 3:00 JST/u);
+  assert.match(body, /2\. 何営業日で閉じるか: 既定は、新しい元ソースが直近3営業日/u);
+  assert.match(body, /3\. 閉じない会社: 既定はなし/u);
+  assert.match(body, /4\. 未設定のマッチングの却下: 既定は/u);
+  assert.match(body, /replace 「直近3営業日」 in the prompt with 「直近N営業日」/u);
+  assert.match(body, /「未設定のマッチングの却下はしない。」/u);
+  assert.match(read("close-stale-source-listings"), /「対象外の会社: <会社名>、…」/u);
+});
