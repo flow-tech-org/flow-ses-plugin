@@ -165,7 +165,7 @@ test("onboarding registers partner spreadsheets after mail import, in the compan
   assert.match(onboarding, /Create this task only when at least one 会社スキル has a `## スプレッドシート` section/u);
 });
 
-test("company skills are read from FlowSES with get_company_skill / list_company_skills", () => {
+test("company skills are read from Flow SES with get_company_skill / list_company_skills", () => {
   for (const name of ["process-inbox", "register-spreadsheet-listings"]) {
     assert.match(read(name), /get_company_skill/u, name);
     assert.doesNotMatch(read(name), /older setups|account skills/u, name);

@@ -60,7 +60,7 @@ Default run date: **today (JST)**. Honor a user-specified date. Business days ma
 
 ## Preflight
 
-1. Confirm the FlowSES connector is callable. If it needs auth, surface the connection URL and stop. This skill does not open a browser.
+1. Confirm the flow-ses connector is callable. If it needs auth, surface the connection URL and stop. This skill does not open a browser.
 2. Resolve the run date and the 3-business-day window above. Call `list_companies` only to resolve [Excluded companies](#excluded-companies). Do not call `match_project_overviews` or `match_candidate_overviews`. Do not create or refresh PROJECT/CANDIDATE.
 
 ## Workflow

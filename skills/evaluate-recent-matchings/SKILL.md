@@ -52,7 +52,7 @@ If the next run cannot see this result, start is again today 00:00 JST. Do not i
 
 ## Preflight
 
-1. Confirm the FlowSES connector tools are callable. If auth is required, surface the connection URL and stop.
+1. Confirm the flow-ses connector tools are callable. If auth is required, surface the connection URL and stop.
 2. Resolve the target organization from the MCP session. Do not invent an `organizationId`.
 3. Resolve start and now as above (a scheduled run reads them with `get_scheduled_task_last_start`). Write both instants down before listing.
 

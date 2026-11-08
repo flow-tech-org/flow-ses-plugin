@@ -126,7 +126,7 @@ test("evaluate-project-matchings searches candidates with skillNames and exclude
   assert.match(skill, /1人月 64 − m 万, この稼働割合 32 − 0\.5m 万/u);
   assert.match(skill, /Do not mine overview 万円/u);
   assert.match(skill, /with six items/u);
-  assert.match(skill, /If it rejects `unitPriceConditions` \(an older FlowSES\), omit the price filter/u);
+  assert.match(skill, /If it rejects `unitPriceConditions` \(an older Flow SES\), omit the price filter/u);
   assert.doesNotMatch(skill, /compare one kind with itself|four items|160時間 conversion/u);
   assert.match(skill, /A value whose `unitPriceTaxType` is `INCLUDED` \(税込\) is divided by 1\.1 before any comparison or margin/u);
   assert.match(skill, /A margin applies only when 絞り込み方 sets one/u);
