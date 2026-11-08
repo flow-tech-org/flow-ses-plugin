@@ -95,7 +95,7 @@ test("evaluate-project-matchings searches candidates with skillNames and exclude
   assert.match(skill, /首都圏 `11` `12` `13` `14`/u);
   assert.match(skill, /首都圏 → `08` `09` `10` `11` `12` `13` `14` `19` `20`/u);
   assert.match(skill, /隣接エリア: 首都圏–北関東, 首都圏–甲信/u);
-  assert.match(skill, /Skip as `通勤不可` only when both locations are stated/u);
+  assert.doesNotMatch(skill, /Skip as `通勤不可` only when both locations are stated/u);
   assert.doesNotMatch(skill, /中部 `15`/u);
   assert.match(skill, /北陸 `15` `16` `17` `18`; 東海 `21` `22` `23` `24`/u);
   assert.match(skill, /関西 `25` `26` `27` `28` `29` `30`/u);
@@ -154,7 +154,11 @@ test("evaluate-project-matchings keeps the same fit, sheet, and reason rules", (
   assert.match(skill, /概要不一致/u);
   assert.match(skill, /スキルシート不一致/u);
   assert.match(skill, /概要だけでは判断できない/u);
-  assert.match(skill, /A borderline comparison \(微妙\) is not created/u);
+  assert.match(skill, /\*\*必須・歓迎の判定 \(required\):\*\*/u);
+  assert.match(skill, /With two or more, every 必須 item must be ◯ except at most one △, and none may be ✕/u);
+  assert.match(skill, /歓迎 items are marked for the reason but never decide the pair/u);
+  assert.match(skill, /`必須の△が多い`/u);
+  assert.match(skill, /【必須】/u);
   assert.match(skill, /Never send mail/u);
   assert.match(skill, /Do not create Outlook drafts/u);
   assert.match(skill, /matchingProcessed` is the project anchor ids/u);
@@ -175,7 +179,7 @@ test("matching evaluation reads the stored sheet text before downloading", () =>
 test("matching needs the project's 主業務 and the candidate's 売り方 to fit, not only the 必須 lines", () => {
   assert.match(skill, /\*\*主業務と売り方 \(required\):\*\* Passing every 必須 line is not enough for a clear fit/u);
   assert.match(skill, /A shared language or framework alone does not count/u);
-  assert.match(skill, /When only the language matches, the pair is borderline \(微妙\) and is not created/u);
+  assert.match(skill, /When only the language matches, the pair is not created \(`主業務不一致`\)/u);
   assert.match(skill, /is not created for a project whose 主業務 is a different direction/u);
   assert.match(skill, /`主業務不一致`/u);
   assert.match(skill, /Do not use 単価 for this check/u);

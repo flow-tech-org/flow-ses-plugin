@@ -163,17 +163,15 @@ Say first, in one message, that the AI already has default rules, that you will 
    - 単価とマージン (ask together as one item): 既定は、税込は1.1で割って税別にそろえ、案件と要員の稼働率が重なる範囲のどこかで「案件の上限 ≥ 要員の下限」なら候補にする（差が0円でも可、安い要員は残す）。「1人月あたり」は1人がフルに働く月額、「この稼働割合の月額」は範囲のどの稼働率でもその金額、時給は×160時間で1人月あたりにする（例: 案件「稼働0.5〜0.8で24〜32万」は1人月あたり最大64万）。稼働率が両方とも未記載なら1.00で比べる。単価が書かれていないものは比べずに残す。Ask whether that is OK, then whether to require a margin (差を何円以上残すか). When yes, ask the amount for 月単価, the amount for 時給 (or 時給の案件ではマージンを見ない), and whether 単価相談可 uses a smaller amount. Say that for この稼働割合の月額 the 月単価 amount is taken at the 稼働率 (例: 5万円なら、稼働0.5では2.5万円).
    - 派遣契約必須の案件: 派遣契約必須の案件もマッチングする（外したいときは絞り込み方に書く）
 2. 比較の仕方 (after reading both overviews and the skill sheet):
-   - 通勤: 出社がある案件で、片道おおむね2時間を超えるなら作らない
-   - 経験年数: 必須の年数に届かなければ作らない（未記載は不一致にしない）
+   - 必須・歓迎の判定: 案件の必須と歓迎の項目ごとに、要員が満たすかを ◯（満たす）・△（一部足りない。例: 経験年数が足りない、スキルの一部が足りない）・✕（記載がない・合わない）で判定する。必須がすべて◯なら合う。ただし必須が2つ以上あるときは△を1つまで認める。✕があれば作らない。歓迎は判断に使わない（理由には書く）
    - 主業務と売り方: 言語が同じでも、案件の主な仕事と要員の経験・売り方の方向が違えば作らない
-   - ほかに、作りたくない組み合わせ（例: 金融系の案件に外国籍の要員）
+   - ほかに、作りたくない組み合わせや足したいチェック（例: 金融系の案件に外国籍の要員は出さない、出社がある案件は通勤が片道1時間半までの要員だけにする）。既定では通勤は見ない
 3. 理由の書き方 (the matching reason is pasted into the partner proposal mail as 「マッチング理由：」):
-   - 書く内容: 合っているスキルと、書かれていれば経験年数。単価相談可のときはその一言。足りないスキルがあればご確認のお願い
-   - 長さ: 1〜3文
+   - 書く内容: 【必須】【歓迎】の見出しの下に、項目ごとに ◯・△・✕ と一言の説明を1行ずつ（△は足りない点とご確認のお願い、✕は記載がない旨）。単価相談可のときはその一言
+   - 長さ: 項目ごとに1行（説明は1文）
    - ほかに、書き方の希望（例: 最初の1文で一番合う点を書く、稼働開始にも触れる）
-4. Say that these do not change and are not asked: 同じ会社同士・既にあるマッチング・募集終了は作らない、微妙なものは作らない（スキルシートが無いか読めないときは概要だけで明らかに合うときだけ作る）、概要やスキルシートで必須が明らかに合わないものは外す、理由はです・ます調で文ごとに改行し、会社の関係やスコアは書かない.
-5. Write each answer as short Japanese sentences addressed to the AI, only for what differs from the defaults or adds to them (例: 絞り込み方に「月単価は差を5万円以上、単価相談可なら3万円以上にする。時給はマージンを見ない。派遣契約必須の案件はマッチングしない。」、比較の仕方に「通勤は片道1時間半までにする。」、理由の書き方に「3文以内にする。」). Put rules on stored conditions (the list in 1, including 単価・マージン and 派遣契約必須) in 絞り込み方, rules that need reading the overviews or the skill sheet (the list in 2) in 比較の仕方, and rules on the reason (the list in 3) in 理由の書き方; never mix them. Leave a field empty when nothing differs. Do not copy partner or person names. Show the texts for one OK and fix what the customer corrects.
-6. Save with `set_matching_instructions` (`filterInstructions`, `comparisonInstructions`, `reasonInstructions`; ADMIN only). If the customer wants no changes at all, save nothing and say the defaults are used. Show the 会社設定 `url` from `get_onboarding_status` (the `organization` step) as a link and say they can change the instructions there at any time, or by asking for マッチングの指示の変更.
+4. Write each answer as short Japanese sentences addressed to the AI, only for what differs from the defaults or adds to them (例: 絞り込み方に「月単価は差を5万円以上、単価相談可なら3万円以上にする。時給はマージンを見ない。派遣契約必須の案件はマッチングしない。」、比較の仕方に「必須の△は認めない。」、理由の書き方に「歓迎の✕は書かない。」). Put rules on stored conditions (the list in 1, including 単価・マージン and 派遣契約必須) in 絞り込み方, rules that need reading the overviews or the skill sheet (the list in 2) in 比較の仕方, and rules on the reason (the list in 3) in 理由の書き方; never mix them. Leave a field empty when nothing differs. Do not copy partner or person names. Show the texts for one OK and fix what the customer corrects.
+5. Save with `set_matching_instructions` (`filterInstructions`, `comparisonInstructions`, `reasonInstructions`; ADMIN only). If the customer wants no changes at all, save nothing and say the defaults are used. Show the 会社設定 `url` from `get_onboarding_status` (the `organization` step) as a link and say they can change the instructions there at any time, or by asking for マッチングの指示の変更.
 
 ## 5. 定期実行 (`scheduled_tasks`)
 
