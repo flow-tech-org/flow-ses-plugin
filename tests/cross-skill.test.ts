@@ -233,7 +233,7 @@ test("the plugin has no distribution draft skill", () => {
 
 test("onboarding asks which partners decline distribution and saves it on the company", () => {
   const onboarding = read("onboarding");
-  assert.match(onboarding, /ask which partners do not want 案件配信 or 要員配信/u);
+  assert.match(onboarding, /Ask which partners do not want 案件配信 or 要員配信/u);
   assert.match(onboarding, /`set_company_distribution_acceptance` with `projectDistributionAccepted: false` or `candidateDistributionAccepted: false`/u);
   assert.ok(onboarding.indexOf("set_company_distribution_acceptance") < onboarding.indexOf("5. Before asking about sorting"));
 });
@@ -286,4 +286,10 @@ test("onboarding asks every question with AskUserQuestion choices", () => {
   // 選択肢のない聞き方が残っていない。
   assert.doesNotMatch(onboarding, /Ask in one message/u);
   assert.doesNotMatch(onboarding, /Wait until the customer says it is done/u);
+});
+
+test("onboarding checks the partner list with two questions and no third OK", () => {
+  const onboarding = read("onboarding");
+  assert.match(onboarding, /Check the list with exactly two questions, and do not ask a third OK on the whole table after them/u);
+  assert.doesNotMatch(onboarding, /この内容で登録する/u);
 });
