@@ -184,3 +184,9 @@ test("matching needs the project's 主業務 and the candidate's 売り方 to fi
   assert.match(skill, /`主業務不一致`/u);
   assert.match(skill, /Do not use 単価 for this check/u);
 });
+
+test("matching reason writes nothing about 単価 by default", () => {
+  assert.match(skill, /By default, write nothing about 単価 in `reason`: no amounts, no margin, and no 単価相談可 note\./u);
+  assert.doesNotMatch(skill, /add a 単価相談可 line/u);
+  assert.doesNotMatch(skill, /plus a 単価相談可 note/u);
+});
