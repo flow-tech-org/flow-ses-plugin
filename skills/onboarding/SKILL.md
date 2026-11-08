@@ -167,7 +167,7 @@ Say first, in one message, that the AI already has default rules, that you will 
    - 主業務と売り方: 言語が同じでも、案件の主な仕事と要員の経験・売り方の方向が違えば作らない
    - ほかに、作りたくない組み合わせや足したいチェック（例: 金融系の案件に外国籍の要員は出さない、出社がある案件は通勤が片道1時間半までの要員だけにする）。既定では通勤は見ない
 3. 理由の書き方 (the matching reason is pasted into the partner proposal mail as 「マッチング理由：」):
-   - 書く内容: 【必須】【歓迎】の見出しの下に、項目ごとに ◯・△・✕ と一言の説明を1行ずつ（△は足りない点とご確認のお願い、✕は記載がない旨）。単価相談可のときはその一言
+   - 書く内容: 【必須】【歓迎】の見出しの下に、項目ごとに ◯・△・✕ と一言の説明を1行ずつ（△は足りない点とご確認のお願い、✕は記載がない旨）。単価のこと（金額・単価相談可）は書かない
    - 長さ: 項目ごとに1行（説明は1文）
    - ほかに、書き方の希望（例: 最初の1文で一番合う点を書く、稼働開始にも触れる）
 4. Write each answer as short Japanese sentences addressed to the AI, only for what differs from the defaults or adds to them (例: 絞り込み方に「月単価は差を5万円以上、単価相談可なら3万円以上にする。時給はマージンを見ない。派遣契約必須の案件はマッチングしない。」、比較の仕方に「必須の△は認めない。」、理由の書き方に「歓迎の✕は書かない。」). Put rules on stored conditions (the list in 1, including 単価・マージン and 派遣契約必須) in 絞り込み方, rules that need reading the overviews or the skill sheet (the list in 2) in 比較の仕方, and rules on the reason (the list in 3) in 理由の書き方; never mix them. Leave a field empty when nothing differs. Do not copy partner or person names. Show the texts for one OK and fix what the customer corrects.
