@@ -78,7 +78,9 @@ test("onboarding registers the companies before asking about per-company sorting
   const register = onboarding.indexOf("4. Register every company first");
   const ask = onboarding.indexOf("5. Before asking about sorting, read how the customer's mail is sorted now");
   assert.ok(register > 0 && ask > register);
-  assert.match(onboarding, /If yes, make the plan in the same shape as the existing setup/u);
+  assert.match(onboarding, /the fix plan, made in the same shape as the existing setup/u);
+  assert.match(onboarding, /When nothing needs fixing, say so and still give the 取り込みフォルダ plan/u);
+  assert.match(onboarding, /The 取り込みフォルダ plan is then every company folder in that plan/u);
   assert.match(onboarding, /If yes, ask how to sort, showing the default first: Outlook 受信トレイ\/<会社名> and 送信済みアイテム\/<会社名>, Gmail label <会社名>/u);
   assert.match(onboarding, /when they have no preference, use the default/u);
   assert.match(onboarding, /Never delete or rename existing folders or rules/u);
@@ -86,11 +88,13 @@ test("onboarding registers the companies before asking about per-company sorting
   assert.ok(onboarding.indexOf("create_gmail_filter", register) > ask);
 });
 
-test("onboarding shows the folders already ingested, gets an OK before turning folders on, and leaves 手動同期 to 会社スキル", () => {
+test("onboarding sets 取り込みフォルダ together with the sorting, with one OK, and leaves 手動同期 to 会社スキル", () => {
   const onboarding = read("onboarding");
-  const section = onboarding.slice(onboarding.indexOf("## 2. 取り込みフォルダ"), onboarding.indexOf("## 3. 会社スキル"));
-  assert.match(section, /Show the folders that are already on \(`enabled: true`\) first/u);
-  assert.match(section, /show the list of folders that will be added \(folder path and mailbox\) and get one OK/u);
+  const section = onboarding.slice(onboarding.indexOf("5. Before asking about sorting"), onboarding.indexOf("## 3. 会社スキル"));
+  assert.match(section, /Do not show or ask about the folders that are already ingested/u);
+  assert.doesNotMatch(section, /Show the folders that are already on/u);
+  assert.match(section, /Show the plan as one list and get one OK/u);
+  assert.ok(section.indexOf("enable_mail_ingest_folders") > section.indexOf("create_gmail_filter"));
   assert.doesNotMatch(section, /手動同期/u);
 });
 
