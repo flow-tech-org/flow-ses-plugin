@@ -79,7 +79,8 @@ test("onboarding registers the companies before asking about per-company sorting
   const ask = onboarding.indexOf("5. Before asking about sorting, read how the customer's mail is sorted now");
   assert.ok(register > 0 && ask > register);
   assert.match(onboarding, /If yes, make the plan in the same shape as the existing setup/u);
-  assert.match(onboarding, /the plan is Outlook 受信トレイ\/<会社名> and 送信済みアイテム\/<会社名>, Gmail label <会社名>/u);
+  assert.match(onboarding, /If yes, ask how to sort, showing the default first: Outlook 受信トレイ\/<会社名> and 送信済みアイテム\/<会社名>, Gmail label <会社名>/u);
+  assert.match(onboarding, /when they have no preference, use the default/u);
   assert.match(onboarding, /Never delete or rename existing folders or rules/u);
   assert.ok(onboarding.indexOf("create_outlook_rule", register) > ask);
   assert.ok(onboarding.indexOf("create_gmail_filter", register) > ask);
