@@ -293,3 +293,9 @@ test("onboarding checks the partner list with two questions and no third OK", ()
   assert.match(onboarding, /Check the list with exactly two questions, and do not ask a third OK on the whole table after them/u);
   assert.doesNotMatch(onboarding, /この内容で登録する/u);
 });
+
+test("onboarding checks and saves the 配信メールの文面 through the connector", () => {
+  const skill = read("onboarding");
+  assert.match(skill, /配信メールの文面 \(会社設定, ADMIN only\)/u);
+  assert.match(skill, /`get_mail_texts`[\s\S]*「この文面でよい（おすすめ）」「変えたい」[\s\S]*`set_mail_texts`/u);
+});
