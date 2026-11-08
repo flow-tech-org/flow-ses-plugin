@@ -162,7 +162,7 @@ test("onboarding asks about each matching default one at a time and saves three 
   assert.match(body, /2\. 比較の仕方 /u);
   assert.match(body, /3\. 理由の書き方 /u);
   assert.match(body, /単価とマージン \(ask together as one item\)/u);
-  assert.match(body, /派遣契約必須の案件: 派遣契約必須の案件はマッチングしない/u);
+  assert.match(body, /派遣契約必須の案件: 派遣契約必須の案件もマッチングする/u);
   assert.match(body, /these do not change and are not asked/u);
   assert.match(body, /`set_matching_instructions` \(`filterInstructions`, `comparisonInstructions`, `reasonInstructions`; ADMIN only\)/u);
 });
