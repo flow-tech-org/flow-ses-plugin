@@ -263,7 +263,9 @@ test("evaluate-matchings searches with current commercial-flow, on-site, start, 
   assert.match(skill, /A null candidate min is no floor and passes/u);
   assert.match(skill, /Do not mine overview 万円/u);
   assert.match(skill, /compare one kind with itself, with the values as stored/u);
-  assert.match(skill, /Never convert within one kind, and never convert 税込 ÷ 1\.1/u);
+  assert.match(skill, /Never convert 月単価 and 時給 within one kind\. Always compare 税別/u);
+  assert.match(skill, /A value whose `unitPriceTaxType` is `INCLUDED` \(税込\) is divided by 1\.1 before any comparison or margin/u);
+  assert.match(skill, /pass `unitPriceMinManYen` = the candidate's 税別 min, rounded down to a whole number/u);
   assert.match(skill, /時給 × 160時間 is the 月単価 at 稼働率1\.00/u);
   assert.match(skill, /`PER_PERSON_MONTH` \(1人月あたり\) uses 時給 × 160 as it is/u);
   assert.match(skill, /under the 月単価 margin; when the instruction gives no 月単価 amount, that pair has no margin/u);
@@ -271,11 +273,10 @@ test("evaluate-matchings searches with current commercial-flow, on-site, start, 
   assert.match(skill, /A pair of different kinds passes the search and is decided after `get_\*` by the 160時間 conversion below/u);
   assert.match(skill, /A margin applies only when 絞り込み方 sets one/u);
   assert.match(skill, /\*\*Margin \(only when 絞り込み方 sets one\):\*\* the default has no margin/u);
-  assert.match(skill, /skip as `マージン不足` when both bounds are set and project max − candidate min is under the margin/u);
+  assert.match(skill, /skip as `マージン不足` when both bounds are set and the 税別 project max − 税別 candidate min is under the margin/u);
   assert.match(skill, /\*\*派遣契約必須 \(on by default\):\*\* by default, pass `projectCondition\.dispatchContractRequired: \["unset"\]`/u);
   assert.match(skill, /単価 is decided once, by the structured filter you passed/u);
   assert.doesNotMatch(skill, /comparableUnitPrice|The required margin is 50,000円/u);
-  assert.match(skill, /when the candidate is `MONTHLY` with `unitPriceMinManYen` set, pass `unitPriceMinManYen` = that value; when it is `HOURLY` with `unitPriceMinYen` set, pass `unitPriceMinYen` = that value/u);
   assert.match(skill, /If the candidate min is null, omit the price filter/u);
   assert.doesNotMatch(skill, /Always pass `projectCondition\.dispatchContractRequired: \["unset"\]`/u);
   assert.match(skill, /Do not fill a missing end with 0, 500, or 30000/u);
