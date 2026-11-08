@@ -120,7 +120,7 @@ test("evaluate-project-matchings searches candidates with skillNames and exclude
   assert.match(skill, /A margin applies only when 絞り込み方 sets one/u);
   assert.match(skill, /\*\*Margin \(only when 絞り込み方 sets one\):\*\* the default has no margin/u);
   assert.match(skill, /skip as `マージン不足` when both bounds are set and project max − candidate min is under the margin/u);
-  assert.match(skill, /\*\*派遣契約必須 \(only when 絞り込み方 says so\):\*\* the default does not look at `dispatchContractRequired`/u);
+  assert.match(skill, /\*\*派遣契約必須 \(on by default\):\*\* by default, skip an anchor project whose `dispatchContractRequired` is `true`/u);
   assert.match(skill, /単価 is decided once, by the structured filter you passed/u);
   assert.doesNotMatch(skill, /comparableUnitPrice|時給 × 160時間|The required margin is 50,000円/u);
   assert.match(skill, /when the project is `MONTHLY` with `unitPriceMaxManYen` set, pass `unitPriceMaxManYen` = that value; when it is `HOURLY` with `unitPriceMaxYen` set, pass `unitPriceMaxYen` = that value/u);
