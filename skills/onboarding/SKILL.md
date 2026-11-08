@@ -24,7 +24,7 @@ The customer opened this session from the FlowSES 導入ガイド (`/onboarding`
 - This skill is part of the flow-ses plugin. When it names another flow-ses skill (`flow-ses:<name>`), use that skill. If the plugin is not loaded in this session, read it from https://raw.githubusercontent.com/flow-tech-org/flow-ses-plugin/main/skills/<name>/SKILL.md instead.
 - Use only the FlowSES connector that comes with the flow-ses plugin: the MCP server named `flow-ses` (Claude Code lists it as `plugin:flow-ses:flow-ses`; on claude.ai it is the FlowSES connector on the plugin's 「コネクタ」 tab). Other connectors may offer tools with the same names, such as one added by hand or a test or staging copy. Never call those, even when the plugin's connector is missing: they may point to another FlowSES environment. If the plugin's connector is not callable, do 0.
 - Start every run with `get_onboarding_status`. If the FlowSES connector is not callable, or it asks for sign-in, do 0 first. Never trust what an earlier run said. Skip every step whose `state` is `done`, unless the customer asks to redo it.
-- Follow the steps in the order `get_onboarding_status` returns them (`mcp` → 会社設定 → ユーザー設定 → メンバー管理 → 会社台帳 → 取り込みフォルダ → 定期実行). Do 3 (会社スキル), 4 (スプレッドシート), and 5 (マッチングの指示) in that order right after 取り込みフォルダ, before 定期実行. Start 3, 4, 5, and 6 only when every earlier required step (`optional: false`) is `done`; optional steps the customer declined do not block. If one is not done, say which step is left and where to do it, and do not start 3, 4, 5, or 6. So 3, 4, 5, and 6 can rely on 会社設定, the mailbox, the 会社台帳, and the ingest folders already being set. After each step, call `get_onboarding_status` again and say in one line what is done and what comes next.
+- Follow the steps in the order `get_onboarding_status` returns them (`mcp` → 会社設定 → ユーザー設定 → メンバー管理 → 会社台帳 → 取り込みフォルダ → 定期実行). 会社台帳 and 取り込みフォルダ are both done in 1. Do 2 (会社スキル), 3 (スプレッドシート), and 4 (マッチングの指示) in that order right after 取り込みフォルダ, before 定期実行. Start 2, 3, 4, and 5 only when every earlier required step (`optional: false`) is `done`; optional steps the customer declined do not block. If one is not done, say which step is left and where to do it, and do not start 2, 3, 4, or 5. So 2, 3, 4, and 5 can rely on 会社設定, the mailbox, the 会社台帳, and the ingest folders already being set. After each step, call `get_onboarding_status` again and say in one line what is done and what comes next.
 - Dashboard steps (`agent: false`, not `done`) are done by the customer on a FlowSES screen. Do not stop the session for them:
   - Tell the customer in one or two plain lines what to set, using the step's `detail`, and always show the step's `url` as a link so they can open the screen directly. Steps that share a `url` (会社設定: `organization` and `notification`; ユーザー設定: `mailbox` and `signature`) go in one message, so the customer opens each screen once.
   - For an optional step (`optional: true`), ask whether they want it; skip it when they say no.
@@ -48,9 +48,11 @@ Goal: the FlowSES connector works in this session. Only the customer can connect
 
 If FlowSES sign-in fails because the customer's account is not a member, an ADMIN must add them in メンバー管理 first. Say so and stop.
 
-## 1. 会社台帳 (`companies`)
+## 1. 会社台帳と取り込みフォルダ (`companies`, `ingest_folders`)
 
-Goal: the partner companies the customer trades with are in the ledger, with 配信先, 担当者, and 配信受付.
+Goal: the partner companies the customer trades with are in the ledger, with 配信先, 担当者, and 配信受付, their mail is sorted the way the customer wants, and the folders where 案件・要員 mail arrives are ingested into the メール台帳.
+
+When `companies` is `done` but `ingest_folders` is not (an earlier run stopped after registering the companies), start at 5.
 
 1. Call `list_companies` to see what already exists, so 4 can skip it. Do not report the count to the customer.
 2. Ask for the partner list in one message. Accept any of: pasted text, a CSV or Excel file, or "連絡先から拾って". Columns that help: 会社名, ドメイン, 配信先メール, 担当者名, 担当者メール, 配信受付 (whether the company declines 案件配信 or 要員配信). In the same message, ask which partners do not want 案件配信 or 要員配信 from the customer; most accept both. No mail is ingested yet at this point, so do not build the list from mail senders.
@@ -73,11 +75,7 @@ Goal: the partner companies the customer trades with are in the ledger, with 配
 
    Report what was created and turned on, and any failures. A failure on one company does not stop the rest.
 
-## 2. 取り込みフォルダ (`ingest_folders`)
-
-Goal: the folders where 案件・要員 mail arrives are ingested into the メール台帳. This is done in 1.5–1.7 together with the sorting. Come here only when 会社台帳 is `done` but this step is not (for example, an earlier run stopped after registering the companies): read the sorting as in 1.5, make only the 取り込みフォルダ plan from it the same way, get one OK on the list (folder path and mailbox), and turn them on as in 1.7.
-
-## 3. 会社スキル
+## 2. 会社スキル
 
 Goal: partner companies whose mail cannot be read with the shared rules get their own 会社スキル, so the scheduled メール取り込み registers their 案件・要員 correctly from the first run. `get_onboarding_status` does not track this step. When resuming at スプレッドシート, マッチングの指示, or 定期実行, ask once whether 会社スキル are done.
 
@@ -86,7 +84,7 @@ A 会社スキル is Markdown text saved on one partner company in the 会社台
 1. Ask in one message which of the two the customer wants, in plain words:
    - **メールから提案する**: AI が取り込みフォルダの過去1カ月のメールをメール台帳に取り込み、会社ごとに読んで、共通の決まりでは読み違える会社にだけ会社スキルを提案する。
    - **会社スキルは作らない**: 全社、共通の決まりのまま取り込む。
-   Say the shared defaults when unstated: 税別、再配信可、案件の個人事業主可・外国籍可、要員の外国籍不可 (`flow-ses:structured-conditions`). Only a difference from these, or a mail layout the shared rules cannot split, needs a 会社スキル. If the customer picks 作らない, say they can add one later by asking for 会社スキルの追加, and go to 4. Partners that share listings in a spreadsheet are asked about in 4.
+   Say the shared defaults when unstated: 税別、再配信可、案件の個人事業主可・外国籍可、要員の外国籍不可 (`flow-ses:structured-conditions`). Only a difference from these, or a mail layout the shared rules cannot split, needs a 会社スキル. If the customer picks 作らない, say they can add one later by asking for 会社スキルの追加, and go to 3. Partners that share listings in a spreadsheet are asked about in 3.
 2. メールから提案する:
    1. Pull the last month of mail with `sync_mail_ledger`. Use the 30 days that end now, split into weekly ranges (`from` / `to` as ISO times with offset, the last `to` = now), and call it once per range, oldest first, so each call finishes in time. Report in one line how many mails came in (`processed`, `sentUpserted`). If a call returns `partial` or fails, try that range once more; if it still fails, say which folders failed and go on with what is in the ledger. If `sync_mail_ledger` is not available (an older FlowSES), ask the customer to run 手動同期 for the last month on the メール台帳 screen (the `ingest_folders` step's `url` from `get_onboarding_status`), and wait until they say it has finished.
    2. List the received mail of those 30 days with `list_mail_sources` (`direction: INBOUND`, `occurredFrom`, `take: 200`, follow `nextCursor`). Group the mails by sender company: match the sender address domain to the domains of the companies in the 会社台帳 (`list_companies`). Skip mail from senders that are not in the 会社台帳.
@@ -97,7 +95,7 @@ A 会社スキル is Markdown text saved on one partner company in the 会社台
       - decide whether the company needs a 会社スキル: only where its mail differs from the shared rules in a way that would be read wrongly, and only for a habit seen in more than one mail;
       - reply with a short result only: 要否, 読んだ通数, 共通の決まりと違う点, and, when needed, the draft text in the shape of 4 (never copying text that names people).
       Collect the results; do not read the mail bodies again in this session. If this session has no subagent tool, read the mails here instead, company by company: for each company, look at every subject first, then read a few bodies of each kind (案件, 要員, 募集終了).
-   4. Show the result in one message: a short table of the companies that need a 会社スキル (会社名, 共通の決まりと違う点, 読んだ通数), and one line with how many companies were read and need none. Write each proposed rule as a short sentence, from the subagents' drafts. The customer picks which to save and fixes what is wrong. If no company needs one, say so, say they can ask for 会社スキルの追加 later, and go to 4.
+   4. Show the result in one message: a short table of the companies that need a 会社スキル (会社名, 共通の決まりと違う点, 読んだ通数), and one line with how many companies were read and need none. Write each proposed rule as a short sentence, from the subagents' drafts. The customer picks which to save and fixes what is wrong. If no company needs one, say so, say they can ask for 会社スキルの追加 later, and go to 3.
 3. Only write rules about that company's mail: block count and how to split, which skill sheet belongs to which 要員, how to read 税区分・再配信・個人事業主・外国籍, and how it says 募集終了. Do not write rules on the shape of 概要 (the shared skills keep 概要 as an excerpt of the 原文), on identity of resends (the match tools decide), or on sending mail. Never copy mail text that names people.
 4. Write one text per company with this shape. Read the company's current 会社スキル first with `get_company_skill`; when it has one, change only what the customer asked and keep the rest.
 
@@ -122,16 +120,16 @@ A 会社スキル is Markdown text saved on one partner company in the 会社台
 5. After the OK in 2.4, save each one with `set_company_skill` (`companyId`, the whole text). It replaces the company's 会社スキル.
 6. List the companies whose 会社スキル was saved, in one line each, and say they can read or change it on the company's detail in the 会社台帳 (show the `company_ledger` step's `url` from `get_onboarding_status` as a link).
 
-## 4. スプレッドシート
+## 3. スプレッドシート
 
 Goal: partner companies that share their 案件・要員 in a Google Spreadsheet have that sheet registered for import, so the scheduled スプレッドシート取り込み brings its listings into the ledger. The sheet URL and how to read it go into that company's 会社スキル (a `## スプレッドシート` section), and `flow-ses:register-spreadsheet-listings` reads every 会社スキル that has one. `get_onboarding_status` does not track this step. When resuming at マッチングの指示 or 定期実行, ask once whether スプレッドシート is done.
 
-1. Ask in one message whether any partner shares 案件・要員 in a spreadsheet, and if so, the company and the sheet URL for each. Several at once are fine. Only Google スプレッドシート links (`https://docs.google.com/spreadsheets/d/...`) can be imported; for an Excel file, a SharePoint or OneDrive link, or another kind of page, say it cannot be imported yet and skip it. If the customer names none, say they can add one later by asking for スプレッドシートの追加, and go to 5.
+1. Ask in one message whether any partner shares 案件・要員 in a spreadsheet, and if so, the company and the sheet URL for each. Several at once are fine. Only Google スプレッドシート links (`https://docs.google.com/spreadsheets/d/...`) can be imported; for an Excel file, a SharePoint or OneDrive link, or another kind of page, say it cannot be imported yet and skip it. If the customer names none, say they can add one later by asking for スプレッドシートの追加, and go to 4.
 2. For each sheet:
    1. Find the company with `list_companies`. If it is not in the 会社台帳, register it as in 1.4 first.
    2. Download `https://docs.google.com/spreadsheets/d/<id>/export?format=xlsx` and read it with `openpyxl` (`flow-ses:read-office-attachments`). The scheduled task reads the sheet without signing in, so it must be shared as 「リンクを知っている全員」が閲覧可. If the download returns a sign-in page or 401 / 403, say so in plain words, ask the customer to have the sharing changed (by the partner, when it is the partner's sheet), and try again when they say it is done. If the network refuses the host, say that this environment cannot reach Google and that docs.google.com must be allowed in the environment's network settings; skip the sheet until then.
    3. Read every tab and work out how to read it: which tabs hold 案件, which hold 要員, and which hold neither (担当者一覧, notes); whether one listing is one row or one column; the header row or label column; which cells make up a listing's 原文 and in what order; which cell gives the title; which cell is the 募集状況 and which of the values seen mean open and which mean stopped (or that there is none); and, for 要員, which cell links to the skill sheet. Show it as a short table per tab, with one or two sample titles, and get one OK. Fix what the customer corrects. Do not write rules on the shape of 概要, on identity, or on sending mail, and never copy cell text that names people.
-3. Read that company's 会社スキル with `get_company_skill` and add the `## スプレッドシート` section to it, or replace that section when it is already there. If the company has none yet, start one with the template in 3.4 and leave out the sections that do not apply. The scheduled task finds every 会社スキル with this section.
+3. Read that company's 会社スキル with `get_company_skill` and add the `## スプレッドシート` section to it, or replace that section when it is already there. If the company has none yet, start one with the template in 2.4 and leave out the sections that do not apply. The scheduled task finds every 会社スキル with this section.
 
    ```markdown
    ## スプレッドシート
@@ -147,11 +145,11 @@ Goal: partner companies that share their 案件・要員 in a Google Spreadsheet
    - <向きや結合セルなど、読むときの注意。無ければ省く>
    ```
 
-4. Show the whole new text, and on the customer's OK save it with `set_company_skill` as in 3.5.
+4. Show the whole new text, and on the customer's OK save it with `set_company_skill` as in 2.5.
 
-## 5. マッチングの指示
+## 4. マッチングの指示
 
-Goal: the scheduled マッチング作成 narrows, judges, and writes reasons the way this customer does. The matching skills' own rules are the defaults (共通の決まり). The customer's changes are saved as three instructions for the AI in 会社設定の「マッチングの指示」: 絞り込み方 (how to narrow the counterpart search), 比較の仕方 (how to judge a found pair), and 理由の書き方 (how to write the matching reason). `flow-ses:evaluate-project-matchings` and `flow-ses:evaluate-candidate-matchings` read them with `get_matching_instructions` at the start of every run and follow them over the defaults. `get_onboarding_status` does not track this step: call `get_matching_instructions`, and if any field has text (`updatedAt` is set), show it and ask whether to change it; if no, go to 6. When resuming at 定期実行 and all three are empty, ask once whether マッチングの指示 is done.
+Goal: the scheduled マッチング作成 narrows, judges, and writes reasons the way this customer does. The matching skills' own rules are the defaults (共通の決まり). The customer's changes are saved as three instructions for the AI in 会社設定の「マッチングの指示」: 絞り込み方 (how to narrow the counterpart search), 比較の仕方 (how to judge a found pair), and 理由の書き方 (how to write the matching reason). `flow-ses:evaluate-project-matchings` and `flow-ses:evaluate-candidate-matchings` read them with `get_matching_instructions` at the start of every run and follow them over the defaults. `get_onboarding_status` does not track this step: call `get_matching_instructions`, and if any field has text (`updatedAt` is set), show it and ask whether to change it; if no, go to 5. When resuming at 定期実行 and all three are empty, ask once whether マッチングの指示 is done.
 
 Say first, in one message, that the AI already has default rules, that you will show them one item at a time, and that only answers that differ from the default are saved. Then ask about each item below one at a time, in plain words: show the default and ask 「このままでよいですか。変えますか。使わないですか。」 (for an item the defaults do not have, ask whether to add it). Wait for each answer before the next item. When the customer says 「あとは全部このままで」, stop asking and keep the defaults for the rest.
 
@@ -177,7 +175,7 @@ Say first, in one message, that the AI already has default rules, that you will 
 5. Write each answer as short Japanese sentences addressed to the AI, only for what differs from the defaults or adds to them (例: 絞り込み方に「月単価は差を5万円以上、単価相談可なら3万円以上にする。時給はマージンを見ない。派遣契約必須の案件はマッチングしない。」、比較の仕方に「通勤は片道1時間半までにする。」、理由の書き方に「3文以内にする。」). Put rules on stored conditions (the list in 1, including 単価・マージン and 派遣契約必須) in 絞り込み方, rules that need reading the overviews or the skill sheet (the list in 2) in 比較の仕方, and rules on the reason (the list in 3) in 理由の書き方; never mix them. Leave a field empty when nothing differs. Do not copy partner or person names. Show the texts for one OK and fix what the customer corrects.
 6. Save with `set_matching_instructions` (`filterInstructions`, `comparisonInstructions`, `reasonInstructions`; ADMIN only). If the customer wants no changes at all, save nothing and say the defaults are used. Show the 会社設定 `url` from `get_onboarding_status` (the `organization` step) as a link and say they can change the instructions there at any time, or by asking for マッチングの指示の変更.
 
-## 6. 定期実行 (`scheduled_tasks`)
+## 5. 定期実行 (`scheduled_tasks`)
 
 Goal: the agent runs the daily work on a schedule. Create these scheduled tasks in the customer's Claude account. Each one uses the flow-ses plugin's FlowSES connector (never another connector with the same tools), the same environment this session runs in, and no repository.
 
@@ -192,7 +190,7 @@ Goal: the agent runs the daily work on a schedule. Create these scheduled tasks 
 The prompts fall back to the public skill files on GitHub, so the tasks work even when the scheduled session does not load the plugin, and they always follow the latest published procedure. Keep that wording.
 
 1. Ask when to run メール取り込み, in one message: every hour around the clock (the default), only on weekdays, only in business hours (for example 8〜20時), or every two hours. Convert JST to UTC for the cron and keep the minute at 0. Then ask when to run マッチング作成. Propose the same days and hours as メール取り込み at minute 30 (it works on what メール取り込み registered), and offer the same kinds of choice: every hour, weekdays only, business hours only, every two hours, or a few fixed times a day (for example 9:30 and 13:30). The prompts stay the same for any schedule: each run starts where the previous run started (FlowSES records it), so the first run after a night, a weekend, or a long gap covers what arrived in between.
-   If 4 registered any sheet, also ask when to run スプレッドシート取り込み. Propose the same days and hours as メール取り込み at minute 0, so the マッチング作成 at minute 30 picks up what it registered, and offer the same kinds of choice (every hour, weekdays only, business hours only, every two hours, or a few fixed times a day). Keep the minute at 0. It must run at least once every business day: a sheet listing that gets no new snapshot for 3 business days is closed by 募集終了の整理. Create this task only when at least one 会社スキル has a `## スプレッドシート` section. If the customer adds a sheet later, come back and add this task.
+   If 3 registered any sheet, also ask when to run スプレッドシート取り込み. Propose the same days and hours as メール取り込み at minute 0, so the マッチング作成 at minute 30 picks up what it registered, and offer the same kinds of choice (every hour, weekdays only, business hours only, every two hours, or a few fixed times a day). Keep the minute at 0. It must run at least once every business day: a sheet listing that gets no new snapshot for 3 business days is closed by 募集終了の整理. Create this task only when at least one 会社スキル has a `## スプレッドシート` section. If the customer adds a sheet later, come back and add this task.
 2. Before creating, list the existing scheduled tasks if the session can. Do not create a duplicate of a task with the same purpose. Show the plan and get one OK.
 3. Create them with this session's scheduled-task tool (the `/schedule` command). If the session has no such tool, give the customer the routines page link (https://claude.ai/code/routines) and the table above to enter by hand, and wait until they say it is done.
 4. 新着通知: FlowSES has no notification schedule of its own; this task is what posts new matchings to Teams / Slack. Create it only when the `notification` step is done (a Webhook URL is set in 会社設定). Ask which days and hours the customer wants and convert JST to UTC for the cron; the table shows the default. The notify tools are ADMIN only, so the task must run under an ADMIN's FlowSES connection. Pick the cheapest model the scheduled-task tool offers (Haiku), because the task only calls two tools. If the customer sets a Webhook later, come back and add this task.
