@@ -94,3 +94,10 @@ test("business-card skill sets up a Gmail label and filter for Gmail mailboxes",
   assert.match(skill, /enable_mail_ingest_folders` with the label id/);
   assert.doesNotMatch(skill, /folders and rules stay Outlook only/);
 });
+
+test("business-card skill stops before any write when the user is not a 管理者", async () => {
+  const skill = await readFile(skillUrl, "utf8");
+
+  assert.match(skill, /can be changed only by a FlowSES 管理者 \(ADMIN\)/);
+  assert.match(skill, /When `ensure_company` returns `FORBIDDEN`, write nothing else/);
+});

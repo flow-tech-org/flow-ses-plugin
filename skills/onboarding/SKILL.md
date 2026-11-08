@@ -31,6 +31,7 @@ The customer opened this session from the FlowSES 導入ガイド (`/onboarding`
   - Wait until the customer says it is done, then call `get_onboarding_status` again. If the step is still not `done`, say what is missing.
   - If a step has no `url` (an older FlowSES), show `guideUrl`, or tell them to open the 導入ガイド.
 - `organization` must be `done` before 会社台帳: the flow-ses skills read 会社名 as 自社. `mailbox` must be `done` before the mail sorting and 取り込みフォルダ in 会社台帳.
+- The customer who runs 導入 must be a FlowSES 管理者 (ADMIN): the 会社台帳, 会社スキル, 取り込みフォルダ, マッチングの指示, and 定期実行 steps are 管理者 only. When a write returns `FORBIDDEN`, say in plain words that a 管理者 must run 導入 (the role is set in メンバー管理), and stop.
 - Never send mail, create drafts, delete records, or change another member's mailbox.
 - Outlook rules (`create_outlook_rule`) and Gmail filters (`create_gmail_filter`) move or label mail. Show the rule or filter list and get the customer's OK once before creating them.
 - Ingest folders (`enable_mail_ingest_folders`) decide which mail goes into the メール台帳. Show the folder list and get the customer's OK once before turning them on.
