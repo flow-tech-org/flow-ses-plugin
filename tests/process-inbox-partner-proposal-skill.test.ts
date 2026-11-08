@@ -55,7 +55,9 @@ test("inbox skill follows the sender company's 会社スキル when splitting on
   assert.match(skill, /スキルシート未確認/u);
   assert.match(skill, /never in this shared skill\. The server stores it but does \*\*not\*\* apply it/u);
   assert.match(skill, /how to interpret structured conditions/u);
-  assert.match(skill, /会社スキルに税区分の解釈があるときはそれに従う/u);
+  // 未記載の既定は structured-conditions だけに書き、ここでは繰り返さない。
+  assert.match(skill, /every unstated field follows the defaults in `flow-ses:structured-conditions` \(a 会社スキル default wins over them, and what the source states wins over both\)/u);
+  assert.match(conditions, /会社スキルが別の既定を書いているときはそちら。ソースの可\/不可が最優先。ただし会社スキルが「記載にかかわらず不可」と書く会社は/u);
   assert.match(skill, /ある会社のサイト掲載は 案件情報 \/ 希望条件 \/ 契約情報を省略せず載せる/u);
 });
 
@@ -65,9 +67,9 @@ test("inbox skill follows structured conditions for candidate gender and keeps m
   assert.match(skill, /返信、送信、提案、`OTHER` は対象にしない/u);
   assert.match(skill, /要員の性別は `flow-ses:structured-conditions` に従う/u);
   assert.match(skill, /手順の本文はそこが正本で、ここでは繰り返さない/u);
-  assert.match(skill, /新規の性別を `MALE` にしない/u);
+  assert.match(conditions, /新規の性別を `MALE` にしない/u);
   assert.match(skill, /個人事業主はスキルシート必須にしない/u);
-  assert.match(skill, /新規の個人事業主を `false` にしない/u);
+  assert.match(conditions, /Do not default new 要員 `isSoloProprietor` to `false`/u);
   assert.match(skill, /開始年月は、これまでどおり、本文と会社スキルに無くシートにあれば使う/u);
   assert.match(skill, /Do not use the sheet for projects/u);
   assert.match(skill, /メールに付いた FILE/u);
@@ -196,9 +198,12 @@ test("inbox skill refreshes overview and record attachments from the latest sour
   assert.match(skill, /Auto-link does \*\*not\*\* refresh attachments/u);
   assert.match(skill, /Create copies copyable Outlook FILE attachments from that source/u);
   assert.match(skill, /Do \*\*not\*\* pass `overview` on this call/u);
-  assert.match(skill, /未記載は `EXCLUDED`（税抜）/u);
-  assert.match(skill, /未記載は `false`（不可）/u);
-  assert.match(skill, /unstated 単価税区分 is `EXCLUDED` and unstated 単価相談 is `false`/u);
+  assert.match(skill, /Unstated fields follow the defaults in `flow-ses:structured-conditions`/u);
+  assert.match(conditions, /未記載の既定は `EXCLUDED`（税抜）/u);
+  assert.match(conditions, /未記載の `rateNegotiable` は `false`（不可）/u);
+  assert.match(conditions, /案件 `soloProprietorAllowed` \/ `foreignNationalityAllowed`。未記載はどちらも `true`（可）/u);
+  assert.match(conditions, /要員 `isForeignNationality`。未記載は `false`（非該当）/u);
+  assert.doesNotMatch(skill, /未記載の単価税区分は `EXCLUDED`|This skill's unstated defaults/u);
   assert.match(skill, /projectCondition/u);
   assert.match(skill, /Do not call `get_url_source` to read a mail body/u);
   assert.doesNotMatch(skill, /get_project_sources|get_candidate_sources|get_\*_sources/u);

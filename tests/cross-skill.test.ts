@@ -202,15 +202,16 @@ test("onboarding asks about each matching default one at a time and saves three 
 
 test("both matching skills treat every rule as a default an instruction may change", () => {
   for (const name of ["evaluate-project-matchings", "evaluate-candidate-matchings"]) {
-    const skill = read(name);
+    const skill = read(name) + read("matching-rules");
+    assert.match(read(name), /Read and follow `flow-ses:matching-rules`/u, name);
     assert.match(skill, /Call `get_matching_instructions` once/u, name);
     assert.match(skill, /## 自社の指示 \(company matching instructions\)/u, name);
     assert.match(skill, /`filterInstructions` \(絞り込み方\)/u, name);
     assert.match(skill, /`comparisonInstructions` \(比較の仕方\)/u, name);
     assert.match(skill, /`reasonInstructions` \(理由の書き方\)/u, name);
-    assert.match(skill, /Where an instruction and this skill differ, follow the instruction/u, name);
+    assert.match(skill, /Where an instruction and the matching skill differ, follow the instruction/u, name);
     assert.doesNotMatch(skill, /Fixed rules/u, name);
-    assert.match(skill, /Every rule of this skill is a default that an instruction may change/u, name);
+    assert.match(skill, /Every rule of the matching skill is a default that an instruction may change/u, name);
     assert.doesNotMatch(skill, /a borderline pair \(微妙\) is never created/u, name);
     assert.doesNotMatch(skill, /a pair with a ✕ on any 必須 item is never created/u, name);
     assert.match(skill, /必須が3つ以上なら✕を1つまで認める/u, name);
@@ -233,4 +234,29 @@ test("onboarding asks which partners decline distribution and saves it on the co
   assert.match(onboarding, /ask which partners do not want 案件配信 or 要員配信/u);
   assert.match(onboarding, /`set_company_distribution_acceptance` with `projectDistributionAccepted: false` or `candidateDistributionAccepted: false`/u);
   assert.ok(onboarding.indexOf("set_company_distribution_acceptance") < onboarding.indexOf("5. Before asking about sorting"));
+});
+
+test("the two matching skills keep their shared rules only in matching-rules", () => {
+  const rules = read("matching-rules");
+  assert.match(rules, /^name: matching-rules$/mu);
+  assert.match(rules, /Do not use it on its own/u);
+  for (const name of ["evaluate-project-matchings", "evaluate-candidate-matchings"]) {
+    const skill = read(name);
+    for (const heading of ["3. Read overview and the skill sheet", "4. Create or skip"]) {
+      assert.match(skill, new RegExp(`### ${heading}`, "u"), name);
+      assert.match(skill, new RegExp(`「${heading}」`, "u"), name);
+    }
+    // 共有部分の本文はここに無い。
+    assert.doesNotMatch(skill, /\*\*主業務と売り方 \(required\):\*\*/u, name);
+    assert.doesNotMatch(skill, /### 5\./u, name);
+  }
+  assert.doesNotMatch(rules, /単価についてもご相談可能と拝見しております/u);
+});
+
+test("onboarding reads the 会社スキル, スプレッドシート, and マッチングの指示 steps from get_onboarding_status", () => {
+  const onboarding = read("onboarding");
+  for (const key of ["company_skills", "spreadsheets", "matching_instructions"]) {
+    assert.match(onboarding, new RegExp(`\`${key}\``, "u"), key);
+  }
+  assert.doesNotMatch(onboarding, /`get_onboarding_status` does not track this step/u);
 });

@@ -3,7 +3,8 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const read = (name: string) =>
-  readFileSync(new URL(`../skills/${name.replace("flow-ses:", "")}/SKILL.md`, import.meta.url), "utf8");
+  readFileSync(new URL(`../skills/${name.replace("flow-ses:", "")}/SKILL.md`, import.meta.url), "utf8")
+  + readFileSync(new URL("../skills/matching-rules/SKILL.md", import.meta.url), "utf8");
 
 for (const [name, condition] of [
   ["flow-ses:evaluate-project-matchings", "candidateCondition"],
