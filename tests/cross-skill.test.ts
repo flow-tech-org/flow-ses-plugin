@@ -162,7 +162,7 @@ test("onboarding asks about each matching default one at a time and saves three 
   assert.match(body, /2\. 比較の仕方 /u);
   assert.match(body, /3\. 理由の書き方 /u);
   assert.match(body, /単価とマージン \(ask together as one item\)/u);
-  assert.match(body, /派遣契約必須の案件 \(not in the defaults\)/u);
+  assert.match(body, /派遣契約必須の案件: 派遣契約必須の案件はマッチングしない/u);
   assert.match(body, /these do not change and are not asked/u);
   assert.match(body, /`set_matching_instructions` \(`filterInstructions`, `comparisonInstructions`, `reasonInstructions`; ADMIN only\)/u);
 });
@@ -180,7 +180,8 @@ test("both matching skills treat their rules as defaults and keep the fixed rule
     assert.match(skill, /a borderline pair \(微妙\) is never created/u, name);
     assert.match(skill, /a clear 必須 mismatch in the overviews or the skill sheet/u, name);
     assert.match(skill, /the default has no margin/u, name);
-    assert.doesNotMatch(skill, /comparableUnitPrice|160時間|5万, or 3万/u, name);
+    assert.doesNotMatch(skill, /comparableUnitPrice|5万, or 3万/u, name);
+    assert.match(skill, /時給 × 160時間 is the 月単価 at 稼働率1\.00/u, name);
     assert.match(skill, /"instructionsApplied": \{ "filter": false, "comparison": false, "reason": false \}/u, name);
   }
 });
