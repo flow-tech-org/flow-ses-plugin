@@ -118,10 +118,13 @@ test("evaluate-project-matchings searches candidates with skillNames and exclude
   assert.match(skill, /A value whose `unitPriceTaxType` is `INCLUDED` \(税込\) is divided by 1\.1 before any comparison or margin/u);
   assert.match(skill, /pass `candidateCondition\.unitPriceConditions` with four items/u);
   assert.match(skill, /max = \(P − m\) × 1\.1/u);
-  assert.match(skill, /max = \(P − m月\) ÷ u × 10,000 ÷ 160/u);
+  assert.match(skill, /max = \(P − m月\) × 10,000 ÷ 160/u);
   assert.match(skill, /If `list_candidates` rejects `unitPriceConditions` \(an older FlowSES\)/u);
   assert.match(skill, /時給 × 160時間 is the 月単価 at 稼働率1\.00/u);
-  assert.match(skill, /`PER_PERSON_MONTH` \(1人月あたり\) uses 時給 × 160 as it is/u);
+  assert.match(skill, /multiply the converted 時給 by that 月単価 side's 稼働率 upper value \(`utilizationRateMax`/u);
+  assert.match(skill, /when it is `PER_PERSON_MONTH` \(1人月あたり\), compare the converted 時給 with the 月単価 as stored/u);
+  assert.match(skill, /max = \(P − m月\) × 10,000 ÷ 160 ÷ u/u);
+  assert.match(skill, /for both bases, because a candidate's 稼働率 is at most 1\.00/u);
   assert.match(skill, /under the 月単価 margin; when the instruction gives no 月単価 amount, that pair has no margin/u);
   assert.match(skill, /The default passes a pair when the project max is at least the candidate min; equal passes/u);
   assert.match(skill, /A pair of different kinds is searched with a converted bound and decided after `get_\*` by the 160時間 conversion below/u);
