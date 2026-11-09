@@ -5,8 +5,10 @@ import test from "node:test";
 const read = (name: string) => readFileSync(new URL(`../skills/${name}/SKILL.md`, import.meta.url), "utf8");
 
 test("matching skills cover company-sheet register runs", () => {
+  // 処理対象の表は両側共通なので matching-rules にある。
+  assert.match(read("matching-rules"), /\| Company spreadsheet register skill \(one partner company's sheet\) \|/u);
   for (const name of ["evaluate-project-matchings", "evaluate-candidate-matchings"]) {
-    assert.match(read(name), /\| Company spreadsheet register skill \(one partner company's sheet\) \|/u);
+    assert.match(read(name), /flow-ses:matching-rules/u);
   }
 });
 
@@ -45,6 +47,8 @@ test("scheduled tasks are created without connectors and the customer adds flow-
 test("onboarding asks the scheduled-task model with Haiku as the default", () => {
   assert.match(read("onboarding"), /ask which model the tasks run on, with the question tool \(AskUserQuestion/u);
   assert.match(read("onboarding"), /「Haiku（既定・おすすめ）」「Sonnet」「タスクごとに選ぶ」/u);
+  assert.match(read("onboarding"), /新着通知 and 募集終了の整理 always run on Haiku and are not asked/u);
+  assert.match(read("onboarding"), /\(新着通知 and 募集終了の整理 to Haiku\)/u);
 });
 
 test("mail ingest handles mail oldest first and finishes each before the next", () => {

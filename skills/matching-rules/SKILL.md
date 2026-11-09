@@ -11,7 +11,7 @@ description: >-
 
 # Matching rules (shared)
 
-`flow-ses:evaluate-project-matchings` (案件から) and `flow-ses:evaluate-candidate-matchings` (要員から) differ only in which side is the anchor and how the partner search in their steps 1–2 is built. Everything after the search is the same and lives here. "The matching skill" below means whichever of the two sent you here; follow its own text where it adds a side-specific rule.
+`flow-ses:evaluate-project-matchings` (案件から) and `flow-ses:evaluate-candidate-matchings` (要員から) differ only in which side is the anchor and how the partner search filters are built. Everything else is the same and lives here: Preflight, the processed set, the shared search rules (skill names, 単価の比べ方, the checks after the search), reading, create or skip, the result, and guardrails. "The matching skill" below means whichever of the two sent you here; follow its own text where it adds a side-specific rule.
 
 ## 自社の指示 (company matching instructions)
 
@@ -46,6 +46,86 @@ Each anchor (a project in `flow-ses:evaluate-project-matchings`, a candidate in 
 4. With one anchor, or when this session has no subagent tool, do steps 2 to 4 here one anchor at a time.
 
 The sheet text reuse in step 3 below applies within one subagent; a subagent does not get sheet text from another.
+
+## Preflight
+
+The matching skill's Preflight is:
+
+1. Confirm the flow-ses connector tools are callable. If auth is required, surface the connection URL and stop.
+2. Resolve the target organization from the MCP session. Do not invent an `organizationId`.
+3. Default scope is every 募集中 anchor against every 募集中 partner. Do **not** limit that default to the last 3 business days. Honor a user-specified date or date range as a further record `updatedAt` window. Do not invent a 3-business-day window when the user did not ask for dates.
+4. Call `get_matching_instructions` once and keep all three texts for the whole run. Follow them as 自社の指示 above says. If the tool does not exist (an older Flow SES), go on with the matching skill's rules.
+
+## 1. The processed set
+
+The matching skill's step 1 builds the 処理範囲 side. Collect PROJECT/CANDIDATE only (ignore MATCHING and distribution-sibling types). The matching skill says which side is the anchor; the other side is the partner.
+
+**When only one side is specified,** that side is the given set and the other side is all 募集中. **When both are specified,** only those candidates and those projects. A user-specified date window narrows further: pass `updatedAtFrom` / `updatedAtTo` on both lists. Discover via `list_projects` / `list_candidates` with `updatedAtFrom` / `updatedAtTo` only for that window. The window predicate is record `updatedAt`. Outlook `receivedAt` / `sentAt` and listing Source `updatedAt` are never the window predicate. Record `createdAt` is not the window either. Do **not** call `list_mail_sources` for this pool. This pool is **independent** of any narrower distribution/attachment target set.
+
+**When the user supplies record ids**, or asks to rematch a just-finished register/inbox run, split those ids by type and apply the one-side / both-sides rule above:
+
+| Prior skill | Processed PROJECT/CANDIDATE |
+| --- | --- |
+| `flow-ses:process-inbox` | `newlyLinkedRecords` ∪ `alreadyLinkedRecords` ∪ this-run `create_*_from_mail_source` |
+| Listing-site register skill | Records created, updated, or linked this run **plus** listings it opened and found already registered (`skipped` / `既にこの掲載` / `既にこの案件` / `既にこの要員`). When the skill only crawls, already-registered listings seen in that crawl join too. |
+| Company spreadsheet register skill (one partner company's sheet) | Records **created** or **updated** in this run **plus** on-sheet recruiting listings whose record was already current (`skipped` / `already-current`). The processed set is created + updated + already-registered `skipped`. Already registered does **not** exclude a row. `capDeferred` / 上限外 rows that were never opened do **not** join. `failed` rows without a record id do **not** join. Register skills do not evaluate matchings. When that skill or `flow-ses:close-stale-source-listings` set 募集終了, drop those CLOSED records as matching anchors. Do **not** look for a listing Source `updatedAt` when that skill writes no listing Sources. |
+
+Matching is **not** limited to a run's distribution/attachment targets: `alreadyLinkedRecords` stay matching anchors even though recipes/overviews are not refreshed.
+
+- Drop records whose `recruitmentStatus` is `CLOSED` (募集終了). Report `matching_skipped` / `募集終了`. Unset (`null`) stays. Collect 募集中 with `recruitmentStatuses: ["unset"]` (null). Do not include CLOSED.
+- If the anchor set is empty, there are no matching pairs to create from this run; still report that matching was evaluated. Do **not** start from the partner side. Do **not** pair leftover partners with each other.
+- Deduplicate by record id. Site and company-sheet register runs may still supply a narrower set. Source family does not matter.
+
+## 2. Search: shared rules
+
+These parts of the matching skill's step 2 are the same on both sides. "Partners" are the records the search returns (要員 from a project, 案件 from a candidate).
+
+- Keep the anchors as an **ID list**. When partners are every 募集中 record of the partner side (no partner ids were specified), do not collect or pass partner `ids`: `recruitmentStatuses: ["unset"]` is the same set, so one list call per search covers it. Pass `updatedAtFrom` / `updatedAtTo` on that call when a user-specified date window applies. When partner ids were specified, keep them as an **ID list** and chunk `ids` to at most 200 per list call.
+- **Finish that record before the next.** Do **not** sample, cap, or omit pairs inside the record you started. Do not open the next anchor's sheets until this one's judgment is done.
+
+### Choosing skill names
+
+One name that is not in the skill dictionary makes that AND match nothing. Use `search_skills`. A name is unknown when no dictionary name or alias equals it. Drop unknown names before building combinations. If every name is unknown, do not search: report `matching_skipped` / `マッチング対象なし` for this anchor.
+
+Sort the anchor's known skill names into four groups by what each name is:
+
+- 技術領域: languages, frameworks, products, cloud, OS, DB, tools, and technical fields (for example `Java`, `AWS`, `SAP`, `ネットワーク`, `セキュリティ`).
+- 業務分野: industries and business knowledge (for example `金融`, `銀行`, `製造業`, `会計`, `人事`).
+- 役割: roles and positions (for example `PM`, `PMO`, `PL`, `SE`, `インフラエンジニア`, `コンサルタント`).
+- その他: every other name, such as 工程 (`要件定義`, `基本設計`) and 資格.
+
+The matching skill says how to order the names within each group.
+
+The start count is 3 when the anchor has 3 or more known names. Otherwise it is the number of known names. Build each 3-name combination with one name from 技術領域, one from 業務分野, and one from 役割, in that order. When one of those groups has no name, take the missing name from the other two groups, still in the order 技術領域, 業務分野, 役割. Use その他 names only when 技術領域, 業務分野, and 役割 together have fewer names than the count. Order the combinations by moving down each group's list: first the first name of every group, then the second 技術領域 name, then the second 業務分野 name, then the second 役割 name, then the third of each, and so on. Build smaller combinations the same way: names from different groups first, in the group order 技術領域, 業務分野, 役割, then その他, moving down each group's list from the top. Do not repeat a combination.
+
+Try at most 5 different combinations at the start count, in that order. When the count is 3 or 2 and a combination returns at least one partner, do not stop: try the remaining combinations at that same count, still at most 5 in total, and merge every partner they return, without duplicates. Do not go on to a smaller count after a hit. At 1 name, stop at the first combination that returns at least one partner and keep those partners. If all 5 return zero, or every combination that exists when there are fewer than 5, remove one name and try at most 5 different combinations of the smaller count. If those also return zero, remove one more name and try at most 5 again. When every 1-name try also returns zero, go one level up (上位スキル fallback). Take the 1-name skills in the same order as the 1-name tries. For each one that has a `parentSkill` in `search_skills`, search with that parent alone in place of it, still with `includeChildSkills: true` and every other filter unchanged. Try at most 5 parents, and skip a parent already tried. Stop at the first parent that returns at least one partner, and keep only those partners. Go up one level only: never use the parent's parent, and never combine a parent with another name. Every partner found this way is a widened hit: its `skillMatches` shows a sibling or other 下位スキル of the parent, not the anchor's own skill. Judge it like any other pair, and when it is created, the reason must say which skill is not stated and ask the partner to confirm it (see the reason rules). When no 1-name skill has a parent, or every parent also returns zero, the anchor has no partner: report `matching_skipped` / `マッチング対象なし` and create nothing. Do not search with zero names. Do not drop a non-skill filter on any of these searches, including 単価, 年齢, 性別, 個人事業主, 外国籍, 都道府県, 開始, 稼働率, 商流, and 出社.
+
+Example: the anchor has `Java` and `Spring Boot` (技術領域), `金融` and `銀行` (業務分野), `PL` (役割), and `基本設計` (その他). The 3-name tries are Java + 金融 + PL, then Spring Boot + 金融 + PL, then Java + 銀行 + PL. There is no second 役割 name, so only 3 combinations exist. If all 3 return zero, the 2-name tries are Java + 金融, Java + PL, 金融 + PL, Spring Boot + 金融, and Java + 銀行. If those return zero, the 1-name tries are Java, 金融, PL, Spring Boot, and 銀行. If those also return zero, report マッチング対象なし. If Java + 金融 + PL returns partners, still try Spring Boot + 金融 + PL and Java + 銀行 + PL, merge all partners found, and do not try 2-name combinations. If only Java + 金融 returns partners at 2 names, still try the remaining 2-name combinations and merge. At 1 name, stop at the first one that returns partners.
+
+If that search is still too wide to read sheets, add more stated conditions you omitted and search again **before** `get_candidate_attachment_download_link`. Do not drop a non-skill filter you already passed. Do not add skill names the anchor does not have. The zero-result skill retry changes skill names only, as described above.
+
+### 単価の比べ方
+
+The rule is 案件の上限 ≥ 要員の下限 + マージン, at a 稼働率 both sides can work at. Decide it once after `get_*`, from the stored values only, with the tables in the matching skill's 単価の検索: compute the bound for the partner's kind with U (the overlap of the two 稼働率 ranges) in place of the anchor's 稼働率 range. 案件起点: the pair passes when the candidate min is at most that bound. 要員起点: the pair passes when the project max is at least that bound. Equal passes. Otherwise skip it as `単価超過`. A null project max is no ceiling and passes. A null candidate min is no floor and passes. The project min and the candidate max are not used; a cheaper candidate always passes. Do not round in this check. Do not mine overview 万円. A margin applies only when 絞り込み方 sets one (see 自社の指示).
+1. 税別にそろえる: compare every 単価 as 税別. A value whose `unitPriceTaxType` is `INCLUDED` (税込) is divided by 1.1 before any comparison or margin, on both sides and for 月単価 and 時給 alike. `EXCLUDED` (税別・税抜) and an empty tax type stay as written.
+2. 稼働率の範囲: `utilizationRateMin`〜`utilizationRateMax`; a missing max is 1.00 and a missing min is the max. U is the overlap of the two sides' ranges. A side that states neither does not limit U; when neither side states one, U is 1.00 only.
+3. Kinds: 月単価 `PER_PERSON_MONTH` (1人月あたり) is the amount for one full person-month. 月単価 `AT_STATED_UTILIZATION` (この稼働割合の月額) is the money at every 稼働率 in its range: its amount does not move with 稼働率. 時給 × 160 ÷ 10,000 is its 1人月あたり 万円 (160時間). An empty basis is `AT_STATED_UTILIZATION`.
+4. The 1人月相当 of この稼働割合の月額 is the amount ÷ 稼働率. The project's max divides by the low 稼働率 (the most it pays per full person-month); the candidate's min divides by the high 稼働率 (例: 案件 24〜32万 at 稼働0.5〜0.8 → up to 64万; 要員 24〜32万 at 稼働0.5〜0.8 → from 30万).
+
+例 (案件起点, 案件 この稼働割合 24〜32万・稼働0.5〜0.8, no margin): 要員 1人月 60万 (稼働未記載) → U = 0.5〜0.8, bound 64万, passes. 要員 1人月 60万・稼働0.6〜1.0 → U = 0.6〜0.8, bound 32 ÷ 0.6 ≒ 53.3万, `単価超過`. 要員 この稼働割合 20万 → bound 32万, passes. 要員 時給 3,800円 → bound 4,000円, passes.
+
+### After the search
+
+**単価 is decided once, by the structured filter you passed** and, after `get_*`, once by the stored values (単価の比べ方, and the exact margin check only when 絞り込み方 sets a margin). Do not re-evaluate 単価, `単価超過`, or `利益不足` from overview text or record attachments after this list filter. Do not spend a later read comparing amounts the filter already accepted or dropped.
+
+- A null bound keeps the pair. A pair of different kinds keeps the pair. Do not mine overview or record attachments for a 万円 to reject the pair. Do not pass 0, 500, or 30000 to stand in for a null bound.
+- Registration writes a stated monthly 万円 into both the overview and structured `unitPrice*`, or into neither. If structured `unitPrice*` is empty, the overview and skill sheet will not contain a new 万円. Do not go looking.
+
+**Same-company ban (required):** The list search does not drop same-company pairs. Do **not** create a new matching when the PROJECT's owner company and the CANDIDATE's supplier company are the same. After `get_*`, if both sides show the same `companyId` (prefer role `PROJECT_OWNER` vs `CANDIDATE_SUPPLIER`; if role is missing, treat the sole / primary linked company on each side as the company), skip as `matching_skipped` with reason `同社同士` (do not invent a cross-company pair). Records with no company stay — missing is not 同社同士. A 自社 candidate (`ownCompany: true`, `companyId` null) is 自社 直所属 only and is not 同社同士. Do not treat `affiliationDepth` 0 as that candidate. 協力会社の「弊社」is `affiliationDepth` 1. Do not call `create_matching` for same-company pairs just to "check". `create_matching` itself only enforces this same-company check (`SAME_COMPANY_MATCHING_NOT_ALLOWED`).
+
+Do not create a pair already paired in a MATCHING. `create_matching` is idempotent: `reused: true` is an existing pair, not a new create, and is not an error. Do not call it just to probe, and do not count `reused` as created.
+
+A counterpart whose `get_*` shows `recruitmentStatus: CLOSED` (募集終了) is `matching_skipped` / `募集終了`. Unset stays. The `recruitmentStatuses: ["unset"]` search is what leaves 募集終了 out; if `get_*` still shows CLOSED, skip it.
 
 ### 3. Read overview and the skill sheet (required)
 

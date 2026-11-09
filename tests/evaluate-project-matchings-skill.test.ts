@@ -43,13 +43,13 @@ test("evaluate-project-matchings searches candidates with skillNames and exclude
   assert.match(skill, /業務分野: industries and business knowledge/u);
   assert.match(skill, /役割: roles and positions/u);
   assert.match(skill, /keep REQUIRED names before PREFERRED names/u);
-  assert.match(skill, /The start count is 3 when the project has 3 or more known names/u);
+  assert.match(skill, /The start count is 3 when the anchor has 3 or more known names/u);
   assert.match(skill, /one name from 技術領域, one from 業務分野, and one from 役割, in that order/u);
   assert.match(skill, /Use その他 names only when 技術領域, 業務分野, and 役割 together have fewer names than the count/u);
   assert.match(skill, /Try at most 5 different combinations at the start count/u);
-  assert.match(skill, /When the count is 3 or 2 and a combination returns at least one candidate, do not stop: try the remaining combinations at that same count, still at most 5 in total/u);
+  assert.match(skill, /When the count is 3 or 2 and a combination returns at least one partner, do not stop: try the remaining combinations at that same count, still at most 5 in total/u);
   assert.match(skill, /Do not go on to a smaller count after a hit/u);
-  assert.match(skill, /At 1 name, stop at the first combination that returns at least one candidate/u);
+  assert.match(skill, /At 1 name, stop at the first combination that returns at least one partner/u);
   assert.doesNotMatch(skill, /Do not search more combinations or merge other results after a hit/u);
   assert.match(skill, /remove one name and try at most 5 different combinations of the smaller count/u);
   assert.match(skill, /report `matching_skipped` \/ `マッチング対象なし` and create nothing/u);
@@ -113,7 +113,7 @@ test("evaluate-project-matchings searches candidates with skillNames and exclude
   assert.match(skill, /Do not pass `unset`/u);
   assert.match(skill, /soloProprietorAllowed` false → `isSoloProprietor: \["no"\]`/u);
   assert.match(skill, /true or null → omit/u);
-  assert.match(skill, /- 単価の比べ方: the rule is 案件の上限 ≥ 要員の下限 \+ マージン, at a 稼働率 both sides can work at/u);
+  assert.match(skill, /### 単価の比べ方\n\nThe rule is 案件の上限 ≥ 要員の下限 \+ マージン, at a 稼働率 both sides can work at/u);
   assert.match(skill, /The project min and the candidate max are not used; a cheaper candidate always passes/u);
   assert.match(skill, /U is the overlap of the two sides' ranges\. A side that states neither does not limit U/u);
   assert.match(skill, /its amount does not move with 稼働率/u);
@@ -146,7 +146,7 @@ test("evaluate-project-matchings searches candidates with skillNames and exclude
   assert.doesNotMatch(skill, /excludeMatchedCandidateId` =/u);
   assert.doesNotMatch(skill, /projectCondition\.skillNames/u);
   assert.doesNotMatch(skill, /Do not pass `skillNames`/u);
-  assert.match(skill, /chunk `ids` to at most 200 per `list_candidates` call/u);
+  assert.match(skill, /chunk `ids` to at most 200 per list call/u);
 });
 
 test("evaluate-project-matchings keeps the same fit, sheet, and reason rules", () => {
