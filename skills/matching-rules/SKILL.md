@@ -68,13 +68,13 @@ The matching skill's step 1 builds the 処理範囲 side. Collect PROJECT/CANDID
 | --- | --- |
 | `flow-ses:process-inbox` | `newlyLinkedRecords` ∪ `alreadyLinkedRecords` ∪ this-run `create_*_from_mail_source` |
 | Listing-site register skill | Records created, updated, or linked this run **plus** listings it opened and found already registered (`skipped` / `既にこの掲載` / `既にこの案件` / `既にこの要員`). When the skill only crawls, already-registered listings seen in that crawl join too. |
-| Company spreadsheet register skill (one partner company's sheet) | Records **created** or **updated** in this run **plus** on-sheet recruiting listings whose record was already current (`skipped` / `already-current`). The processed set is created + updated + already-registered `skipped`. Already registered does **not** exclude a row. `capDeferred` / 上限外 rows that were never opened do **not** join. `failed` rows without a record id do **not** join. Register skills do not evaluate matchings. When that skill or `flow-ses:close-stale-source-listings` set 募集終了, drop those CLOSED records as matching anchors. Do **not** look for a listing Source `updatedAt` when that skill writes no listing Sources. |
+| Company URL register skill (one partner company's URL: a spreadsheet, a shared file, or a page) | Records **created** or **updated** in this run **plus** recruiting listings still on that URL whose record was already current (`skipped` / `already-current`). The processed set is created + updated + already-registered `skipped`. Already registered does **not** exclude a row. `capDeferred` / 上限外 rows that were never opened do **not** join. `failed` rows without a record id do **not** join. Register skills do not evaluate matchings. When that skill or `flow-ses:close-stale-source-listings` set 募集終了, drop those CLOSED records as matching anchors. Do **not** look for a listing Source `updatedAt` when that skill writes no listing Sources. |
 
 Matching is **not** limited to a run's distribution/attachment targets: `alreadyLinkedRecords` stay matching anchors even though recipes/overviews are not refreshed.
 
 - Drop records whose `recruitmentStatus` is `CLOSED` (募集終了). Report `matching_skipped` / `募集終了`. Unset (`null`) stays. Collect 募集中 with `recruitmentStatuses: ["unset"]` (null). Do not include CLOSED.
 - If the anchor set is empty, there are no matching pairs to create from this run; still report that matching was evaluated. Do **not** start from the partner side. Do **not** pair leftover partners with each other.
-- Deduplicate by record id. Site and company-sheet register runs may still supply a narrower set. Source family does not matter.
+- Deduplicate by record id. Site and company-URL register runs may still supply a narrower set. Source family does not matter.
 
 ## 2. Search: shared rules
 

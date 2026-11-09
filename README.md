@@ -27,7 +27,7 @@ Claude のプラグインです。flow-ses コネクタの接続先と、作業�
 | `/flow-ses:process-inbox` |
 | `/flow-ses:read-office-attachments` |
 | `/flow-ses:register-ses-partner-business-card` |
-| `/flow-ses:register-spreadsheet-listings` |
+| `/flow-ses:register-url-listings` |
 | `/flow-ses:structured-conditions` |
 
 ## 更新するとき

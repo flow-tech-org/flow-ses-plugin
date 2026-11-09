@@ -36,6 +36,8 @@ type detection. Delete the temp file after the run.
 Those downloads are FILE only.
 Google Spreadsheet, Google Docs, and SharePoint links in the overview or on
 a URL source stay in the browser. Do not download those pages as office files.
+The one exception is `flow-ses:register-url-listings`, which downloads the URLs
+a 会社スキル names and reads them here.
 
 ## Choose a reader
 

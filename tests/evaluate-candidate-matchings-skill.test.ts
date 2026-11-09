@@ -19,7 +19,7 @@ test("evaluate-candidate-matchings skill is the dedicated candidate-side workflo
   assert.match(skill, /Do not register, update, or delete PROJECT\/CANDIDATE/u);
   assert.match(skill, /flow-ses:process-inbox/u);
   // 導入先にも渡す共通スキルなので、自社が使う個別の登録スキル名は並べない。
-  assert.match(skill, /each site's register \/ close skill, each partner company's sheet register skill/u);
+  assert.match(skill, /each site's register \/ close skill, each partner company's URL register skill/u);
   assert.match(skill, /flow-ses:close-stale-source-listings/u);
 });
 
@@ -70,7 +70,7 @@ test("evaluate-matchings is candidate-first against all recruiting rows", () => 
   assert.match(skill, /Outlook `receivedAt` \/ `sentAt` and listing Source `updatedAt` are never the window predicate/u);
   assert.match(skill, /This pool is \*\*independent\*\* of any narrower distribution\/attachment target set/u);
   assert.match(skill, /matchingProcessed/u);
-  assert.match(skill, /Site and company-sheet register runs may still supply a narrower set/u);
+  assert.match(skill, /Site and company-URL register runs may still supply a narrower set/u);
   assert.match(skill, /chunk `ids` to at most 200/u);
   assert.match(skill, /do not collect or pass partner `ids`/u);
   assert.doesNotMatch(skill, /Build the 3-business-day partner pool/u);
@@ -93,13 +93,13 @@ test("evaluate-matchings default standalone set is all recruiting candidates", (
   assert.match(skill, /`alreadyLinkedRecords` stay matching anchors/u);
 });
 
-test("evaluate-matchings keeps company spreadsheet already-registered rows", () => {
-  assert.match(skill, /Records \*\*created\*\* or \*\*updated\*\* in this run \*\*plus\*\* on-sheet/u);
+test("evaluate-matchings keeps company URL already-registered rows", () => {
+  assert.match(skill, /Records \*\*created\*\* or \*\*updated\*\* in this run \*\*plus\*\* recruiting listings still on that URL/u);
   assert.match(skill, /already registered \(`skipped` \/ `already-current`\)|already current \(`skipped` \/ `already-current`\)/u);
   assert.match(skill, /Already registered does \*\*not\*\* exclude a row/u);
   assert.match(skill, /created \+ updated \+ already-registered `skipped`/u);
   assert.match(skill, /Do \*\*not\*\* look for a listing Source `updatedAt` when that skill writes no listing Sources/u);
-  assert.match(skill, /Company spreadsheet register skill \(one partner company's sheet\)/u);
+  assert.match(skill, /Company URL register skill \(one partner company's URL: a spreadsheet, a shared file, or a page\)/u);
   assert.match(skill, /Register skills do not evaluate matchings/u);
   assert.match(skill, /When that skill or `flow-ses:close-stale-source-listings` set 募集終了, drop those CLOSED records as matching anchors/u);
   assert.doesNotMatch(skill, /The register skill sets 募集終了 on `unmatchedLinkedRecordIds`/u);

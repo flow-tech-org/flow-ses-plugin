@@ -4,9 +4,9 @@ import test from "node:test";
 
 const read = (name: string) => readFileSync(new URL(`../skills/${name}/SKILL.md`, import.meta.url), "utf8");
 
-test("matching skills cover company-sheet register runs", () => {
+test("matching skills cover company URL register runs", () => {
   // 処理対象の表は両側共通なので matching-rules にある。
-  assert.match(read("matching-rules"), /\| Company spreadsheet register skill \(one partner company's sheet\) \|/u);
+  assert.match(read("matching-rules"), /\| Company URL register skill \(one partner company's URL: a spreadsheet, a shared file, or a page\) \|/u);
   for (const name of ["evaluate-project-matchings", "evaluate-candidate-matchings"]) {
     assert.match(read(name), /flow-ses:matching-rules/u);
   }
@@ -26,22 +26,22 @@ test("onboarding runs 募集終了の整理 at 3:00 JST on weekdays by default",
   assert.match(read("onboarding"), /\| 募集終了の整理 \| 平日 3:00 JST \(`0 18 \* \* 0-4` UTC\) \|/u);
 });
 
-test("spreadsheet ingest is its own task, less often than mail", () => {
-  assert.match(read("onboarding"), /\| スプレッドシート取り込み \| 平日 9:00・13:00 JST \(`0 0,4 \* \* 1-5` UTC\) \|/u);
+test("URL ingest is its own task, less often than mail", () => {
+  assert.match(read("onboarding"), /\| URL取り込み \| 平日 9:00・13:00 JST \(`0 0,4 \* \* 1-5` UTC\) \|/u);
 });
 
 test("mail and sheet ingest run one subagent per company or sheet", () => {
   assert.match(read("process-inbox"), /### 2b\. One subagent per company/u);
   assert.match(read("process-inbox"), /do not call `record_scheduled_task_start`/u);
-  assert.match(read("register-spreadsheet-listings"), /one subagent per sheet/u);
+  assert.match(read("register-url-listings"), /one subagent per target/u);
   assert.match(read("process-inbox"), /`companyIds: \[<companyId>\]`/u);
   assert.match(read("process-inbox"), /`companyIds: \["unset"\]`/u);
   assert.match(read("onboarding"), /list that mail with `list_mail_sources` \(`companyIds: \[<companyId>\]`/u);
 });
 
-test("scheduled tasks are created without connectors and the customer adds flow-ses and docs.google.com", () => {
+test("scheduled tasks are created without connectors and the customer adds flow-ses and the URL hosts", () => {
   assert.match(read("onboarding"), /create them without a connector and ask the customer to add the flow-ses connector/u);
-  assert.match(read("onboarding"), /add `docs\.google\.com` to the allowed domains/u);
+  assert.match(read("onboarding"), /to the allowed domains of the environment the URL取り込み task runs in/u);
 });
 
 test("onboarding asks the scheduled-task model with Haiku as the default", () => {
@@ -59,14 +59,14 @@ test("mail ingest handles mail oldest first and finishes each before the next", 
 
 test("scheduled-task prompts work without the plugin loaded", () => {
   const onboarding = read("onboarding");
-  for (const name of ["process-inbox", "evaluate-recent-matchings", "close-stale-source-listings", "register-spreadsheet-listings"]) {
+  for (const name of ["process-inbox", "evaluate-recent-matchings", "close-stale-source-listings", "register-url-listings"]) {
     assert.ok(onboarding.includes(`https://raw.githubusercontent.com/flow-tech-org/flow-ses-plugin/main/skills/${name}/SKILL.md`), name);
   }
   assert.doesNotMatch(onboarding, /get_agent_instructions/u);
 });
 
 test("every skill folder matches its name", () => {
-  for (const name of ["onboarding", "process-inbox", "structured-conditions", "evaluate-recent-matchings", "evaluate-project-matchings", "evaluate-candidate-matchings", "close-stale-source-listings", "register-ses-partner-business-card", "read-office-attachments", "register-spreadsheet-listings"]) {
+  for (const name of ["onboarding", "process-inbox", "structured-conditions", "evaluate-recent-matchings", "evaluate-project-matchings", "evaluate-candidate-matchings", "close-stale-source-listings", "register-ses-partner-business-card", "read-office-attachments", "register-url-listings"]) {
     assert.match(read(name), new RegExp(`^name: ${name}$`, "mu"));
   }
 });
@@ -91,7 +91,7 @@ test("onboarding writes 会社スキル only for partners that differ from the s
 
 test("onboarding lets the customer choose: propose 会社スキル from each company's mail of a chosen period, or keep the shared skills", () => {
   const onboarding = read("onboarding");
-  const section = onboarding.slice(onboarding.indexOf("## 2. 会社スキル"), onboarding.indexOf("## 3. スプレッドシート"));
+  const section = onboarding.slice(onboarding.indexOf("## 2. 会社スキル"), onboarding.indexOf("## 3. URL取り込み"));
   assert.match(section, /\*\*メールから提案する（おすすめ）\*\*/u);
   assert.match(section, /\*\*会社スキルは作らない\*\*/u);
   assert.match(section, /Ask how far back to read, with these choices: \*\*1週間（おすすめ）\*\* \(7 days\)/u);
@@ -105,7 +105,7 @@ test("onboarding lets the customer choose: propose 会社スキル from each com
   assert.doesNotMatch(section, /Ask in one message whether any partner writes mail in its own way/u);
 });
 
-test("onboarding does not offer a first spreadsheet import", () => {
+test("onboarding does not offer a first URL import", () => {
   assert.doesNotMatch(read("onboarding"), /Offer to run the first import now/u);
 });
 
@@ -171,32 +171,41 @@ test("scheduled mail ingest and matching read and record the last start", () => 
   assert.match(read("process-inbox"), /`createdAfter` \/ `createdBefore` to every `list_mail_sources` call/u);
 });
 
-test("onboarding registers partner spreadsheets after mail import, in the company's 会社スキル", () => {
+test("onboarding registers partner URLs after mail import, in the company's 会社スキル", () => {
   const onboarding = read("onboarding");
-  const sheet = onboarding.indexOf("## 3. スプレッドシート");
+  const step = onboarding.indexOf("## 3. URL取り込み");
   assert.equal(onboarding.indexOf("## 2. 取り込みフォルダ"), -1);
   assert.match(onboarding, /When `companies` is `done` but `ingest_folders` is not .*start at 5\./u);
-  assert.ok(onboarding.indexOf("## 2. 会社スキル") < sheet && sheet < onboarding.indexOf("## 6. 定期実行"));
-  assert.match(onboarding, /the company and the sheet URL for each/u);
-  assert.match(onboarding, /export\?format=xlsx/u);
+  assert.ok(onboarding.indexOf("## 2. 会社スキル") < step && step < onboarding.indexOf("## 6. 定期実行"));
+  assert.match(onboarding, /the company and the URL for each/u);
+  assert.match(onboarding, /only URLs that open without signing in can be imported/u);
   assert.match(onboarding, /「リンクを知っている全員」が閲覧可/u);
-  assert.match(onboarding, /Read that company's 会社スキル with `get_company_skill` and add the `## スプレッドシート` section/u);
-  assert.match(onboarding, /\| スプレッドシート取り込み \|[^\n]*register-spreadsheet-listings/u);
-  assert.match(onboarding, /Create this task only when at least one 会社スキル has a `## スプレッドシート` section/u);
+  assert.match(onboarding, /Read that company's 会社スキル with `get_company_skill` and add the `## URL取り込み` section/u);
+  assert.match(onboarding, /\| URL取り込み \|[^\n]*register-url-listings/u);
+  assert.match(onboarding, /Create this task only when at least one 会社スキル has a `## URL取り込み` section/u);
+});
+
+test("onboarding lists every host a URL download reaches for the task's allowed domains", () => {
+  const onboarding = read("onboarding");
+  assert.match(onboarding, /Those hosts are the ドメイン the scheduled task's environment must allow/u);
+  assert.match(onboarding, /`docs\.google\.com` and `\*\.googleusercontent\.com`/u);
+  assert.doesNotMatch(read("register-url-listings"), /## スプレッドシート/u);
+  assert.match(onboarding, /add every ドメイン written in the 会社スキル `## URL取り込み` parts/u);
+  assert.doesNotMatch(onboarding, /add `docs\.google\.com` to the allowed domains/u);
 });
 
 test("company skills are read from Flow SES with get_company_skill / list_company_skills", () => {
-  for (const name of ["process-inbox", "register-spreadsheet-listings"]) {
+  for (const name of ["process-inbox", "register-url-listings"]) {
     assert.match(read(name), /get_company_skill/u, name);
     assert.doesNotMatch(read(name), /older setups|account skills/u, name);
   }
-  assert.match(read("register-spreadsheet-listings"), /`list_company_skills` with `query: "## スプレッドシート"`/u);
+  assert.match(read("register-url-listings"), /`list_company_skills` with `query: "## URL取り込み"` and paginate/u);
   assert.match(read("structured-conditions"), /`get_company_skill` で読む/u);
 });
 
-test("spreadsheet register skill keeps company facts in the 会社スキル and URL sources append-only", () => {
-  const skill = read("register-spreadsheet-listings");
-  assert.match(skill, /Every company-specific fact \(sheet URL, tabs, layout, which value means 募集中, tag\) is in that company's 会社スキル/u);
+test("URL register skill keeps company facts in the 会社スキル and URL sources append-only", () => {
+  const skill = read("register-url-listings");
+  assert.match(skill, /Every company-specific fact \(URL, format, tabs or page layout, which value means 募集中, tag\) is in that company's 会社スキル/u);
   assert.match(skill, /URL sources are append-only/u);
   assert.match(skill, /Create only on `NONE`/u);
   assert.match(skill, /Do not pass `linkedUrlContains`/u);
@@ -205,10 +214,22 @@ test("spreadsheet register skill keeps company facts in the 会社スキル and 
   assert.match(skill, /notPublic/u);
 });
 
+test("URL register skill never signs in and reads tables and pages", () => {
+  const skill = read("register-url-listings");
+  assert.match(skill, /Only URLs that open without signing in are in scope/u);
+  assert.match(skill, /Never sign in, never enter a password/u);
+  assert.match(skill, /export\?format=xlsx/u);
+  assert.match(skill, /`download=1`/u);
+  assert.match(skill, /`needsBrowser`/u);
+  assert.match(skill, /`downloadBlocked` \(with the host\)/u);
+  assert.match(skill, /When the 会社スキル gives ページ送り, follow it to the next list page/u);
+  assert.match(read("onboarding"), /- ページ送り: なし \//u);
+});
+
 test("onboarding asks about each matching default one at a time and saves three instructions", () => {
   const onboarding = read("onboarding");
   const step = onboarding.indexOf("## 4. マッチングの指示");
-  assert.ok(onboarding.indexOf("## 3. スプレッドシート") < step && step < onboarding.indexOf("## 6. 定期実行"));
+  assert.ok(onboarding.indexOf("## 3. URL取り込み") < step && step < onboarding.indexOf("## 6. 定期実行"));
   const body = onboarding.slice(step, onboarding.indexOf("## 6. 定期実行"));
   assert.match(body, /ask about each item below one at a time/u);
   assert.match(body, /1\. 絞り込み方 /u);
@@ -275,9 +296,9 @@ test("the two matching skills keep their shared rules only in matching-rules", (
   assert.doesNotMatch(rules, /単価についてもご相談可能と拝見しております/u);
 });
 
-test("onboarding reads the 会社スキル, スプレッドシート, and マッチングの指示 steps from get_onboarding_status", () => {
+test("onboarding reads the 会社スキル, URL取り込み, and マッチングの指示 steps from get_onboarding_status", () => {
   const onboarding = read("onboarding");
-  for (const key of ["company_skills", "spreadsheets", "matching_instructions"]) {
+  for (const key of ["company_skills", "url_imports", "matching_instructions"]) {
     assert.match(onboarding, new RegExp(`\`${key}\``, "u"), key);
   }
   assert.doesNotMatch(onboarding, /`get_onboarding_status` does not track this step/u);
