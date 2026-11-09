@@ -42,6 +42,11 @@ test("scheduled tasks are created without connectors and the customer adds flow-
   assert.match(read("onboarding"), /add `docs\.google\.com` to the allowed domains/u);
 });
 
+test("onboarding asks the scheduled-task model with Haiku as the default", () => {
+  assert.match(read("onboarding"), /ask which model the tasks run on, with the question tool \(AskUserQuestion/u);
+  assert.match(read("onboarding"), /「Haiku（既定・おすすめ）」「Sonnet」「タスクごとに選ぶ」/u);
+});
+
 test("mail ingest handles mail oldest first and finishes each before the next", () => {
   assert.match(read("process-inbox"), /### 2c\. Oldest first, one mail at a time/u);
   assert.match(read("process-inbox"), /oldest first\. Then take one mail at a time and finish it before the next/u);
