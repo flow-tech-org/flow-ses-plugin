@@ -37,6 +37,17 @@ test("mail and sheet ingest run one subagent per company or sheet", () => {
   assert.match(read("onboarding"), /list that mail with `list_mail_sources` \(`companyIds: \[<companyId>\]`/u);
 });
 
+test("scheduled tasks are created without connectors and the customer adds flow-ses and docs.google.com", () => {
+  assert.match(read("onboarding"), /create them without a connector and ask the customer to add the flow-ses connector/u);
+  assert.match(read("onboarding"), /add `docs\.google\.com` to the allowed domains/u);
+});
+
+test("mail ingest handles mail oldest first and finishes each before the next", () => {
+  assert.match(read("process-inbox"), /### 2c\. Oldest first, one mail at a time/u);
+  assert.match(read("process-inbox"), /oldest first\. Then take one mail at a time and finish it before the next/u);
+  assert.match(read("process-inbox"), /oldest first and one mail at a time as in \[2c\]/u);
+});
+
 test("scheduled-task prompts work without the plugin loaded", () => {
   const onboarding = read("onboarding");
   for (const name of ["process-inbox", "evaluate-recent-matchings", "close-stale-source-listings", "register-spreadsheet-listings"]) {

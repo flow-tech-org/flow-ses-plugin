@@ -95,9 +95,11 @@ test("business-card skill sets up a Gmail label and filter for Gmail mailboxes",
   assert.doesNotMatch(skill, /folders and rules stay Outlook only/);
 });
 
-test("business-card skill stops before any write when the user is not a 管理者", async () => {
+test("business-card skill lets 営業 register the company ledger and stops a 閲覧 member before any write", async () => {
   const skill = await readFile(skillUrl, "utf8");
 
-  assert.match(skill, /can be changed only by a Flow SES 管理者 \(ADMIN\)/);
-  assert.match(skill, /When `ensure_company` returns `FORBIDDEN`, write nothing else/);
+  assert.match(skill, /can be changed by a Flow SES 管理者 \(ADMIN\) or 営業 \(SALES\)/);
+  assert.match(skill, /The mailbox side .* can be changed only by a 管理者/);
+  assert.match(skill, /When `ensure_company` returns `FORBIDDEN` \(a 閲覧 VIEWER member\), write nothing else/);
+  assert.match(skill, /returns `FORBIDDEN` \(a 営業 SALES member\), skip the rest of steps 2 to 7 and the Outlook contacts, still do step 8/);
 });

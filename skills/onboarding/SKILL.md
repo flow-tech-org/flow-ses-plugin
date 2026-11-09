@@ -213,7 +213,7 @@ Goal: the set phrases Flow SES puts into 案件配信・要員配信 and マッ�
 
 ## 6. 定期実行 (`scheduled_tasks`)
 
-Goal: the agent runs the daily work on a schedule. Create these scheduled tasks in the customer's Claude account. Each one uses the flow-ses plugin's flow-ses connector (never another connector with the same tools), the same environment this session runs in, and no repository.
+Goal: the agent runs the daily work on a schedule. Create these scheduled tasks in the customer's Claude account, with no repository. Each one must end up using the flow-ses plugin's flow-ses connector (never another connector with the same tools). The AI cannot attach a connector when it creates a scheduled task, so create them without a connector and ask the customer to add the flow-ses connector to each one on the routines page (step 3).
 
 | 名前 | いつ | プロンプト |
 |---|---|---|
@@ -235,7 +235,12 @@ The prompts fall back to the public skill files on GitHub, so the tasks work eve
    Put only the answers that differ from the default into the 募集終了の整理 prompt: for 2, replace 「直近3営業日」 in the prompt with 「直近N営業日」; for 3 and 4, add short Japanese lines at the end: 「対象外の会社: <会社名>、<会社名>。」 and 「未設定のマッチングの却下はしない。」. With every default kept, use the prompt in the table as it is. Item 1 only changes the cron (JST to UTC). Show the finished prompt in the plan in 2.
    If 3 registered any sheet, also ask when to run スプレッドシート取り込み. It runs as its own task, less often than メール取り込み, because sheets change less often than mail. Propose the default from the table (weekdays at 9:00 and 13:00, minute 0, so the マッチング作成 at minute 30 picks up what it registered), with the choices 「平日 9:00・13:00（既定）」「平日 9:00 だけ」「営業時間の毎時」, other fixed times in the free answer. Keep the minute at 0. It must run at least once every business day: a sheet listing that gets no new snapshot for the 募集終了の整理's business days (3 by default) is closed by 募集終了の整理. Create this task only when at least one 会社スキル has a `## スプレッドシート` section. If the customer adds a sheet later, come back and add this task.
 2. Before creating, list the existing scheduled tasks if the session can. Do not create a duplicate of a task with the same purpose. Show the plan and get one OK (「この内容で作成する（おすすめ）」「直す」).
-3. Create them with this session's scheduled-task tool (the `/schedule` command). If the session has no such tool, give the customer the routines page link (https://claude.ai/code/routines) and the table above to enter by hand, then ask 「登録した」「うまくいかない」 and wait for 登録した.
+3. Create them with this session's scheduled-task tool (the `/schedule` command), without connectors: do not pass a connector list, because attaching connectors from the AI is refused. If the session has no such tool, give the customer the routines page link (https://claude.ai/code/routines) and the table above to enter by hand (with the flow-ses connector and the network setting below), then ask 「登録した」「うまくいかない」 and wait for 登録した.
+   Then ask the customer to finish the settings on the routines page (https://claude.ai/code/routines), in one message with the link:
+   - コネクタ: open each task and add the flow-ses connector (the one from the flow-ses plugin). Without it the task cannot reach Flow SES and does nothing.
+   - ネットワーク (スプレッドシート取り込み only, when that task exists): the task reads the sheets from docs.google.com, so add `docs.google.com` to the allowed domains of the environment the スプレッドシート取り込み task runs in. Without it the download is refused and no sheet is imported.
+   - モデル (新着通知 only): when the scheduled-task tool could not set the model, change it to Haiku there.
+   Ask 「設定した」「うまくいかない」 and wait for 設定した. On うまくいかない, ask which step failed and help with that step only.
 4. 新着通知: Flow SES has no notification schedule of its own; this task is what posts new matchings to Teams / Slack. Create it only when the `notification` step is done (a Webhook URL is set in 会社設定). Ask which days and hours the customer wants, with the choices 「平日 9〜19時の毎時50分（既定）」「土日も 9〜19時」「通知しない」 (other hours in the free answer), and convert JST to UTC for the cron. The notify tools are ADMIN only, so the task must run under an ADMIN's Flow SES connection. Pick the cheapest model the scheduled-task tool offers (Haiku), because the task only calls two tools. If the customer sets a Webhook later, come back and add this task.
 5. Only after the tasks exist, call `set_onboarding_scheduled_tasks` with `configured: true`. If the customer later deletes them, call it with `configured: false`.
 
