@@ -29,7 +29,7 @@ When this run is a scheduled task (its prompt says 定期実行) and the user ga
 
 1. First call `get_scheduled_task_last_start` with `task: "evaluate-recent-matchings"`. **Now** is the returned `startedAt` (server time). Do not read the clock yourself.
 2. **Start** is the returned `lastStartedAt`. When it is `null` (the first run), start is 1 hour 10 minutes before now.
-3. After step 2 of the workflow finished for both sides, call `record_scheduled_task_start` with `task: "evaluate-recent-matchings"` and `startedAt` = now (the same value). Do not record when the run stopped early or a side failed, so the next run covers the same window again.
+3. After step 2 of the workflow finished for both sides, call `record_scheduled_task_start` with `task: "evaluate-recent-matchings"` and `startedAt` = now (the same value). Do not record when the run stopped early or a side failed (a side whose matching skill lists any anchor under `errors`, for example a subagent that did not finish, has failed), so the next run covers the same window again.
 
 The window then runs from the previous run's start to this run's start with no gap and no overlap, whatever the schedule is. The order below is for runs that are not scheduled.
 

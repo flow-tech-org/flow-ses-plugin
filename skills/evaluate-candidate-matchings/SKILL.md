@@ -68,6 +68,8 @@ Matching is **not** limited to a run's distribution/attachment targets: `already
 
 ### 2. Search one processed record at a time
 
+Run each candidate anchor in its own subagent as `flow-ses:matching-rules` 「One subagent per anchor」 says (if the plugin is not loaded, read https://raw.githubusercontent.com/flow-tech-org/flow-ses-plugin/main/skills/matching-rules/SKILL.md). Steps 2 to 4 below are what one subagent does for its anchor; with one anchor or no subagent tool, this session does them one anchor at a time.
+
 The processed record is a CANDIDATE. Walk anchors one candidate at a time. Do not start from PROJECT. Do **not** call `list_candidates` to find counterparts.
 
 - Keep the anchors as an **ID list**. When partners are every 募集中 project (no project ids were specified), do not collect or pass partner `ids`: `recruitmentStatuses: ["unset"]` is the same set, so one `list_projects` call per search covers it. Pass `updatedAtFrom` / `updatedAtTo` on that call when a user-specified date window applies. When project ids were specified, keep them as an **ID list** and chunk `ids` to at most 200 per `list_projects` call.

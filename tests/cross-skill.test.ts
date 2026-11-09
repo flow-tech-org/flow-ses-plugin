@@ -316,3 +316,20 @@ test("onboarding checks and saves the 配信メールの文面 through the conne
   assert.ok(skill.indexOf("## 4. マッチングの指示") < step && step < skill.indexOf("## 6. 定期実行"));
   assert.match(skill, /`get_mail_texts`[\s\S]*「既定のままでよい（おすすめ）」「変えたい」[\s\S]*`set_mail_texts`/u);
 });
+
+test("マッチングは元1件ずつサブエージェントで進め、作る直前に保存値で単価をもう一度確かめる", () => {
+  const rules = read("matching-rules");
+  assert.match(rules, /## One subagent per anchor/u);
+  assert.match(rules, /start one subagent per anchor with this session's subagent tool \(the Agent \/ Task tool\), several at once \(about 5 at a time\)/u);
+  assert.match(rules, /do not call `get_matching_instructions`, `get_scheduled_task_last_start`, or `record_scheduled_task_start`/u);
+  assert.match(rules, /A subagent that failed or did not finish counts as stopping early/u);
+  assert.match(rules, /With one anchor, or when this session has no subagent tool, do steps 2 to 4 here one anchor at a time/u);
+  assert.match(rules, /\*\*単価の最終確認 \(required\):\*\* right before each `create_matching`/u);
+  assert.match(rules, /単価相談可 \(`rateNegotiable`\) never lets a pair over the project's max/u);
+  assert.match(rules, /案件 80万（税別・相談不可）, 要員 85万（税別・相談可）, no margin → `単価超過`/u);
+  assert.doesNotMatch(rules, /do not require another rate-ceiling check/u);
+  for (const name of ["evaluate-project-matchings", "evaluate-candidate-matchings"]) {
+    assert.match(read(name), /in its own subagent as `flow-ses:matching-rules` 「One subagent per anchor」 says/u);
+  }
+  assert.match(read("evaluate-recent-matchings"), /a side whose matching skill lists any anchor under `errors`/u);
+});
