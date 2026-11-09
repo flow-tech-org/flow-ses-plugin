@@ -223,6 +223,8 @@ test("URL register skill never signs in and reads tables and pages", () => {
   assert.match(skill, /`needsBrowser`/u);
   assert.match(skill, /`downloadBlocked` \(with the host\)/u);
   assert.match(skill, /When the 会社スキル gives ページ送り, follow it to the next list page/u);
+  assert.match(skill, /Read only what the sheet shows: skip a tab whose `sheet_state` is not `visible`, a row whose `row_dimensions\[r\]\.hidden` is true/u);
+  assert.match(skill, /`非表示も読む`/u);
   assert.match(read("onboarding"), /- ページ送り: なし \//u);
 });
 
