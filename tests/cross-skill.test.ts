@@ -333,3 +333,12 @@ test("マッチングは元1件ずつサブエージェントで進め、作る�
   }
   assert.match(read("evaluate-recent-matchings"), /a side whose matching skill lists any anchor under `errors`/u);
 });
+
+test("直近の新規マッチングは案件側と要員側を同時にサブエージェントで動かす", () => {
+  const skill = read("evaluate-recent-matchings");
+  assert.match(skill, /Run the two sides at the same time, not one after the other/u);
+  assert.match(skill, /about 5 at a time in total across both sides/u);
+  assert.match(skill, /a subagent cannot start its own subagents, so this session starts them for both sides/u);
+  assert.match(skill, /`reused: true`, which is not an error and is not counted as created/u);
+  assert.doesNotMatch(skill, /Finish one side before starting the other/u);
+});
