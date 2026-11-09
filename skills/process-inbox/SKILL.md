@@ -53,7 +53,7 @@ Call `list_mail_sources` with:
 - the same window via `occurredFrom` / `occurredTo` (a scheduled run: the same `createdAfter` / `createdBefore`)
 - Collect **both directions**: either omit `direction`, or run separate pages for `INBOUND` and `OUTBOUND` and merge
 
-Paginate until every page is exhausted. Deduplicate by `internetMessageId` / mail reference id. These remaining rows are the only candidates for classification, `match_project_overviews` or `match_candidate_overviews`, or create.
+Paginate until every page is exhausted. These remaining rows are the only candidates for classification, `match_project_overviews` or `match_candidate_overviews`, or create.
 
 ### 2b. One subagent per company
 
