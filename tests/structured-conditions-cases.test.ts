@@ -258,3 +258,10 @@ test("structured conditions classifies skill lines by meaning (6)", () => {
 test("structured conditions treats every 【副業】要員 column as 副業 for 稼働割合", () => {
   assert.match(conditions, /`副業` \/ `副業希望` とあり、人月・%・週の日数・週の時間のどれも書かれていないときは、下限 0、上限 100/u);
 });
+
+test("structured-conditions sets a 上位スキル on create_skill only when sure", () => {
+  // matching-skill-parent-fallback.test.ts から移した。
+  const sentence = conditions.split("\n").find((line) => line.includes("`create_skill`") && line.includes("`parentSkillId`")) ?? "";
+  assert.ok(sentence, "create_skill with parentSkillId");
+  assert.match(conditions, /When unsure, leave it out/u);
+});

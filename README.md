@@ -32,4 +32,4 @@ Claude のプラグインです。flow-ses コネクタの接続先と、作業�
 
 ## 更新するとき
 
-スキルを直したら `.claude-plugin/plugin.json` と `.claude-plugin/marketplace.json` の `version` を上げます。スキルの中には会社名・取引先名・掲載サイト名を書きません。スキルの決まりごとは tests/ にあり、`node --test tests/*.test.ts`（Node 24）で確かめます。
+スキルを直したら `.claude-plugin/plugin.json` と `.claude-plugin/marketplace.json` の `version` を上げます。スキルの中には会社名・取引先名・掲載サイト名を書きません。スキルの決まりごとは tests/ にあり、`node --test tests/*.test.ts`（Node 24）で確かめます。テストは文の言い回しではなく、ツール名・引数名・禁止事項を確かめます（`tests/skill-rules.ts`）。コネクタのツールを足したり消したりしたら `tests/flow-ses-tools.ts` も合わせます。
