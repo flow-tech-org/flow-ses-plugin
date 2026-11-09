@@ -147,7 +147,7 @@ A 会社スキル is Markdown text saved on one partner company in the 会社台
    ```
 
 5. After the OK in 2.4, save each one with `set_company_skill` (`companyId`, the whole text). It replaces the company's 会社スキル.
-6. List the companies whose 会社スキル was saved, in one line each, and say they can read or change it on the company's detail in the 会社台帳 (show the `company_ledger` step's `url` from `get_onboarding_status` as a link).
+6. List the companies whose 会社スキル was saved, in one line each, and say they can read or change it on the company's detail in the 会社台帳 (show the `companies` step's `url` from `get_onboarding_status` as a link).
 
 ## 3. スプレッドシート
 
