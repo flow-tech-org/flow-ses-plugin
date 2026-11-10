@@ -67,7 +67,7 @@ Default run date: **today (JST)**. Honor a user-specified date. Business days ma
 
 ### 1. List recruiting PROJECT and CANDIDATE
 
-`list_projects` and `list_candidates` with `recruitmentStatuses: ["unset"]` only. Paginate `cursor` = `nextCursor` until exhausted. No `query`. No `createdAtFrom` / `createdAtTo`. No `updatedAtFrom` / `updatedAtTo`. No `createdAfter` / `createdBefore`. No `updatedAfter` / `updatedBefore`. No `relatedConditions`. Pass `excludeCompanyIds` only when [Excluded companies](#excluded-companies) applies.
+`list_projects` and `list_candidates` with `recruitmentStatuses: ["unset"]` only. Paginate `cursor` = `nextCursor` until exhausted. No `query`. No `createdAfter` / `createdBefore`. No `updatedAfter` / `updatedBefore`. No `relatedConditions`. Pass `excludeCompanyIds` only when [Excluded companies](#excluded-companies) applies.
 
 `recruitmentStatuses: ["unset"]` is 募集中. Do **not** list `CLOSED`. Do **not** reopen `CLOSED`.
 
@@ -99,7 +99,7 @@ Do **not** use source-link `linkedAt`, URL source `updatedAt`, mail `receivedAt`
 
 ### Hold for 確認中 or 提案中
 
-Before step 4, collect records that a linked `MATCHING` keeps open. Call `list_projects` and `list_candidates` with `recruitmentStatuses: ["unset"]` and `relatedConditions: [{ "kind": "MATCHING", "matchingStatuses": ["CONFIRMING", "PROPOSING"] }]`. Paginate each call with `cursor` = `nextCursor` until exhausted. Do not pass `query`, `createdAtFrom`, `createdAtTo`, `updatedAtFrom`, `updatedAtTo`, `createdAfter`, `createdBefore`, `updatedAfter`, or `updatedBefore`.
+Before step 4, collect records that a linked `MATCHING` keeps open. Call `list_projects` and `list_candidates` with `recruitmentStatuses: ["unset"]` and `relatedConditions: [{ "kind": "MATCHING", "matchingStatuses": ["CONFIRMING", "PROPOSING"] }]`. Paginate each call with `cursor` = `nextCursor` until exhausted. Do not pass `query`, `createdAfter`, `createdBefore`, `updatedAfter`, or `updatedBefore`.
 
 `matchingStatuses: ["CONFIRMING", "PROPOSING"]` is 確認中 or 提案中. One linked `MATCHING` with either status holds that PROJECT or CANDIDATE. Do not add `unset`, `REJECTED`, `PASSED_OVER`, `WITHDRAWN`, or `CONTRACT_CONFIRMED` to that `matchingStatuses` array. `recruitmentStatuses: ["unset"]` stays. Those matching statuses do not stop the close.
 
@@ -122,7 +122,7 @@ Do not set `recruitmentStatus` back to null. Already `CLOSED` stays `CLOSED`.
 
 Skip this step when [Run settings](#run-settings) turns the reject off. Otherwise, after step 4, reject matchings whose matching status is still null when the linked project or the linked candidate has `recruitmentStatus` `CLOSED`. Include sides closed in this run and sides that were already `CLOSED`. Do not limit this search to ids closed in this run.
 
-Call `list_matchings` twice. Paginate each call with `cursor` = `nextCursor` until exhausted. Pass only `matchingStatuses` and one `relatedConditions` row. Do not pass `query`, `matchingStatus`, `companyIds`, `projectCompanyIds`, `candidateCompanyIds`, `createdAtFrom`, `createdAtTo`, `updatedAtFrom`, or `updatedAtTo`. `list_matchings` has no top-level `recruitmentStatuses`. Do not pass `matchingStatus: "unset"`. The singular `matchingStatus` filter does not accept `unset`.
+Call `list_matchings` twice. Paginate each call with `cursor` = `nextCursor` until exhausted. Pass only `matchingStatuses` and one `relatedConditions` row. Do not pass `query`, `companyIds`, `projectCompanyIds`, `candidateCompanyIds`, `createdAtFrom`, `createdAtTo`, `updatedAtFrom`, or `updatedAtTo`. `list_matchings` has no top-level `recruitmentStatuses`.
 
 1. `matchingStatuses: ["unset"]` and `relatedConditions: [{ "kind": "PROJECT", "recruitmentStatuses": ["CLOSED"] }]`
 2. `matchingStatuses: ["unset"]` and `relatedConditions: [{ "kind": "CANDIDATE", "recruitmentStatuses": ["CLOSED"] }]`
@@ -197,5 +197,5 @@ Do not judge a fit and do not call `create_matching`. Closed rows are 募集終�
 - After the closes, reject an unset matching when the linked project or the linked candidate is `CLOSED`. Use the two `list_matchings` calls in step 5, then for each id `create_collaboration_comment` (`recordType: "MATCHING"`, `body: "鮮度を保つ為却下"`) and, after it succeeds, `update_matching` with `matchingId` and `matchingStatus: "REJECTED"` only.
 - Leave a matching that already has a status (`CONFIRMING`, `PROPOSING`, `REJECTED`, `PASSED_OVER`, `WITHDRAWN`, `CONTRACT_CONFIRMED`). Do not reject `CONFIRMING`.
 - Leave a matching whose project and candidate are both still recruiting.
-- Do not put `PROJECT` and `CANDIDATE` in one `relatedConditions` array. Do not pass `matchingStatus: "unset"` or a top-level `recruitmentStatuses` on `list_matchings`.
+- Do not put `PROJECT` and `CANDIDATE` in one `relatedConditions` array. Do not pass a top-level `recruitmentStatuses` on `list_matchings`.
 - Do not pass `title`, `reason`, or `matchingStatus: null` on that `update_matching`. Call `create_collaboration_comment` only for the `鮮度を保つ為却下` comment before a reject. Do not call `create_matching`.

@@ -70,7 +70,7 @@ The matching skill's Preflight is:
 
 The matching skill's step 1 builds the 処理範囲 side. Collect PROJECT/CANDIDATE only (ignore MATCHING and distribution-sibling types). The matching skill says which side is the anchor; the other side is the partner.
 
-**When only one side is specified,** that side is the given set and the other side is all 募集中. **When both are specified,** only those candidates and those projects. A user-specified date window narrows further: pass `updatedAtFrom` / `updatedAtTo` on both lists. Discover via `list_projects` / `list_candidates` with `updatedAtFrom` / `updatedAtTo` only for that window. The window predicate is record `updatedAt`. Outlook `receivedAt` / `sentAt` and listing Source `updatedAt` are never the window predicate. Record `createdAt` is not the window either. Do **not** call `list_mail_sources` for this pool. This pool is **independent** of any narrower distribution/attachment target set.
+**When only one side is specified,** that side is the given set and the other side is all 募集中. **When both are specified,** only those candidates and those projects. A user-specified date window narrows further: pass `updatedAfter` / `updatedBefore` (ISO-8601 instants; for Tokyo dates use `T00:00:00+09:00`, with `updatedBefore` at the day after the last date) on both lists, only for that window. The window predicate is record `updatedAt`. Outlook `receivedAt` / `sentAt` and listing Source `updatedAt` are never the window predicate. Record `createdAt` is not the window either. Do **not** call `list_mail_sources` for this pool. This pool is **independent** of any narrower distribution/attachment target set.
 
 **When the user supplies record ids**, or asks to rematch a just-finished register/inbox run, split those ids by type and apply the one-side / both-sides rule above:
 
@@ -90,7 +90,7 @@ Matching is **not** limited to a run's distribution/attachment targets: `already
 
 These parts of the matching skill's step 2 are the same on both sides. "Partners" are the records the search returns (要員 from a project, 案件 from a candidate).
 
-- Keep the anchors as an **ID list**. When partners are every 募集中 record of the partner side (no partner ids were specified), do not collect or pass partner `ids`: `recruitmentStatuses: ["unset"]` is the same set, so one list call per search covers it. Pass `updatedAtFrom` / `updatedAtTo` on that call when a user-specified date window applies. When partner ids were specified, keep them as an **ID list** and chunk `ids` to at most 200 per list call.
+- Keep the anchors as an **ID list**. When partners are every 募集中 record of the partner side (no partner ids were specified), do not collect or pass partner `ids`: `recruitmentStatuses: ["unset"]` is the same set, so one list call per search covers it. Pass `updatedAfter` / `updatedBefore` on that call when a user-specified date window applies. When partner ids were specified, keep them as an **ID list** and chunk `ids` to at most 200 per list call.
 - 稼働率: pass `utilizationRateMin` / `utilizationRateMax` only when stated.
 - **Finish that record before the next.** Do **not** sample, cap, or omit pairs inside the record you started. Do not open the next anchor's sheets until this one's judgment is done.
 

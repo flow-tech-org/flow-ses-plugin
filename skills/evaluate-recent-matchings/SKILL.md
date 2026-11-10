@@ -68,7 +68,7 @@ Call `list_projects` and `list_candidates`. On each call pass:
 
 Paginate `cursor` = `nextCursor` until exhausted. Keep the returned ids. These are the new anchors.
 
-Do not use `updatedAt`. Do not pass `updatedAfter`, `updatedBefore`, `updatedAtFrom`, or `updatedAtTo`. Do not post-filter timestamps. Do not pass `dateField`, `dateFrom`, or `dateTo`. Do not pass the calendar `createdAtFrom` / `createdAtTo` pair. Do not pass `query`, `ids`, or `relatedConditions` on these two lists.
+Do not use `updatedAt`. Do not pass `updatedAfter` or `updatedBefore`. Do not post-filter timestamps. Do not pass `dateField`, `dateFrom`, or `dateTo`. Do not pass `query`, `ids`, or `relatedConditions` on these two lists.
 
 `recruitmentStatuses: ["unset"]` is 募集中 (`null`). Do not include `CLOSED`.
 

@@ -53,7 +53,7 @@ Before that call, list the same recruiting rows again with `recruitmentStatuses:
 - A source with no readable `createdAt`, and no readable `createdAt` inside the window → `reviewRequired` / `createdAtUnknown`. Do not close.
 - Already `CLOSED` → `skipped` / `already-closed`. Do not reopen. `RecruitmentStatus` is only `CLOSED`; unset is `null`.
 
-List with `recruitmentStatuses: ["unset"]` and paginate `cursor` = `nextCursor`. Do not pass `createdAtFrom`, `createdAtTo`, `updatedAtFrom`, `updatedAtTo`, `createdAfter`, `createdBefore`, `updatedAfter`, or `updatedBefore`. Those filters use record `updatedAt` / `createdAt`.
+List with `recruitmentStatuses: ["unset"]` and paginate `cursor` = `nextCursor`. Do not pass `createdAfter`, `createdBefore`, `updatedAfter`, or `updatedBefore`. Those filters use record `updatedAt` / `createdAt`.
 
 Do not pass `overview` or `originalText`. Do not `unlink_source_from_record`. Do not `delete_url_source`. Do not `set_project_overview` / `set_candidate_overview`.
 
@@ -61,12 +61,12 @@ Do not pass `overview` or `originalText`. Do not `unlink_source_from_record`. Do
 
 Skip this section when the run prompt says 「未設定のマッチングの却下はしない。」. Otherwise, after the closes above. Matching status null, and the linked project or the linked candidate is `recruitmentStatus` `CLOSED` (募集終了). Includes sides closed in this run and sides already `CLOSED`. Do not limit the search to ids closed in this run.
 
-`list_matchings` has no top-level `recruitmentStatuses`. `matchingStatus` does not accept `unset`. Pass `matchingStatuses: ["unset"]` (status null). Related rows AND together, so call twice and paginate each with `cursor` = `nextCursor`:
+`list_matchings` has no top-level `recruitmentStatuses`. Pass `matchingStatuses: ["unset"]` (status null). Related rows AND together, so call twice and paginate each with `cursor` = `nextCursor`:
 
 1. `relatedConditions: [{ "kind": "PROJECT", "recruitmentStatuses": ["CLOSED"] }]`
 2. `relatedConditions: [{ "kind": "CANDIDATE", "recruitmentStatuses": ["CLOSED"] }]`
 
-Do not put both kinds in one `relatedConditions` array. Do not pass `query`, `matchingStatus`, `companyIds`, `projectCompanyIds`, `candidateCompanyIds`, `createdAtFrom`, `createdAtTo`, `updatedAtFrom`, or `updatedAtTo`.
+Do not put both kinds in one `relatedConditions` array. Do not pass `query`, `companyIds`, `projectCompanyIds`, `candidateCompanyIds`, `createdAtFrom`, `createdAtTo`, `updatedAtFrom`, or `updatedAtTo`.
 
 Union by item `id` and handle each id once, in this order:
 

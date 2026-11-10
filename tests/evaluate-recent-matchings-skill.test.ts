@@ -21,7 +21,7 @@ test("recent matchings skill names the window and the createdAt instant filters"
   assert.match(skill, /Do not use `updatedAt`/u);
   assert.match(skill, /Do not post-filter timestamps/u);
   assert.match(skill, /Do not pass `dateField`, `dateFrom`, or `dateTo`/u);
-  assert.match(skill, /Do not pass the calendar `createdAtFrom` \/ `createdAtTo` pair/u);
+  assert.doesNotMatch(skill, /createdAtFrom|updatedAtFrom/u);
   assert.doesNotMatch(skill, /dateField: "updatedAt"/u);
   assert.doesNotMatch(skill, /dateField: "createdAt"/u);
   assert.match(skill, /Do not invent a 3-business-day default/u);

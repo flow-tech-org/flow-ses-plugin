@@ -55,7 +55,7 @@ for (const side of SIDES) {
       `${side.condition}.unitPriceConditions`,
       side.exclude,
       "excludeCompanyIds",
-      "updatedAtFrom",
+      "updatedAfter",
     ]) {
       assert.ok(text.includes(argument), argument);
     }

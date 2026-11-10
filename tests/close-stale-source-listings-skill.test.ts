@@ -58,8 +58,6 @@ test("stale source close skill closes when the newest linked source createdAt is
 test("stale source close skill does not use linkedAt, URL updatedAt, mail, or record times as the clock", () => {
   assert.match(skill, /Do \*\*not\*\* use source-link `linkedAt`, URL source `updatedAt`, mail `receivedAt` \/ `sentAt`, or record `updatedAt` \/ `createdAt` as the clock/u);
   assert.match(skill, /Do \*\*not\*\* call `get_mail_source` or `get_url_source` to invent a time/u);
-  assert.match(skill, /No `createdAtFrom` \/ `createdAtTo`/u);
-  assert.match(skill, /No `updatedAtFrom` \/ `updatedAtTo`/u);
   assert.match(skill, /No `createdAfter` \/ `createdBefore`/u);
   assert.match(skill, /No `updatedAfter` \/ `updatedBefore`/u);
   assert.match(skill, /createdAtUnknown/u);
@@ -94,7 +92,7 @@ test("stale source close skill rejects unset matchings when a linked side is clo
   assert.match(skill, /"kind": "CANDIDATE", "recruitmentStatuses": \["CLOSED"\]/u);
   assert.match(skill, /Related rows AND together/u);
   assert.match(skill, /Do not put `PROJECT` and `CANDIDATE` in the same `relatedConditions` array/u);
-  assert.match(skill, /Do not pass `matchingStatus: "unset"`/u);
+  assert.match(skill, /Pass only `matchingStatuses` and one `relatedConditions` row/u);
   assert.match(skill, /`list_matchings` has no top-level `recruitmentStatuses`/u);
   assert.match(skill, /update_matching` with `matchingId` set to that id and `matchingStatus: "REJECTED"` only/u);
   assert.match(skill, /Do not pass `title` or `reason`/u);

@@ -208,7 +208,7 @@ test("URL register skill keeps company facts in the 会社スキル and URL sour
   assert.match(skill, /Every company-specific fact \(URL, format, tabs or page layout, which value means 募集中, tag\) is in that company's 会社スキル/u);
   assert.match(skill, /URL sources are append-only/u);
   assert.match(skill, /Create only on `NONE`/u);
-  assert.match(skill, /Do not pass `linkedUrlContains`/u);
+  assert.doesNotMatch(skill, /linkedUrlContains/u);
   assert.match(skill, /never pass `ownCompany: true`/u);
   assert.match(skill, /flow-ses:close-stale-source-listings/u);
   assert.match(skill, /notPublic/u);
