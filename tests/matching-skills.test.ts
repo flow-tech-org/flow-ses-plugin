@@ -108,6 +108,17 @@ test("matching-rules: reason says nothing about 単価 by default", () => {
   assert.match(rules, /write nothing about 単価 in `reason`/u);
 });
 
+// 週0を含むだけで他エリアを通した組み合わせは、概要で確かめてから作る（未記載の出社は週0–5で保存されるため）。
+test("matching-rules: エリア違い is checked from the overviews and reported as a skip", () => {
+  const section = rules.slice(rules.indexOf("**エリア違い (required):**"), rules.indexOf("**必須・歓迎の判定 (required):**"));
+  assert.ok(section.length > 0, "section");
+  assert.match(section, /`prefectureCode`/u);
+  assert.match(section, /`onSiteDaysPerWeekMax` is 0/u);
+  assert.match(section, /skip the pair as `エリア違い`/u);
+  assert.match(rules, /except the エリア違い check below/u);
+  assert.match(rules, /Put `エリア違い`, .*in `matchingSkipped`/u);
+});
+
 // 都道府県のエリア: 47 のコードがちょうど1回ずつどこかのエリアに入り、
 // 「隣接エリアこみのコード」が、自分のエリア＋隣接エリアのコードと一致する。
 test("matching-rules: 都道府県のエリア covers every prefecture once and the neighbor codes add up", () => {

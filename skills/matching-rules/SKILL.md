@@ -154,7 +154,14 @@ An empty overview is `概要未記載`. Do not fall back to a skill sheet. Do no
 
 When the candidate has a record FILE, call `get_candidate_attachment_download_link` with `includeText: true` and read the returned `extractedText`, the text the server read when the file was stored. Only when `extractedText` is null, download the file and read it with `flow-ses:read-office-attachments`. Use the latest candidate FILE. Within one run, keep the sheet text you already read for a candidate and reuse it for later anchors instead of fetching the same FILE again. Do not use `get_source_attachment_download_link` for this sheet. Google Spreadsheet / Google Docs / SharePoint listing URLs in the overview stay browser-opened. Do not download them as office files. Do **not** call `get_mail_source` / `get_url_source` for source mail bodies.
 
-**Structured hard checks (when both sides are set; not 単価)** were already applied by the filters you passed: age, gender, on-site days, commercial flow, solo proprietor, foreign nationality, start month, and prefecture. Do not re-check them from overview or attachments. **Missing is not mismatch** for an unset structured field you did not filter. An omitted 万円 is not a mismatch. An unstated detail in an overview is not a clear mismatch. Unstated 経験年数 is not a mismatch. **No second rate pass:** Sheet reads are **not** a second 単価 pass. Do not re-evaluate 単価, `単価超過`, or `利益不足` from overview or attachments. Do not compare source monthly 万円 from overview or record attachments.
+**Structured hard checks (when both sides are set; not 単価)** were already applied by the filters you passed: age, gender, on-site days, commercial flow, solo proprietor, foreign nationality, start month, and prefecture. Do not re-check them from overview or attachments, except the エリア違い check below. **Missing is not mismatch** for an unset structured field you did not filter. An omitted 万円 is not a mismatch. An unstated detail in an overview is not a clear mismatch. Unstated 経験年数 is not a mismatch. **No second rate pass:** Sheet reads are **not** a second 単価 pass. Do not re-evaluate 単価, `単価超過`, or `利益不足` from overview or attachments. Do not compare source monthly 万円 from overview or record attachments.
+
+**エリア違い (required):** The prefecture filter keeps a partner in another エリア when its on-site range includes 週0, and an unstated 出社 is stored as 週0–5, so a pair can pass the filter without anyone saying the work is remote. After `get_*`, when both sides have a `prefectureCode` and the two codes are in different エリア (「都道府県のエリア」 below; when 絞り込み方 widened the area, codes inside the widened area count as the same エリア), create the pair only when one of these holds:
+
+- the project's `onSiteDaysPerWeekMax` is 0, or the project overview clearly allows full remote (例: `フルリモート`, `フルリモート可`, `完全リモート`, `在宅`);
+- the candidate overview clearly says the candidate can work on site in the project's area without a frequency limit (例: `東京常駐可`, `上京可`, `関東出社可`). A limit such as `月1〜2回なら可` passes only when the project overview says on-site work is that rare or rarer.
+
+Otherwise skip the pair as `エリア違い`. When either `prefectureCode` is unset, or 絞り込み方 says not to filter by 勤務地, skip this check.
 
 **必須・歓迎の判定 (required):** Judge from the project overview, the candidate overview, and the skill-sheet text when you read it. There is no skills column. Do not take skills or years from a separate skills field. Do not pass `skillYearsMin`.
 
@@ -201,6 +208,7 @@ Skip and report `matching_skipped` with the reason:
 - either overview empty (`概要未記載`) — do not fall back to a skill sheet
 - same company on both sides (`同社同士`)
 - either side `recruitmentStatus: CLOSED` (`募集終了`) — do not create
+- the two prefectures are in different エリア and neither the project allows full remote nor the candidate can work on site there (`エリア違い`), per the エリア違い check
 - `派遣契約必須` — only when 絞り込み方 says to skip those projects
 - a rule 絞り込み方 or 比較の仕方 adds (`マージン不足`, or the reason the instruction names) — only when the instruction says so
 - 単価, `単価超過`, and `利益不足` — already decided by the structured filters and the one check on the stored values after `get_*` (単価の比べ方); do not add `matching_skipped` by re-reading 万円 from overview, skill text, or attachments
@@ -239,7 +247,7 @@ Report a compact Japanese summary plus structured counts:
 ```
 
 - `matchingProcessed` is the anchor ids (the matching skill's side) finished in this run. `window` is `all-recruiting` unless a user-specified date window narrowed the pool.
-- `skillScreen` should count unique project+candidate pairs you judged for the records you finished. Put `概要未記載` in `matchingSkipped`. Put `必須不一致`, `必須の△が多い`, `主業務不一致`, and `概要だけでは判断できない` in `matchingSkipped`. Do not report `スキル未記載` or `スキルシートなし`. An existing MATCHING (`reused: true`) is not `created`. Report processed CLOSED anchors as `matching_skipped` / `募集終了`.
+- `skillScreen` should count unique project+candidate pairs you judged for the records you finished. Put `概要未記載` in `matchingSkipped`. Put `エリア違い`, `必須不一致`, `必須の△が多い`, `主業務不一致`, and `概要だけでは判断できない` in `matchingSkipped`. Do not report `スキル未記載` or `スキルシートなし`. An existing MATCHING (`reused: true`) is not `created`. Report processed CLOSED anchors as `matching_skipped` / `募集終了`.
 - `skillScreen.widenedToParent` counts matchings created from a 上位スキル fallback search. Mark each of those entries in `matchingsCreated` with `widenedFrom` (the original skill) and `widenedTo` (the parent searched).
 - Each matching entry should include title, matching id, project id, candidate id, and `created` or `reused`.
 - `instructionsApplied` is true for each 自社の指示 field that had text. `instructionNotes` lists any instruction point that was unclear or ignored, in one short Japanese line each.
