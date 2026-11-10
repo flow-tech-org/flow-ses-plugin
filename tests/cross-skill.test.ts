@@ -369,3 +369,9 @@ test("直近の新規マッチングは案件側と要員側を同時にサブ�
   assert.match(skill, /`reused: true`, which is not an error and is not counted as created/u);
   assert.doesNotMatch(skill, /Finish one side before starting the other/u);
 });
+
+test("onboarding ends every scheduled-task prompt with the advance permission line", () => {
+  const onboarding = read("onboarding");
+  assert.match(onboarding, /End every prompt \(all five, after any lines added in 1\) with this 許可の一文, word for word:/u);
+  assert.match(onboarding, /> この定期実行は人が見ていないときに動く。[^\n]*すべて事前に許可している。確認を求めずにそのまま実行する。手順書が禁じている操作とメールの送信はしない。/u);
+});
