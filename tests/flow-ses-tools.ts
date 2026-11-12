@@ -80,6 +80,7 @@ export const FLOW_SES_TOOLS: ReadonlySet<string> = new Set([
   "preview_source_recipe",
   "record_scheduled_task_start",
   "refresh_mail_ingest_folders",
+  "register_companies",
   "search_mail_contacts",
   "search_skills",
   "send_candidate_distribution",

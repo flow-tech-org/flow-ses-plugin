@@ -128,7 +128,7 @@ test("onboarding asks first whether to take the partner list from contacts or fr
 
 test("onboarding registers the companies before asking about per-company sorting", () => {
   const onboarding = read("onboarding");
-  const register = onboarding.indexOf("4. Register every company first");
+  const register = onboarding.indexOf("4. Register every company");
   const ask = onboarding.indexOf("5. Before asking about sorting, read how the customer's mail is sorted now");
   assert.ok(register > 0 && ask > register);
   assert.match(onboarding, /the fix plan, made in the same shape as the existing setup/u);
@@ -277,8 +277,15 @@ test("the plugin has no distribution draft skill", () => {
 test("onboarding asks which partners decline distribution and saves it on the company", () => {
   const onboarding = read("onboarding");
   assert.match(onboarding, /Ask which partners do not want 案件配信 or 要員配信/u);
-  assert.match(onboarding, /`set_company_distribution_acceptance` with `projectDistributionAccepted: false` or `candidateDistributionAccepted: false`/u);
-  assert.ok(onboarding.indexOf("set_company_distribution_acceptance") < onboarding.indexOf("5. Before asking about sorting"));
+  assert.match(onboarding, /`projectDistributionAccepted: false` or `candidateDistributionAccepted: false`/u);
+  assert.ok(onboarding.indexOf("projectDistributionAccepted: false") < onboarding.indexOf("5. Before asking about sorting"));
+});
+
+test("onboarding registers the partner list with one register_companies call", () => {
+  const onboarding = read("onboarding");
+  const step = onboarding.slice(onboarding.indexOf("4. Register every company"), onboarding.indexOf("5. Before asking about sorting"));
+  assert.match(step, /in one `register_companies` call/u);
+  assert.match(step, /Do not call `ensure_company`, `add_company_contact`, or `set_company_distribution_acceptance` company by company/u);
 });
 
 test("the two matching skills keep their shared rules only in matching-rules", () => {
