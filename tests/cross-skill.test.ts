@@ -113,6 +113,12 @@ test("onboarding starts 会社スキル and 定期実行 only after every requir
   assert.match(read("onboarding"), /Start 2, 3, 4, 5, and 6 only when every earlier required step \(`optional: false`\) is `done`/u);
 });
 
+test("onboarding does not ask whether to set optional dashboard steps such as Teams・Slack 通知", () => {
+  const onboarding = read("onboarding");
+  assert.doesNotMatch(onboarding, /ask whether they want it \(「設定する」「今はしない」\)/u);
+  assert.match(onboarding, /An optional step \(`optional: true`, such as `notification` or `signature`\) is not a question/u);
+});
+
 test("onboarding builds the partner list from contacts, not from mail that is not ingested yet", () => {
   const onboarding = read("onboarding");
   assert.match(onboarding, /連絡先から取得する: call `search_mail_contacts`/u);
