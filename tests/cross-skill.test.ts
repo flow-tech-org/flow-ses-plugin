@@ -407,3 +407,9 @@ test("onboarding gives sharing-change steps instead of a question card", () => {
   assert.match(onboarding, /「共有を変えたら、ひとこと送ってください。/u);
   assert.doesNotMatch(onboarding, /「共有を変えた」「このURLは飛ばす」/u);
 });
+
+test("Google exports always allow *.googleusercontent.com", () => {
+  assert.match(read("register-url-listings"), /its ドメイン are `docs\.google\.com` and `\*\.googleusercontent\.com`/u);
+  assert.match(read("register-url-listings"), /name `\*\.googleusercontent\.com` instead of that one host/u);
+  assert.match(read("onboarding"), /list both `docs\.google\.com` and `\*\.googleusercontent\.com`/u);
+});

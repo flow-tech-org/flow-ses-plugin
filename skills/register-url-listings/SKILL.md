@@ -37,7 +37,7 @@ Each URL in the section gives:
 - URL: the address the customer opens.
 - 形式: `表` (a Google Spreadsheet, an Excel file, or a CSV) or `ページ` (a web page, a Google Doc, a PDF, or a Word file read as text).
 - 取得URL (optional): the address to download when it differs from the URL. Without it, use the defaults in Preflight.
-- ドメイン: the hosts the download reaches, redirects included. The scheduled task's environment must allow each one.
+- ドメイン: the hosts the download reaches, redirects included. The scheduled task's environment must allow each one. A Google Spreadsheet or Doc export redirects to a host like `doc-0g-8s-sheets.googleusercontent.com` whose first label changes, so its ドメイン are `docs.google.com` and `*.googleusercontent.com`.
 - タグ: the URL source tag, for example `<会社名>シート` or `<会社名>サイト`.
 - For `表`, per tab (a CSV has one): tab name, gid for a Google Spreadsheet, 案件 or 要員, one listing per row or per column, the header row or label column, which cells make the 原文 and in what order, which cell gives the title, which cell is the 募集状況 and which values are open, and the skill-sheet link cell for 要員 when there is one.
 - For `ページ`: whether the page lists every listing itself or links to one page per listing (and which links those are), ページ送り when the list is split over several pages (how to reach the next page, and the most pages to read), how one listing is separated from the next, where the title is, where the 募集状況 is and which words mean open (or that there is none), and the skill-sheet link for 要員 when there is one.
@@ -55,7 +55,7 @@ Each URL in the section gives:
    - Anything else: the URL itself.
 4. Check what came back:
    - 401, 403, a sign-in page, or a page asking for a password: the URL is not open to everyone. Report `notPublic` and skip it. Do not sign in.
-   - The network refuses the host: report `downloadBlocked` with the host, and say that the host must be added to the allowed domains of the scheduled task's environment.
+   - The network refuses the host: report `downloadBlocked` with the host, and say that the host must be added to the allowed domains of the scheduled task's environment. For a `….googleusercontent.com` host, name `*.googleusercontent.com` instead of that one host.
    - A different file type from 形式 (an HTML page where a workbook was expected): report `notPublic` when it looks like a sign-in or permission page, `layoutChanged` otherwise.
 5. Read it:
    - `表`: an xlsx or xls file with `openpyxl` as `flow-ses:read-office-attachments` describes (values, and `cell.hyperlink.target` for link cells). Read only what the sheet shows: skip a tab whose `sheet_state` is not `visible`, a row whose `row_dimensions[r].hidden` is true (rows hidden by a filter too), and a column whose `column_dimensions[letter].hidden` is true (a hidden range of columns is stored on its first letter with `min`/`max`, so check every letter in it). Read hidden ones only when the 会社スキル says `非表示も読む` for that URL or tab; a CSV with Python's `csv` module, trying UTF-8 then CP932.

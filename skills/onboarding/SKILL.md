@@ -288,10 +288,10 @@ Scheduled runs have nobody to answer a permission question. Each tool call passe
       | 定期実行の名前 | コネクタ | ネットワーク（許可するドメイン） | モデル |
       |---|---|---|---|
       | メール取り込み | flow-ses を追加 | 変更なし | （1で選んだモデル） |
-      | URL取り込み | flow-ses を追加 | `docs.google.com` など（下に一覧） | （1で選んだモデル） |
+      | URL取り込み | flow-ses を追加 | `docs.google.com`、`*.googleusercontent.com` など（下に一覧） | （1で選んだモデル） |
 
       - コネクタ: every task gets the flow-ses connector (the one from the flow-ses plugin). Without it the task cannot reach Flow SES and does nothing.
-      - ネットワーク: only URL取り込み, when that task exists. The task downloads the URLs, so add every ドメイン written in the 会社スキル `## URL取り込み` parts to the allowed domains of the environment the URL取り込み task runs in. Under the table, list them one per line, without duplicates. Without them the download is refused and nothing from that URL is imported. When the customer adds a URL on a new host later, remind them to add its ドメイン there too. Other tasks: 「変更なし」.
+      - ネットワーク: only URL取り込み, when that task exists. The task downloads the URLs, so add every ドメイン written in the 会社スキル `## URL取り込み` parts to the allowed domains of the environment the URL取り込み task runs in. Under the table, list them one per line, without duplicates. For every Google Spreadsheet or Doc URL, list both `docs.google.com` and `*.googleusercontent.com`, even when an older 会社スキル writes only `docs.google.com` or one `doc-…googleusercontent.com` host: the export redirects to a host whose first label changes. Without them the download is refused and nothing from that URL is imported. When the customer adds a URL on a new host later, remind them to add its ドメイン there too. Other tasks: 「変更なし」.
       - モデル: write 「設定済み」 when the scheduled-task tool set the model. Only when it could not, write the model chosen in 1 (新着通知 and 募集終了の整理 to Haiku).
    2. Then the screen steps as a numbered list, written for the customer to follow without asking:
       1. [ルーチン](https://claude.ai/code/routines) の画面を開く。
