@@ -29,7 +29,7 @@ When this run is a scheduled task (its prompt says 定期実行) and the user ga
 
 1. First call `get_scheduled_task_last_start` with `task: "evaluate-recent-matchings"`. **Now** is the returned `startedAt` (server time). Do not read the clock yourself.
 2. **Start** is the returned `lastStartedAt`. When it is `null` (the first run), start is 1 hour 10 minutes before now.
-3. After step 2 of the workflow finished for both sides, call `record_scheduled_task_start` with `task: "evaluate-recent-matchings"` and `startedAt` = now (the same value). Do not record when the run stopped early or a side failed (a side whose matching skill lists any anchor under `errors`, for example a subagent that did not finish, has failed), so the next run covers the same window again.
+3. After step 2 of the workflow finished for both sides, call `record_scheduled_task_start` with `task: "evaluate-recent-matchings"` and `startedAt` = now (the same value). Do not record when the run stopped early or a side failed (a side whose matching skill lists any anchor under `errors`, for example a subagent that did not finish, has failed), so the next run covers the same window again. A skill sheet that could not be read (for example a 403 on the download) is not a failure: it goes under `sheetUnreadable`, not `errors`, so record the start as usual.
 
 The window then runs from the previous run's start to this run's start with no gap and no overlap, whatever the schedule is. The order below is for runs that are not scheduled.
 
@@ -84,7 +84,7 @@ Run the two sides at the same time, not one after the other. Each side's matchin
 1. Call `get_matching_instructions` once (if the tool does not exist, go on without it).
 2. Put every new PROJECT id and every new CANDIDATE id into one queue. For each id, start one subagent with this session's subagent tool (the Agent / Task tool), about 5 at a time in total across both sides, and give it what 「One subagent per anchor」 step 2 says: the anchor id and type, the partner pool (all 募集中 of the other type, no date window), and the three instruction texts. A PROJECT anchor follows `flow-ses:evaluate-project-matchings`, a CANDIDATE anchor follows `flow-ses:evaluate-candidate-matchings`, each from step 2 through step 4 for that one anchor.
 3. The same pair may be judged from both sides at once. `create_matching` returns the existing pair as `reused: true`, which is not an error and is not counted as created.
-4. Merge the results into each side's part of the Result. A subagent that failed or did not finish goes under that side's `errors`, and that side has failed.
+4. Merge the results into each side's part of the Result. A subagent that failed or did not finish goes under that side's `errors`, and that side has failed. Keep each side's `sheetUnreadable` rows as they are; they do not make a side fail.
 5. With one id in total, or when this session has no subagent tool, run `flow-ses:evaluate-project-matchings` and then `flow-ses:evaluate-candidate-matchings` here as before.
 
 Do not start a full 募集中 rematch. Do not pair the two new sets with each other only.
@@ -126,4 +126,4 @@ Report a compact Japanese summary plus this JSON. `executedAt` is this run's now
 - Do not use `updatedAt` to choose the new listings. The list filters are `createdAfter` / `createdBefore` only.
 - Do not post-filter `createdAt` after the list returns.
 - If the previous `executedAt` is not available, start is today 00:00 JST. A scheduled run uses `lastStartedAt` instead, and 1 hour 10 minutes before now when it is `null`.
-- A scheduled run calls `record_scheduled_task_start` only after both sides finished.
+- A scheduled run calls `record_scheduled_task_start` only after both sides finished. Unreadable skill sheets (`sheetUnreadable`) do not stop the record.

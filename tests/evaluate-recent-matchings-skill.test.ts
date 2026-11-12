@@ -41,3 +41,13 @@ test("recent matchings skill calls the two matching skills separately", () => {
   assert.match(skill, /If the next run cannot see this result, start is again today 00:00 JST/u);
   assert.match(skill, /Do not call `create_matching` from this skill/u);
 });
+
+test("an unreadable skill sheet does not stop the scheduled start record", () => {
+  const rules = readFileSync(
+    new URL("../skills/matching-rules/SKILL.md", import.meta.url),
+    "utf8",
+  );
+  assert.match(skill, /not a failure: it goes under `sheetUnreadable`, not `errors`, so record the start as usual/u);
+  assert.match(rules, /"sheetUnreadable": \[\]/u);
+  assert.match(rules, /A skill sheet that could not be read is \*\*not\*\* an error/u);
+});
