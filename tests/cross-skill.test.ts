@@ -285,7 +285,8 @@ test("onboarding registers the partner list with one register_companies call", (
   const onboarding = read("onboarding");
   const step = onboarding.slice(onboarding.indexOf("4. Register every company"), onboarding.indexOf("5. Before asking about sorting"));
   assert.match(step, /in one `register_companies` call/u);
-  assert.match(step, /Do not call `ensure_company`, `add_company_contact`, or `set_company_distribution_acceptance` company by company/u);
+  assert.match(step, /Do not call `add_company_contact` or `set_company_distribution_acceptance` company by company/u);
+  assert.doesNotMatch(onboarding, /ensure_company/u);
 });
 
 test("the two matching skills keep their shared rules only in matching-rules", () => {

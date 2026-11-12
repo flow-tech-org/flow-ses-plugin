@@ -97,7 +97,7 @@ When `companies` is `done` but `ingest_folders` is not (an earlier run stopped a
    - `contacts`: the distribution address with `distributionRecipient: true`, `listedContact: false`; each 担当者 with `listedContact: true`.
    - Only for a company that declines 案件配信 or 要員配信: `projectDistributionAccepted: false` or `candidateDistributionAccepted: false`. A new company accepts both, so leave both out for the others. Distribution drafts then leave that company out.
 
-   Do not call `ensure_company`, `add_company_contact`, or `set_company_distribution_acceptance` company by company. Only when `register_companies` is not callable (an older Flow SES), do the same per company with those three tools.
+   Do not call `add_company_contact` or `set_company_distribution_acceptance` company by company.
 
    Report from the result: the count registered (`created`), the count skipped as already present (`existing`), the companies registered with a 「（仮）」 name, and each company with an `error` and its message. A failure on one company does not stop the rest.
 5. Before asking about sorting, read how the customer's mail is sorted now: Outlook `list_outlook_mail_folders` (受信トレイ and 送信済みアイテム, with subfolders) and `list_outlook_rules`; Gmail `list_gmail_labels` and `list_gmail_filters`. Sorting is already set when folders (labels) named after the registered companies exist, or rules (filters) match their domains. The 取り込みフォルダ (the folders whose mail goes into the メール台帳, the `ingest_folders` step) are decided here together with the sorting, so the customer answers once. Do not show or ask about the folders that are already ingested.

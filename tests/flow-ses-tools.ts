@@ -36,7 +36,6 @@ export const FLOW_SES_TOOLS: ReadonlySet<string> = new Set([
   "delete_skill",
   "delete_url_source",
   "enable_mail_ingest_folders",
-  "ensure_company",
   "get_candidate",
   "get_candidate_attachment_download_link",
   "get_company_skill",

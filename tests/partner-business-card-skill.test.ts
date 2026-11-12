@@ -23,7 +23,7 @@ test("business-card skill separates explicit SES distribution addresses", async 
 test("distribution recipients are company ledger contacts", async () => {
   const skill = await readFile(skillUrl, "utf8");
 
-  assert.match(skill, /Call `add_company_contact` once per selected address/);
+  assert.match(skill, /Pass one `contacts` item per selected address in the `register_companies` call/);
   assert.match(skill, /Distribution-only address: `displayName` is the written name when present, otherwise the email/);
   assert.match(skill, /Do not invent `ご担当者` as the ledger displayName/);
   assert.match(skill, /pass `listedContact: false` and `distributionRecipient: true`/);
@@ -51,7 +51,8 @@ test("existing personal contact changes require approval and rollback", async ()
 test("business-card skill ensures partner folders and managed rules before contacts", async () => {
   const skill = await readFile(skillUrl, "utf8");
 
-  assert.match(skill, /call `ensure_company`/);
+  assert.match(skill, /Call `register_companies` once with one company/);
+  assert.doesNotMatch(skill, /ensure_company|add_company_contact/);
   assert.match(skill, /list_outlook_mail_folders/);
   assert.match(skill, /create_outlook_mail_folder/);
   assert.match(skill, /If they did not, use the direct child named `SES協力会社`/);
@@ -65,7 +66,6 @@ test("business-card skill ensures partner folders and managed rules before conta
   assert.match(skill, /enable_mail_ingest_folders/);
   assert.match(skill, /Do not enable the Drafts company folder/);
   assert.doesNotMatch(skill, /save it with `set_company_contact_categories`/);
-  assert.match(skill, /add_company_contact/);
   assert.match(skill, /stop before contact writes/);
 });
 
@@ -100,6 +100,6 @@ test("business-card skill lets 営業 register the company ledger and stops a �
 
   assert.match(skill, /can be changed by a Flow SES 管理者 \(ADMIN\) or 営業 \(SALES\)/);
   assert.match(skill, /The mailbox side .* can be changed only by a 管理者/);
-  assert.match(skill, /When `ensure_company` returns `FORBIDDEN` \(a 閲覧 VIEWER member\), write nothing else/);
-  assert.match(skill, /returns `FORBIDDEN` \(a 営業 SALES member\), skip the rest of steps 2 to 7 and the Outlook contacts, still do step 8/);
+  assert.match(skill, /When `register_companies` returns `FORBIDDEN` \(a 閲覧 VIEWER member\), write nothing else/);
+  assert.match(skill, /returns `FORBIDDEN` \(a 営業 SALES member\), skip the rest of steps 2 to 7 and the Outlook contacts, still do step 8 \(配信先\)/);
 });
