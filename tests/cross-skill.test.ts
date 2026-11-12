@@ -392,3 +392,18 @@ test("onboarding ends every scheduled-task prompt with the advance permission li
   assert.match(onboarding, /End every prompt \(all five, after any lines added in 1\) with this 許可の一文, word for word:/u);
   assert.match(onboarding, /> この定期実行は人が見ていないときに動く。[^\n]*すべて事前に許可している。確認を求めずにそのまま実行する。手順書が禁じている操作とメールの送信はしない。/u);
 });
+
+test("onboarding gives hand-work steps per scheduled task and asks for a report instead of a question card", () => {
+  const onboarding = read("onboarding");
+  assert.match(onboarding, /is not a question\. Never ask with the question tool whether it is done/u);
+  assert.match(onboarding, /\| 定期実行の名前 \| コネクタ \| ネットワーク（許可するドメイン） \| モデル \|/u);
+  assert.match(onboarding, /End the message with 「終わったら、ひとこと送ってください。」 and wait\. Do not ask with the question tool whether it is done\./u);
+  assert.doesNotMatch(onboarding, /[Aa]sk (with the choices )?「(設定した|できた|登録した)」/u);
+});
+
+test("onboarding gives sharing-change steps instead of a question card", () => {
+  const onboarding = read("onboarding");
+  assert.match(onboarding, /「一般的なアクセス」 to 「リンクを知っている全員」/u);
+  assert.match(onboarding, /「共有を変えたら、ひとこと送ってください。/u);
+  assert.doesNotMatch(onboarding, /「共有を変えた」「このURLは飛ばす」/u);
+});
