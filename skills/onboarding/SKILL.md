@@ -30,7 +30,15 @@ The customer opened this session from the Flow SES 導入ガイド (`/onboarding
 - Dashboard steps (`agent: false`, not `done`) are done by the customer on a Flow SES screen. Do not stop the session for them:
   - Tell the customer in one or two plain lines what to set, using the step's `detail`, and always show the step's `url` as a link so they can open the screen directly. Steps that share a `url` (会社設定: `organization` and `notification`; ユーザー設定: `mailbox` and `signature`) go in one message, so the customer opens each screen once.
   - For an optional step (`optional: true`), ask whether they want it (「設定する」「今はしない」); skip it when they say no.
-  - Ask 「設定しましたか」 with the choices 「設定した」「やり方がわからない」 and wait for the answer. On 設定した, call `get_onboarding_status` again; if the step is still not `done`, say what is missing and ask again. On やり方がわからない, explain the screen step by step in plain words, with the step's `guideUrl`, and ask again.
+  - Do not ask whether the customer has set it: `get_onboarding_status` already tells you. In the same message, give the screen steps from 「画面の手順」 below as a short numbered list, only for what the step's `state` and `detail` say is missing (for example, only the ログインドメイン when 会社名 is already set). End the message with one line such as 「設定が終わったら、ひとこと送ってください。」 and wait for the customer's next message.
+  - On the customer's next message, call `get_onboarding_status` again. If the step is `done`, say so in one line and go on. If it is still not `done`, say what is still missing from its `detail` and give only those screen steps again. If the customer says they cannot find it or it does not work, ask what they see on the screen (free answer) and help from there; never repeat the same message without the steps.
+  - 画面の手順 (the Flow SES screen labels):
+    - 会社名 (会社設定): 「会社名」の「編集」を押し、会社名を入れて「保存」を押す。
+    - ログインドメイン (会社設定): 「ログインするドメイン」の「Microsoft で追加」（Google のアカウントなら「Google で追加」）を押し、そのドメインのアカウントでログインして確認する。追加したドメインが一覧に出れば完了。
+    - Teams・Slack の通知先 (会社設定): 「Teams通知」か「Slack通知」の「編集」を押し、「投稿先の名前」と「Webhook URL」を入れて「保存」を押す。
+    - メールの接続 (ユーザー設定): 「Outlook接続」の「Outlookを接続」（Gmail なら「Gmail接続」の「Gmailを接続」）を押し、出てきた Microsoft・Google の画面で許可する。再接続が必要なときは同じ場所の「Outlookを再認証」「Gmailを再接続」を押す。会社の管理者の同意が必要と出たら、その画面を会社の Microsoft 365 管理者に見せて同意してもらう。
+    - 下書き署名 (ユーザー設定): 「下書き署名」の「編集」を押し、署名を入れて「署名を保存」を押す。
+    - メンバーの追加 (メンバー管理): 「メンバーを追加」を押し、「メールアドレス」「名前（任意）」「ロール」を入れて「追加」を押す。
   - If a step has no `url` (an older Flow SES), show `guideUrl`, or tell them to open the 導入ガイド.
 - `organization` must be `done` before 会社台帳: the flow-ses skills read 会社名 as 自社. `mailbox` must be `done` before the mail sorting and 取り込みフォルダ in 会社台帳.
 - The organization-wide steps (会社設定, メンバー管理, 会社台帳, 会社スキル, 取り込みフォルダ, URL取り込み, マッチングの指示, 定期実行) are done by a Flow SES 管理者 (ADMIN). `get_onboarding_status` returns `viewerRole` (the customer's role) and `canDo` on each step. When `viewerRole` is not `ADMIN` (営業 SALES, 閲覧 VIEWER), guide only the steps with `canDo: true` that are not `done` (their own AI connection, and for 営業 also the mail connection and 下書き署名 in ユーザー設定), the same way as other dashboard steps. Then say in plain words that the rest is done by a 管理者 and the customer can see its progress in the 導入ガイド (`guideUrl`), and stop. Do not try the 管理者 steps. On an older Flow SES without `viewerRole`, when a write returns `FORBIDDEN`, say that a 管理者 must run 導入 (the role is set in メンバー管理), and stop.
@@ -42,7 +50,7 @@ The customer opened this session from the Flow SES 導入ガイド (`/onboarding
 
 ## Questions
 
-Ask every question to the customer with this session's question tool with choices (AskUserQuestion). This covers every question in this skill: picking an option, the OK on a list or plan, yes or no, 「設定しましたか」 for a dashboard step, and questions whose answer is text, such as a URL, a company name, or an amount. When the session has no such tool, ask the same question in plain text with the choices as a numbered list.
+Ask every question to the customer with this session's question tool with choices (AskUserQuestion). This covers every question in this skill: picking an option, the OK on a list or plan, yes or no, and questions whose answer is text, such as a URL, a company name, or an amount. When the session has no such tool, ask the same question in plain text with the choices as a numbered list.
 
 - Write the question, its short header (12 characters or fewer), and the choices in plain Japanese. Put the default or recommended choice first and end its label with 「（既定）」 or 「（おすすめ）」.
 - Give 2 to 4 choices. The tool always adds a free answer, so do not add your own 「その他」 choice. When the answer is text (a URL, a company name, an amount, a time, or a fix to a plan), say in the question that the customer can write it in the free answer (「選択肢にないときは、そのまま書いて答えられます」), and give the usual answers as choices.

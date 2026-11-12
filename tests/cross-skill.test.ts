@@ -325,7 +325,11 @@ test("onboarding asks every question with AskUserQuestion choices", () => {
   assert.match(onboarding, /^## Questions$/mu);
   assert.match(onboarding, /Ask every question to the customer with this session's question tool with choices \(AskUserQuestion\)/u);
   assert.match(onboarding, /do not add your own 「その他」 choice/u);
-  assert.match(onboarding, /「設定した」「やり方がわからない」/u);
+  // 画面のステップは「設定しましたか」と聞かず、状態を取り直して手順を示す。
+  assert.doesNotMatch(onboarding, /「設定しましたか」/u);
+  assert.doesNotMatch(onboarding, /「やり方がわからない」/u);
+  assert.match(onboarding, /Do not ask whether the customer has set it/u);
+  assert.match(onboarding, /画面の手順 \(the Flow SES screen labels\)/u);
   // 選択肢のない聞き方が残っていない。
   assert.doesNotMatch(onboarding, /Ask in one message/u);
   assert.doesNotMatch(onboarding, /Wait until the customer says it is done/u);
