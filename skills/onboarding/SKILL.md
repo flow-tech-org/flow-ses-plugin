@@ -238,8 +238,14 @@ Say first, in one message, that the AI already has default rules, that you will 
 
 Goal: the set phrases Flow SES puts into 案件配信・要員配信 and マッチング mail read the way this customer writes. They are kept in 会社設定の「配信メールの文面」: 書き出し、前置き、締め、宛名が空のときの宛名、件名の頭. Empty fields use the default text. The `mail_texts` step is `done` when any field differs from the default. The customer may keep the defaults; then the step stays `todo` and does not block 定期実行.
 
-1. Call `get_mail_texts` and show the fields as one table (区分、項目、今の文面、既定かどうか).
-2. When the step is `todo`, ask 「この文面でよいですか」 with the choices 「既定のままでよい（おすすめ）」「変えたい」; when it is `done`, ask with 「このまま（おすすめ）」「変えたい」. Say the change can be written in the free answer. If no change, go to 6.
+1. Call `get_mail_texts` first, and before any question, send one message that shows every field it returns, so the customer can read the text now in use without asking. Never ask about these texts before this message is shown, and never only summarize them (no 「既定の文面です」 alone). Group the fields by 区分 (`group`), in the order returned, and number them across the groups (1, 2, 3, …) so a change can be written as 「3: 新しい文面」. Write one line per field: the number, the 項目 (`label`), the text in use (`text`) word for word in 「」 (a text with line breaks goes in a quote block, one line per line), and 「既定」 or 「変更済み」 (`isDefault`). For a 変更済み field, add the default text (`defaultText`) after it as 「既定: 「…」」. Example:
+
+   **協力会社向けの配信**
+   1. 書き出し（宛名の次の行）: 「いつもお世話になっております。」（既定）
+   2. 案件配信の前置き: 「下記の案件に見合う要員がございましたら、ご紹介いただけますと幸いです。」（既定）
+
+   Under the list, add one line on where they appear: 協力会社向けの配信 is 案件配信・要員配信 to partners, 自社向けの配信 is 案件配信 to the customer's own 要員, マッチングの新規メール is the new mail proposing a matching, and 件名 is the start of the subject of 案件配信・要員配信. Say the 署名 is not here but in each member's ユーザー設定「下書き署名」.
+2. Then ask 「上の文面でよいですか」: when the step is `todo`, with the choices 「既定のままでよい（おすすめ）」「変えたい」; when it is `done`, with 「このまま（おすすめ）」「変えたい」. Say the change can be written in the free answer as the number and the new text. If no change, go to 6.
 3. On 変えたい, write the new text for only the fields to change (a field marked 1行 takes one line), show it, and ask for one OK (「この内容で保存する（おすすめ）」「直す」). Never put a person's or company's real name in these texts unless the customer gave it.
 4. Save with `set_mail_texts`, passing only the changed fields (`""` goes back to the default; ADMIN only). Show the 会社設定 `url` (the `organization` step) as a link and say they can change the texts there at any time, or by asking for 配信メールの文面の変更.
 

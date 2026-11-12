@@ -354,6 +354,11 @@ test("onboarding checks and saves the 配信メールの文面 through the conne
   const step = skill.indexOf("## 5. 配信メールの文面 (`mail_texts`)");
   assert.ok(skill.indexOf("## 4. マッチングの指示") < step && step < skill.indexOf("## 6. 定期実行"));
   assert.match(skill, /`get_mail_texts`[\s\S]*「既定のままでよい（おすすめ）」「変えたい」[\s\S]*`set_mail_texts`/u);
+  // 質問の前に、今の文面を項目ごとにそのまま見せる（聞かれるまで文面が分からなかった）
+  const body = skill.slice(step, skill.indexOf("## 6. 定期実行"));
+  assert.match(body, /before any question, send one message that shows every field it returns/u);
+  assert.match(body, /the text in use \(`text`\) word for word/u);
+  assert.ok(body.indexOf("send one message") < body.indexOf("「上の文面でよいですか」"));
 });
 
 test("マッチングは元1件ずつサブエージェントで進め、作る直前に保存値で単価をもう一度確かめる", () => {
