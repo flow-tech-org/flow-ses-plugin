@@ -419,3 +419,16 @@ test("Google exports always allow *.googleusercontent.com", () => {
   assert.match(read("register-url-listings"), /name `\*\.googleusercontent\.com` instead of that one host/u);
   assert.match(read("onboarding"), /list both `docs\.google\.com` and `\*\.googleusercontent\.com`/u);
 });
+
+test("URL register skill reads JavaScript pages with the bundled page reader", () => {
+  const skill = read("register-url-listings");
+  assert.match(skill, /node <this skill's directory>\/scripts\/read-page\.cjs <URL>/u);
+  assert.match(skill, /raw\.githubusercontent\.com\/flow-tech-org\/flow-ses-plugin\/main\/skills\/register-url-listings\/scripts\/read-page\.cjs/u);
+  assert.match(skill, /- 読み方 \(`ページ` only, optional\): `ダウンロード`/u);
+  assert.match(skill, /Report `botCheck` and skip the URL\. Never try to solve or get around it\./u);
+  assert.match(skill, /never solve or get around a robot check/u);
+  const onboarding = read("onboarding");
+  assert.match(onboarding, /every host in its `hosts` goes into ドメイン too/u);
+  assert.match(onboarding, /- 読み方: ダウンロード \/ ブラウザ（ページのときだけ）/u);
+  assert.ok(existsSync(new URL("../skills/register-url-listings/scripts/read-page.cjs", import.meta.url)));
+});
