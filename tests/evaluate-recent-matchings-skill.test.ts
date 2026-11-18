@@ -47,7 +47,7 @@ test("an unreadable skill sheet does not stop the scheduled start record", () =>
     new URL("../skills/matching-rules/SKILL.md", import.meta.url),
     "utf8",
   );
-  assert.match(skill, /not a failure: it goes under `sheetUnreadable`, not `errors`, so record the start as usual/u);
+  assert.match(skill, /A skill sheet that could not be read \(for example a 403 on the download\) goes under `sheetUnreadable`, not `errors`/u);
   assert.match(rules, /"sheetUnreadable": \[\]/u);
   assert.match(rules, /A skill sheet that could not be read is \*\*not\*\* an error/u);
 });

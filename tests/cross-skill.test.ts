@@ -32,7 +32,6 @@ test("URL ingest is its own task, less often than mail", () => {
 
 test("mail and sheet ingest run one subagent per company or sheet", () => {
   assert.match(read("process-inbox"), /### 2b\. One subagent per company/u);
-  assert.match(read("process-inbox"), /do not call `record_scheduled_task_start`/u);
   assert.match(read("register-url-listings"), /one subagent per target/u);
   assert.match(read("process-inbox"), /`companyIds: \[<companyId>\]`/u);
   assert.match(read("process-inbox"), /`companyIds: \["unset"\]`/u);
@@ -172,7 +171,8 @@ test("scheduled mail ingest and matching read and record the last start", () => 
     const record = skill.indexOf(`\`record_scheduled_task_start\` with \`task: "${task}"\``);
     assert.ok(get >= 0 && record > get, name);
     assert.match(skill, /1 hour 10 minutes before/u, name);
-    assert.match(skill, /Do not record when the run stopped early/u, name);
+    assert.match(skill, /Record it even if the run later stops early/u, name);
+    assert.doesNotMatch(skill, /Do not record when the run stopped early|covers the same window again/u, name);
   }
   assert.match(read("process-inbox"), /`createdAfter` \/ `createdBefore` to every `list_mail_sources` call/u);
 });
@@ -381,7 +381,7 @@ test("マッチングは元1件ずつサブエージェントで進め、作る�
   for (const name of ["evaluate-project-matchings", "evaluate-candidate-matchings"]) {
     assert.match(read(name), /in its own subagent as `flow-ses:matching-rules` 「One subagent per anchor」 says/u);
   }
-  assert.match(read("evaluate-recent-matchings"), /a side whose matching skill lists any anchor under `errors`/u);
+  assert.match(read("evaluate-recent-matchings"), /every anchor that failed \(listed under `errors` by its matching skill/u);
 });
 
 test("直近の新規マッチングは案件側と要員側を同時にサブエージェントで動かす", () => {
