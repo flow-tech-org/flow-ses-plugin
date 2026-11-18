@@ -109,7 +109,7 @@ test("onboarding does not offer a first URL import", () => {
 });
 
 test("onboarding starts 会社スキル and 定期実行 only after every required earlier step is done", () => {
-  assert.match(read("onboarding"), /Start 2, 3, 4, 5, and 6 only when every earlier required step \(`optional: false`\) is `done`/u);
+  assert.match(read("onboarding"), /Start 2, 3, 4, and 6 only when every earlier required step \(`optional: false`\) is `done`/u);
 });
 
 test("onboarding does not ask whether to set optional dashboard steps such as Teams・Slack 通知", () => {
@@ -362,16 +362,16 @@ test("onboarding checks the partner list with two questions and no third OK", ()
   assert.doesNotMatch(onboarding, /この内容で登録する/u);
 });
 
-test("onboarding checks and saves the 配信メールの文面 through the connector", () => {
+test("onboarding only points to the 配信メールの文面 on 会社設定 and never asks about it", () => {
   const skill = read("onboarding");
   const step = skill.indexOf("## 5. 配信メールの文面 (`mail_texts`)");
   assert.ok(skill.indexOf("## 4. マッチングの指示") < step && step < skill.indexOf("## 6. 定期実行"));
-  assert.match(skill, /`get_mail_texts`[\s\S]*「既定のままでよい（おすすめ）」「変えたい」[\s\S]*`set_mail_texts`/u);
-  // 質問の前に、今の文面を項目ごとにそのまま見せる（聞かれるまで文面が分からなかった）
   const body = skill.slice(step, skill.indexOf("## 6. 定期実行"));
-  assert.match(body, /before any question, send one message that shows every field it returns/u);
-  assert.match(body, /the text in use \(`text`\) word for word/u);
-  assert.ok(body.indexOf("send one message") < body.indexOf("「上の文面でよいですか」"));
+  assert.match(body, /never ask whether to change the texts/u);
+  assert.match(body, /Do not call `get_mail_texts` or `set_mail_texts` during 導入/u);
+  assert.doesNotMatch(skill, /「変えたい」/u);
+  assert.match(skill, /会社設定: `organization`, `notification`, and `mail_texts`/u);
+  assert.match(skill, /- 配信メールの文面 \(会社設定\): 「配信メールの文面」/u);
 });
 
 test("マッチングは元1件ずつサブエージェントで進め、作る直前に保存値で単価をもう一度確かめる", () => {
