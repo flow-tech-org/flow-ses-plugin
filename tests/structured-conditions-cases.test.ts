@@ -6,6 +6,10 @@ const conditions = readFileSync(
   new URL("../skills/structured-conditions/SKILL.md", import.meta.url),
   "utf8",
 );
+const inbox = readFileSync(
+  new URL("../skills/process-inbox/SKILL.md", import.meta.url),
+  "utf8",
+);
 
 test("structured conditions keeps source 万円 on overview and forbids side effects", () => {
   assert.match(conditions, /do \*\*not\*\* map 元請直→0/u);
@@ -30,9 +34,9 @@ test("structured conditions keeps source 万円 on overview and forbids side eff
 test("structured conditions classifies skill lines by meaning", () => {
   assert.match(conditions, /Meaning wins over the exact heading and over where the line sits/u);
   assert.match(conditions, /Before tagging, `search_skills`/u);
-  assert.match(conditions, /Group true synonyms with `update_skill` or `move_skill_aliases`/u);
-  assert.match(conditions, /Do not merge merely related names/u);
-  assert.match(conditions, /If nothing fits, `create_skill`, then tag/u);
+  assert.match(conditions, /`create_skill` is the only change an ingest makes to the スキル辞書/u);
+  assert.doesNotMatch(conditions, /Group true synonyms/u);
+  assert.match(conditions, /If nothing fits, `create_skill` with the name only, then tag/u);
   assert.match(conditions, /so ingests pass `skills`, not `skillNames`/u);
   assert.match(conditions, /Do not rewrite 原文/u);
   assert.doesNotMatch(conditions, /There is no `skills` column/u);
@@ -131,9 +135,9 @@ test("structured conditions registers partner candidate affiliation from 自社 
 test("structured conditions classifies skill lines by meaning (1)", () => {
   assert.match(conditions, /Meaning wins over the exact heading and over where the line sits/u);
   assert.match(conditions, /Before tagging, `search_skills`/u);
-  assert.match(conditions, /Group true synonyms with `update_skill` or `move_skill_aliases`/u);
-  assert.match(conditions, /Do not merge merely related names/u);
-  assert.match(conditions, /If nothing fits, `create_skill`, then tag/u);
+  assert.match(conditions, /`create_skill` is the only change an ingest makes to the スキル辞書/u);
+  assert.doesNotMatch(conditions, /Group true synonyms/u);
+  assert.match(conditions, /If nothing fits, `create_skill` with the name only, then tag/u);
   assert.match(conditions, /so ingests pass `skills`, not `skillNames`/u);
   assert.match(conditions, /Do not rewrite 原文/u);
   assert.doesNotMatch(conditions, /There is no `skills` column/u);
@@ -158,9 +162,9 @@ test("structured conditions keeps source 万円 on overview and forbids side eff
 test("structured conditions classifies skill lines by meaning (3)", () => {
   assert.match(conditions, /Meaning wins over the exact heading and over where the line sits/u);
   assert.match(conditions, /Before tagging, `search_skills`/u);
-  assert.match(conditions, /Group true synonyms with `update_skill` or `move_skill_aliases`/u);
-  assert.match(conditions, /Do not merge merely related names/u);
-  assert.match(conditions, /If nothing fits, `create_skill`, then tag/u);
+  assert.match(conditions, /`create_skill` is the only change an ingest makes to the スキル辞書/u);
+  assert.doesNotMatch(conditions, /Group true synonyms/u);
+  assert.match(conditions, /If nothing fits, `create_skill` with the name only, then tag/u);
   assert.match(conditions, /so ingests pass `skills`, not `skillNames`/u);
   assert.match(conditions, /Do not rewrite 原文/u);
   assert.doesNotMatch(conditions, /There is no `skills` column/u);
@@ -188,9 +192,9 @@ test("structured conditions registers candidate affiliation from 自社 viewpoin
 test("structured conditions classifies skill lines by meaning (4)", () => {
   assert.match(conditions, /Meaning wins over the exact heading and over where the line sits/u);
   assert.match(conditions, /Before tagging, `search_skills`/u);
-  assert.match(conditions, /Group true synonyms with `update_skill` or `move_skill_aliases`/u);
-  assert.match(conditions, /Do not merge merely related names/u);
-  assert.match(conditions, /If nothing fits, `create_skill`, then tag/u);
+  assert.match(conditions, /`create_skill` is the only change an ingest makes to the スキル辞書/u);
+  assert.doesNotMatch(conditions, /Group true synonyms/u);
+  assert.match(conditions, /If nothing fits, `create_skill` with the name only, then tag/u);
   assert.match(conditions, /so ingests pass `skills`, not `skillNames`/u);
   assert.match(conditions, /Do not rewrite 原文/u);
   assert.doesNotMatch(conditions, /There is no `skills` column/u);
@@ -212,9 +216,9 @@ test("structured conditions follow the shared mapping and 自社 affiliation \+1
 test("structured conditions classifies skill lines by meaning (5)", () => {
   assert.match(conditions, /Meaning wins over the exact heading and over where the line sits/u);
   assert.match(conditions, /Before tagging, `search_skills`/u);
-  assert.match(conditions, /Group true synonyms with `update_skill` or `move_skill_aliases`/u);
-  assert.match(conditions, /Do not merge merely related names/u);
-  assert.match(conditions, /If nothing fits, `create_skill`, then tag/u);
+  assert.match(conditions, /`create_skill` is the only change an ingest makes to the スキル辞書/u);
+  assert.doesNotMatch(conditions, /Group true synonyms/u);
+  assert.match(conditions, /If nothing fits, `create_skill` with the name only, then tag/u);
   assert.match(conditions, /so ingests pass `skills`, not `skillNames`/u);
   assert.match(conditions, /Do not rewrite 原文/u);
   assert.doesNotMatch(conditions, /There is no `skills` column/u);
@@ -245,9 +249,9 @@ test("structured conditions copies cells verbatim and leaves closing to the stal
 test("structured conditions classifies skill lines by meaning (6)", () => {
   assert.match(conditions, /Meaning wins over the exact heading and over where the line sits/u);
   assert.match(conditions, /Before tagging, `search_skills`/u);
-  assert.match(conditions, /Group true synonyms with `update_skill` or `move_skill_aliases`/u);
-  assert.match(conditions, /Do not merge merely related names/u);
-  assert.match(conditions, /If nothing fits, `create_skill`, then tag/u);
+  assert.match(conditions, /`create_skill` is the only change an ingest makes to the スキル辞書/u);
+  assert.doesNotMatch(conditions, /Group true synonyms/u);
+  assert.match(conditions, /If nothing fits, `create_skill` with the name only, then tag/u);
   assert.match(conditions, /so ingests pass `skills`, not `skillNames`/u);
   assert.match(conditions, /Do not rewrite 原文/u);
   assert.doesNotMatch(conditions, /There is no `skills` column/u);
@@ -259,9 +263,10 @@ test("structured conditions treats every 【副業】要員 column as 副業 for
   assert.match(conditions, /`副業` \/ `副業希望` とあり、人月・%・週の日数・週の時間のどれも書かれていないときは、下限 0、上限 100/u);
 });
 
-test("structured-conditions sets a 上位スキル on create_skill only when sure", () => {
-  // matching-skill-parent-fallback.test.ts から移した。
-  const sentence = conditions.split("\n").find((line) => line.includes("`create_skill`") && line.includes("`parentSkillId`")) ?? "";
-  assert.ok(sentence, "create_skill with parentSkillId");
-  assert.match(conditions, /When unsure, leave it out/u);
+test("ingests only create skills; grouping and 上位スキル are the スキル辞書の整理 run's work", () => {
+  assert.match(conditions, /do not pass `parentSkillId`, and do not call `update_skill`, `move_skill_aliases`, or `delete_skill`/u);
+  assert.match(conditions, /`flow-ses:review-skill-dictionary`/u);
+  assert.doesNotMatch(conditions, /Group true synonyms|regrouped/u);
+  assert.match(inbox, /Do not group names or set 上位スキル here/u);
+  assert.doesNotMatch(inbox, /Group true synonyms/u);
 });

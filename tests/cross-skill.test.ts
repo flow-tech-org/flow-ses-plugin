@@ -160,7 +160,7 @@ test("onboarding asks when to run mail ingest and matching, and the prompts star
   const onboarding = read("onboarding");
   assert.match(onboarding, /1\. Ask when to run メール取り込み/u);
   assert.match(onboarding, /Then ask when to run マッチング作成/u);
-  assert.equal(onboarding.match(/定期実行として、前回の開始時刻から処理する。/gu)?.length, 2);
+  assert.equal(onboarding.match(/定期実行として、前回の開始時刻から処理する。/gu)?.length, 3);
   assert.doesNotMatch(onboarding, /1時間10分|一つ前の実行予定時刻/u);
 });
 
@@ -395,7 +395,7 @@ test("直近の新規マッチングは案件側と要員側を同時にサブ�
 
 test("onboarding ends every scheduled-task prompt with the advance permission line", () => {
   const onboarding = read("onboarding");
-  assert.match(onboarding, /End every prompt \(all five, after any lines added in 1\) with this 許可の一文, word for word:/u);
+  assert.match(onboarding, /End every prompt \(all six, after any lines added in 1\) with this 許可の一文, word for word:/u);
   assert.match(onboarding, /> この定期実行は人が見ていないときに動く。[^\n]*すべて事前に許可している。確認を求めずにそのまま実行する。手順書が禁じている操作とメールの送信はしない。/u);
 });
 
