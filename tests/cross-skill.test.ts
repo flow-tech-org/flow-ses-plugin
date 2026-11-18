@@ -342,6 +342,9 @@ test("onboarding asks every question with AskUserQuestion choices", () => {
   // 修正は「その他」欄に書いてもらう。「直す」「修正する」の選択肢は出さない（選んでも書く欄がないため）。
   assert.match(onboarding, /修正するときや選択肢にないときは、下の「その他」に書いてください。/u);
   assert.match(onboarding, /Never add a 「直す」 or 「修正する」 choice/u);
+  // マッチングの指示: 変える・足すときも「その他」に書いてもらう。
+  assert.match(onboarding, /変えるときは、下の「その他」に変え方を書いてください。/u);
+  assert.match(onboarding, /足すときは、下の「その他」に足したい内容を書いてください。/u);
   assert.equal(onboarding.match(/「(?:直す|修正する)」/gu)?.length, 2);
   // 画面のステップは「設定しましたか」と聞かず、状態を取り直して手順を示す。
   assert.doesNotMatch(onboarding, /「設定しましたか」/u);
