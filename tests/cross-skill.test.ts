@@ -183,7 +183,7 @@ test("onboarding registers partner URLs after mail import, in the company's 会�
   assert.equal(onboarding.indexOf("## 2. 取り込みフォルダ"), -1);
   assert.match(onboarding, /When `companies` is `done` but `ingest_folders` is not .*start at 5\./u);
   assert.ok(onboarding.indexOf("## 2. 会社スキル") < step && step < onboarding.indexOf("## 6. 定期実行"));
-  assert.match(onboarding, /the company and the URL for each/u);
+  assert.match(onboarding, /ある場合は、下の「その他」に会社名とURLを書いてください/u);
   assert.match(onboarding, /only URLs that open without signing in can be imported/u);
   assert.match(onboarding, /「リンクを知っている全員」が閲覧可/u);
   assert.match(onboarding, /Read that company's 会社スキル with `get_company_skill` and add the `## URL取り込み` section/u);
