@@ -339,6 +339,10 @@ test("onboarding asks every question with AskUserQuestion choices", () => {
   assert.match(onboarding, /^## Questions$/mu);
   assert.match(onboarding, /Ask every question to the customer with this session's question tool with choices \(AskUserQuestion\)/u);
   assert.match(onboarding, /do not add your own 「その他」 choice/u);
+  // 修正は「その他」欄に書いてもらう。「直す」「修正する」の選択肢は出さない（選んでも書く欄がないため）。
+  assert.match(onboarding, /修正するときや選択肢にないときは、下の「その他」に書いてください。/u);
+  assert.match(onboarding, /Never add a 「直す」 or 「修正する」 choice/u);
+  assert.equal(onboarding.match(/「(?:直す|修正する)」/gu)?.length, 2);
   // 画面のステップは「設定しましたか」と聞かず、状態を取り直して手順を示す。
   assert.doesNotMatch(onboarding, /「設定しましたか」/u);
   assert.doesNotMatch(onboarding, /「やり方がわからない」/u);
