@@ -177,7 +177,7 @@ Goal: partner companies that publish their 案件・要員 at a URL anyone can o
    3. Work out how to read it and decide 形式:
       - `表` (a spreadsheet, Excel, or CSV): leave out hidden tabs, rows, and columns, as `flow-ses:register-url-listings` does, and say how many were hidden; if the customer wants them read too, write `非表示も読む` for that URL or tab. Read every visible tab: which tabs hold 案件, which hold 要員, and which hold neither (担当者一覧, notes); whether one listing is one row or one column; the header row or label column; which cells make up a listing's 原文 and in what order; which cell gives the title; which cell is the 募集状況 and which of the values seen mean open and which mean stopped (or that there is none); and, for 要員, which cell links to the skill sheet.
       - `ページ` (a web page, a Google Doc, a PDF, or a Word file): whether it lists the listings itself or links to one page per listing (and which links), whether the list is split over several pages (ページ送り: the 次へ link or page numbers, and how many pages there usually are), whether it holds 案件, 要員, or both and how to tell them apart, how one listing is separated from the next, where the title is, where the 募集状況 is and which words mean open (or that there is none), and the skill-sheet link for 要員.
-      Show it as a short table per tab or page, with one or two sample titles, and get one OK (「この読み方でよい」「今はしない」). Fix what the customer corrects. Do not write rules on the shape of 概要, on identity, or on sending mail, and never copy text that names people.
+      Do not show this or ask for an OK here: the customer checks it once, in 4, as part of the 会社スキル text. Do not write rules on the shape of 概要, on identity, or on sending mail, and never copy text that names people.
 3. Read that company's 会社スキル with `get_company_skill` and add the `## URL取り込み` section to it, with one `###` heading per URL, or replace the part for that URL when it is already there. If the company has no 会社スキル yet, start one with the template in 2.4 and leave out the sections that do not apply. The scheduled task finds every 会社スキル with this section.
 
    ```markdown
@@ -211,7 +211,7 @@ Goal: partner companies that publish their 案件・要員 at a URL anyone can o
    - <向きや結合セル、ページの注意など。無ければ省く>
    ```
 
-4. Show the whole new text, ask for the OK (「この内容で保存する」「今はしない」), and on the OK save it with `set_company_skill` as in 2.5.
+4. This is the only check of the URL and how to read it. Show the new `## URL取り込み` section (the whole text when the 会社スキル is new), with one or two sample titles per tab or page under it, ask for the OK (「この内容で保存する」「今はしない」), fix what the customer corrects in 「その他」, and on the OK save it with `set_company_skill` as in 2.5.
 
 ## 4. マッチングの指示
 
