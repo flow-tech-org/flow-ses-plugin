@@ -45,7 +45,7 @@ test("scheduled tasks are created without connectors and the customer adds flow-
 
 test("onboarding asks the scheduled-task model with Haiku as the default", () => {
   assert.match(read("onboarding"), /ask which model the tasks run on, with the question tool \(AskUserQuestion/u);
-  assert.match(read("onboarding"), /「Haiku（既定・おすすめ）」「Sonnet」「タスクごとに選ぶ」/u);
+  assert.match(read("onboarding"), /「Haiku（既定・おすすめ）」「Sonnet」 \(no 「タスクごとに選ぶ」 choice\)/u);
   assert.match(read("onboarding"), /新着通知 and 募集終了の整理 always run on Haiku and are not asked/u);
   assert.match(read("onboarding"), /\(新着通知 and 募集終了の整理 to Haiku\)/u);
 });
