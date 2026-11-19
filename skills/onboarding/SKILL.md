@@ -67,9 +67,10 @@ Ask every question to the customer with this session's question tool with choice
 Goal: the flow-ses connector works in this session. Only the customer can connect it, because it needs their Flow SES sign-in and consent. Guide them step by step. For each of 1 and 2, give the steps in one message and end it with 「終わったら、ひとこと送ってください。」 (hand work, as in Questions: no question card), then wait for the customer's next message. If it says something does not work, ask what they see on the screen (free answer) and help from there.
 
 1. If the flow-ses plugin is not installed (this skill was read from GitHub, not loaded as `/flow-ses:onboarding`):
-   1. Open https://claude.ai/customize/plugins, choose 「追加」→「マーケットプレイスを追加」→「リポジトリから追加」, and enter `flow-tech-org/flow-ses-plugin`.
-   2. Install flow-ses from the list. Turning on 「自動的に同期」 keeps it up to date.
-2. In the flow-ses plugin, open the 「コネクタ」 tab, connect `flow-ses`, sign in to Flow SES, and allow access. There is no URL to type.
+   1. Open https://claude.ai/customize/plugins and choose 「追加」→「マーケットプレイスを追加」→「リポジトリから追加」.
+   2. In URL, enter `flow-tech-org/flow-ses-plugin`, leave 「自動的に同期」 on, and press 「同期」.
+   3. In プラグインの探索, search for 「Flow SES」, select it, and press 「追加」.
+2. In the Flow SES plugin, open the 「コネクタ」 tab, connect `flow-ses`, sign in to Flow SES, and allow access. There is no URL to type.
 3. Connectors load when a session starts. Ask the customer to press 「AI で導入を進める」 in the 導入ガイド again to open a new session, and stop here. The new session resumes from the next step.
 
 If Flow SES sign-in fails because the customer's account is not a member, an ADMIN must add them in メンバー管理 first. Say so and stop.
