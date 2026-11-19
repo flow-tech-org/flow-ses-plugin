@@ -62,7 +62,7 @@ Ask every question to the customer with this session's question tool with choice
 - Work the customer does by hand outside this chat (installing the plugin, connecting the connector, adding connectors and settings to scheduled tasks on the routines page) is not a question. Never ask with the question tool whether it is done (no 「できた」「設定した」「登録した」「うまくいかない」 choices). In one message, give the concrete steps: which screen (with the link), which item to open (for scheduled tasks, each task by its name), what to set there, and the button to press. End the message with 「終わったら、ひとこと送ってください。」 and wait for the customer's next message. If that message says something does not work or cannot be found, ask what they see on the screen (free answer) and help with that step only.
 - Where this skill says to ask items one at a time, ask one question per call and wait for each answer before the next. Otherwise, questions of the same step that do not depend on each other may go in one call (up to 4).
 
-## 0. Flow SES の接続 (`mcp`)
+## 0. Flow SES の連携 (`mcp`)
 
 Goal: the flow-ses connector works in this session. Only the customer can connect it, because it needs their Flow SES sign-in and consent. Guide them step by step. For each of 1 and 2, give the steps in one message and end it with 「終わったら、ひとこと送ってください。」 (hand work, as in Questions: no question card), then wait for the customer's next message. If it says something does not work, ask what they see on the screen (free answer) and help from there.
 
@@ -70,7 +70,7 @@ Goal: the flow-ses connector works in this session. Only the customer can connec
    1. Open https://claude.ai/customize/plugins and choose 「追加」→「マーケットプレイスを追加」→「リポジトリから追加」.
    2. In URL, enter `flow-tech-org/flow-ses-plugin`, leave 「自動的に同期」 on, and press 「同期」.
    3. In プラグインの探索, search for 「Flow SES」, select it, and press 「追加」.
-2. In the Flow SES plugin, open the 「コネクタ」 tab, connect `flow-ses`, sign in to Flow SES, and allow access. There is no URL to type.
+2. In the Flow SES plugin, open the 「コネクタ」 tab, connect `flow-ses`, sign in to Flow SES, and allow access. There is no URL to type. In Japanese, call connecting the connector 「連携」 (for example 「「flow-ses」を連携します」), never 「接続」.
 3. Connectors load when a session starts. Ask the customer to press 「AI で導入を進める」 in the 導入ガイド again to open a new session, and stop here. The new session resumes from the next step.
 
 Do not warn about membership in advance: the customer opened this session from the 導入ガイド, so they are already signed in to Flow SES as a member. Only when the customer reports that the sign-in in 2 says the account is not a member, explain that it is usually a different account from the one they use for Flow SES: they sign in again with the account they use for the Flow SES screen. If that is the account, an ADMIN must add them in メンバー管理 first. Say so and stop.
