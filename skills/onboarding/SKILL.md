@@ -73,7 +73,7 @@ Goal: the flow-ses connector works in this session. Only the customer can connec
 2. In the Flow SES plugin, open the 「コネクタ」 tab, connect `flow-ses`, sign in to Flow SES, and allow access. There is no URL to type.
 3. Connectors load when a session starts. Ask the customer to press 「AI で導入を進める」 in the 導入ガイド again to open a new session, and stop here. The new session resumes from the next step.
 
-If Flow SES sign-in fails because the customer's account is not a member, an ADMIN must add them in メンバー管理 first. Say so and stop.
+Do not warn about membership in advance: the customer opened this session from the 導入ガイド, so they are already signed in to Flow SES as a member. Only when the customer reports that the sign-in in 2 says the account is not a member, explain that it is usually a different account from the one they use for Flow SES: they sign in again with the account they use for the Flow SES screen. If that is the account, an ADMIN must add them in メンバー管理 first. Say so and stop.
 
 ## 1. 会社台帳と取り込みフォルダ (`companies`, `ingest_folders`)
 
