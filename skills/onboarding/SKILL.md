@@ -248,12 +248,12 @@ Goal: the agent runs the daily work on a schedule. Create these scheduled tasks 
 
 | 名前 | いつ | プロンプト |
 |---|---|---|
-| メール取り込み | 平日 9〜19時 JST の毎時0分 (`0 0-10 * * 1-5` UTC) | flow-ses プラグインの process-inbox スキルに従って実行。プラグインが読み込まれていなければ https://raw.githubusercontent.com/flow-tech-org/flow-ses-plugin/main/skills/process-inbox/SKILL.md を読んで従い、その中の flow-ses:<名前> は同じ場所の <名前>/SKILL.md を読む。定期実行として、前回の開始時刻から処理する。 |
-| マッチング作成 | 平日 9〜19時 JST の毎時30分 (`30 0-10 * * 1-5` UTC) | flow-ses プラグインの evaluate-recent-matchings スキルに従って実行。プラグインが読み込まれていなければ https://raw.githubusercontent.com/flow-tech-org/flow-ses-plugin/main/skills/evaluate-recent-matchings/SKILL.md を読んで従い、その中の flow-ses:<名前> は同じ場所の <名前>/SKILL.md を読む。定期実行として、前回の開始時刻から処理する。 |
-| 募集終了の整理 | 平日 3:00 JST (`0 18 * * 0-4` UTC) | flow-ses プラグインの close-stale-source-listings スキルに従って実行。プラグインが読み込まれていなければ https://raw.githubusercontent.com/flow-tech-org/flow-ses-plugin/main/skills/close-stale-source-listings/SKILL.md を読んで従い、その中の flow-ses:<名前> は同じ場所の <名前>/SKILL.md を読む。最初に Bash で `TZ=Asia/Tokyo date +%F` を実行してその日を実行日とし、直近3営業日（土日祝を除く）を窓にする。 |
-| URL取り込み | 平日 9:00・13:00 JST (`0 0,4 * * 1-5` UTC) | flow-ses プラグインの register-url-listings スキルに従い、「## URL取り込み」の節を持つ会社スキルすべてを対象に実行。プラグインが読み込まれていなければ https://raw.githubusercontent.com/flow-tech-org/flow-ses-plugin/main/skills/register-url-listings/SKILL.md を読んで従い、その中の flow-ses:<名前> は同じ場所の <名前>/SKILL.md を読む。 |
+| メール取り込み | 平日 9〜19時 JST の毎時0分 (`0 0-10 * * 1-5` UTC) | Flow SES プラグインの process-inbox スキルに従って実行。プラグインが読み込まれていなければ https://raw.githubusercontent.com/flow-tech-org/flow-ses-plugin/main/skills/process-inbox/SKILL.md を読んで従い、その中の flow-ses:<名前> は同じ場所の <名前>/SKILL.md を読む。定期実行として、前回の開始時刻から処理する。 |
+| マッチング作成 | 平日 9〜19時 JST の毎時30分 (`30 0-10 * * 1-5` UTC) | Flow SES プラグインの evaluate-recent-matchings スキルに従って実行。プラグインが読み込まれていなければ https://raw.githubusercontent.com/flow-tech-org/flow-ses-plugin/main/skills/evaluate-recent-matchings/SKILL.md を読んで従い、その中の flow-ses:<名前> は同じ場所の <名前>/SKILL.md を読む。定期実行として、前回の開始時刻から処理する。 |
+| 募集終了の整理 | 平日 3:00 JST (`0 18 * * 0-4` UTC) | Flow SES プラグインの close-stale-source-listings スキルに従って実行。プラグインが読み込まれていなければ https://raw.githubusercontent.com/flow-tech-org/flow-ses-plugin/main/skills/close-stale-source-listings/SKILL.md を読んで従い、その中の flow-ses:<名前> は同じ場所の <名前>/SKILL.md を読む。最初に Bash で `TZ=Asia/Tokyo date +%F` を実行してその日を実行日とし、直近3営業日（土日祝を除く）を窓にする。 |
+| URL取り込み | 平日 9:00・13:00 JST (`0 0,4 * * 1-5` UTC) | Flow SES プラグインの register-url-listings スキルに従い、「## URL取り込み」の節を持つ会社スキルすべてを対象に実行。プラグインが読み込まれていなければ https://raw.githubusercontent.com/flow-tech-org/flow-ses-plugin/main/skills/register-url-listings/SKILL.md を読んで従い、その中の flow-ses:<名前> は同じ場所の <名前>/SKILL.md を読む。 |
 | 新着通知 | 平日 9〜19時 JST の毎時50分 (`50 0-10 * * 1-5` UTC) | Flow SES の notify_new_matchings_to_teams と notify_new_matchings_to_slack を1回ずつ呼ぶ。status が not-configured の方は何もしない。結果を1行で報告する。 |
-| スキル辞書の整理 | 平日 20:00 JST (`0 11 * * 1-5` UTC) | flow-ses プラグインの review-skill-dictionary スキルに従って実行。プラグインが読み込まれていなければ https://raw.githubusercontent.com/flow-tech-org/flow-ses-plugin/main/skills/review-skill-dictionary/SKILL.md を読んで従う。定期実行として、前回の開始時刻から処理する。 |
+| スキル辞書の整理 | 平日 20:00 JST (`0 11 * * 1-5` UTC) | Flow SES プラグインの review-skill-dictionary スキルに従って実行。プラグインが読み込まれていなければ https://raw.githubusercontent.com/flow-tech-org/flow-ses-plugin/main/skills/review-skill-dictionary/SKILL.md を読んで従う。定期実行として、前回の開始時刻から処理する。 |
 
 The prompts fall back to the public skill files on GitHub, so the tasks work even when the scheduled session does not load the plugin, and they always follow the latest published procedure. Keep that wording.
 
@@ -290,7 +290,7 @@ Scheduled runs have nobody to answer a permission question. Each tool call passe
    2. Then the screen steps as a numbered list, written for the customer to follow without asking:
       1. [ルーチン](https://claude.ai/code/routines) の画面を開く。
       2. 一覧から表の1行目の定期実行（例: 「メール取り込み」）を押して開き、編集を押す。
-      3. コネクタの欄で「flow-ses」を追加する（flow-ses プラグインのもの。同じ名前の別のコネクタがあれば、プラグインのものを選ぶ）。
+      3. コネクタの欄で「flow-ses」を追加する（Flow SES プラグインのもの。同じ名前の別のコネクタがあれば、プラグインのものを選ぶ）。
       4. モデルが「設定済み」でない行は、モデルの欄で表のモデルを選ぶ。
       5. 保存する。表の残りの定期実行も 2〜5 を同じようにする。
       6. URL取り込みがあるときだけ: URL取り込みの編集画面で使っている環境を開き、ネットワークの設定で許可するドメインに上の一覧を1行ずつ追加して保存する。

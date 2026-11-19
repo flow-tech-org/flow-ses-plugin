@@ -25,7 +25,7 @@ test("スキル辞書の整理の定期実行は最初に開始時刻を記録�
 
 test("導入スキルはスキル辞書の整理を6つ目の定期実行として作る", () => {
   const onboarding = read("onboarding");
-  assert.match(onboarding, /\| スキル辞書の整理 \| 平日 20:00 JST \(`0 11 \* \* 1-5` UTC\) \| flow-ses プラグインの review-skill-dictionary スキルに従って実行。/u);
+  assert.match(onboarding, /\| スキル辞書の整理 \| 平日 20:00 JST \(`0 11 \* \* 1-5` UTC\) \| Flow SES プラグインの review-skill-dictionary スキルに従って実行。/u);
   assert.match(onboarding, /Then ask about スキル辞書の整理 in one message and one question/u);
   assert.match(onboarding, /スキル辞書の別名へのまとめと上位スキルの設定/u);
 });
