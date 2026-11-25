@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "flow-ses": {
+      "type": "http",
+      "url": "https://flowses.flowtech.co.jp/api/mcp"
+    }
+  }
+}

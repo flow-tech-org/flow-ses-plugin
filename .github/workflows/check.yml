@@ -1,0 +1,21 @@
+name: check
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Versions match
+        run: |
+          a=$(jq -r .version .claude-plugin/plugin.json); b=$(jq -r '.plugins[0].version' .claude-plugin/marketplace.json)
+          test "$a" = "$b" || { echo "plugin.json $a != marketplace.json $b"; exit 1; }
+      - name: Skill tests
+        run: node --test tests/*.test.ts
+      - name: Validate plugin
+        run: npx -y @anthropic-ai/claude-code plugin validate --strict .

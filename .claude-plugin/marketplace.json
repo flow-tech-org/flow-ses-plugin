@@ -1,0 +1,22 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "flow-ses",
+  "description": "Flow SES plugin marketplace",
+  "owner": {
+    "name": "Flow SES"
+  },
+  "plugins": [
+    {
+      "name": "flow-ses",
+      "displayName": "Flow SES",
+      "description": "Flow SES の案件・要員・マッチングの台帳に Claude をつなぎ、メール取り込み・マッチング作成・導入を進めます。",
+      "version": "0.21.19",
+      "author": {
+        "name": "Flow SES"
+      },
+      "source": "./",
+      "category": "productivity",
+      "homepage": "https://github.com/flow-tech-org/flow-ses-plugin"
+    }
+  ]
+}
